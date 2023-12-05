@@ -1,0 +1,147 @@
+<?php
+
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\CplController as AdminCplController;
+use App\Http\Controllers\Admin\CpmkController as AdminCpmkController;
+use App\Http\Controllers\Admin\DosenController as AdminDosenController;
+use App\Http\Controllers\Admin\JenisCplController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
+use App\Http\Controllers\Admin\MataKuliahController;
+use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
+// use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
+use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
+use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Dosen\DosenController;
+use App\Http\Controllers\Mahasiswa\MahasiswaController;
+
+
+Route::get('/', [DashboardController::class, 'index']);
+
+Route::get('/login', [AuthController::class, 'showFormLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showFormRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::group(['middleware' => 'auth'], function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::group(['middleware' => 'role:admin'], function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+        Route::prefix('admin/user')->group(function () {
+            Route::get('/{id}', [AdminController::class, 'show'])->name('admin.user');
+            Route::get('edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
+            Route::put('edit/{id}', [AdminController::class, 'update'])->name('user.proses.edit');
+        });
+
+        Route::prefix('admin/mahasiswa')->group(function () {
+            Route::get('', [AdminMahasiswaController::class, 'index'])->name('admin.mahasiswa');
+            Route::get('create', [AdminMahasiswaController::class, 'create'])->name('admin.mahasiswa.create');
+            Route::post('create', [AdminMahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
+            Route::get('/{id}', [AdminMahasiswaController::class, 'show'])->name('admin.mahasiswa.show');
+            Route::get('edit/{id}', [AdminMahasiswaController::class, 'edit'])->name('admin.mahasiswa.edit');
+            Route::put('edit/{id}', [AdminMahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
+            Route::delete('{id}', [AdminMahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
+        });
+
+        Route::prefix('admin/dosen')->group(function () {
+            Route::get('', [AdminDosenController::class, 'index'])->name('admin.dosen');
+            Route::get('create', [AdminDosenController::class, 'create'])->name('admin.dosen.create');
+            Route::post('create', [AdminDosenController::class, 'store'])->name('admin.dosen.store');
+            // Route::get('/{id}', [AdminDosenController::class, 'show'])->name('admin.dosen.show');
+            Route::get('edit/{id}', [AdminDosenController::class, 'edit'])->name('admin.dosen.edit');
+            Route::put('edit/{id}', [AdminDosenController::class, 'update'])->name('admin.dosen.update');
+            Route::delete('{id}', [AdminDosenController::class, 'destroy'])->name('admin.dosen.destroy');
+        });
+
+        Route::prefix('admin/mata-kuliah')->group(function () {
+            Route::get('', [MataKuliahController::class, 'index'])->name('admin.matakuliah');
+            Route::get('create', [MataKuliahController::class, 'create'])->name('admin.matakuliah.create');
+            Route::post('create', [MataKuliahController::class, 'store'])->name('admin.matakuliah.store');
+            // Route::get('/{id}', [MataKuliahController::class, 'show'])->name('admin.matakuliah.show');
+            Route::get('edit/{id}', [MataKuliahController::class, 'edit'])->name('admin.matakuliah.edit');
+            Route::put('edit/{id}', [MataKuliahController::class, 'update'])->name('admin.matakuliah.update');
+            Route::delete('{id}', [MataKuliahController::class, 'destroy'])->name('admin.matakuliah.destroy');
+        });
+
+        Route::prefix('admin/kelas')->group(function () {
+            Route::get('', [KelasController::class, 'index'])->name('admin.kelas');
+            Route::get('create', [KelasController::class, 'create'])->name('admin.kelas.create');
+            Route::post('create', [KelasController::class, 'store'])->name('admin.kelas.store');
+            // Route::get('/{id}', [KelasController::class, 'show'])->name('admin.kelas.show');
+            Route::get('edit/{id}', [KelasController::class, 'edit'])->name('admin.kelas.edit');
+            Route::put('edit/{id}', [KelasController::class, 'update'])->name('admin.kelas.update');
+            Route::delete('{id}', [KelasController::class, 'destroy'])->name('admin.kelas.destroy');
+        });
+
+        Route::prefix('admin/jenis-cpl')->group(function () {
+            Route::get('', [JenisCplController::class, 'index'])->name('admin.jeniscpl');
+            Route::get('create', [JenisCplController::class, 'create'])->name('admin.jeniscpl.create');
+            Route::post('create', [JenisCplController::class, 'store'])->name('admin.jeniscpl.store');
+            // Route::get('/{id}', [JenisCplController::class, 'show'])->name('admin.jeniscpl.show');
+            Route::get('edit/{id}', [JenisCplController::class, 'edit'])->name('admin.jeniscpl.edit');
+            Route::put('edit/{id}', [JenisCplController::class, 'update'])->name('admin.jeniscpl.update');
+            Route::delete('{id}', [JenisCplController::class, 'destroy'])->name('admin.jeniscpl.destroy');
+        });
+
+        Route::prefix('admin/cpl')->group(function () {
+            Route::get('', [AdminCplController::class, 'index'])->name('admin.cpl');
+            Route::get('create', [AdminCplController::class, 'create'])->name('admin.cpl.create');
+            Route::post('create', [AdminCplController::class, 'store'])->name('admin.cpl.store');
+            // Route::get('/{id}', [AdminCplController::class, 'show'])->name('admin.cpl.show');
+            Route::get('edit/{id}', [AdminCplController::class, 'edit'])->name('admin.cpl.edit');
+            Route::put('edit/{id}', [AdminCplController::class, 'update'])->name('admin.cpl.update');
+            Route::delete('{id}', [AdminCplController::class, 'destroy'])->name('admin.cpl.destroy');
+        });
+
+        Route::prefix('admin/cpmk')->group(function () {
+            Route::get('', [AdminCpmkController::class, 'index'])->name('admin.cpmk');
+            Route::get('create', [AdminCpmkController::class, 'create'])->name('admin.cpmk.create');
+            Route::post('create', [AdminCpmkController::class, 'store'])->name('admin.cpmk.store');
+            // Route::get('/{id}', [AdminCpmkController::class, 'show'])->name('admin.cpmk.show');
+            Route::get('edit/{id}', [AdminCpmkController::class, 'edit'])->name('admin.cpmk.edit');
+            Route::put('edit/{id}', [AdminCpmkController::class, 'update'])->name('admin.cpmk.update');
+            Route::delete('{id}', [AdminCpmkController::class, 'destroy'])->name('admin.cpmk.destroy');
+        });
+
+        Route::prefix('admin/sub-cpmk')->group(function () {
+            Route::get('', [AdminSubCpmkController::class, 'index'])->name('admin.subcpmk');
+            Route::get('create', [AdminSubCpmkController::class, 'create'])->name('admin.subcpmk.create');
+            Route::post('create', [AdminSubCpmkController::class, 'store'])->name('admin.subcpmk.store');
+            // Route::get('/{id}', [AdminSubCpmkController::class, 'show'])->name('admin.subcpmk.show');
+            Route::get('edit/{id}', [AdminSubCpmkController::class, 'edit'])->name('admin.subcpmk.edit');
+            Route::put('edit/{id}', [AdminSubCpmkController::class, 'update'])->name('admin.subcpmk.update');
+            Route::delete('{id}', [AdminSubCpmkController::class, 'destroy'])->name('admin.subcpmk.destroy');
+        });
+
+        Route::prefix('admin/kelas-kuliah')->group(function () {
+            Route::get('', [AdminPerkuliahanController::class, 'index'])->name('admin.kelaskuliah');
+            Route::get('create', [AdminPerkuliahanController::class, 'create'])->name('admin.kelaskuliah.create');
+            Route::post('create', [AdminPerkuliahanController::class, 'store'])->name('admin.kelaskuliah.store');
+            Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+            Route::get('edit/{id}', [AdminPerkuliahanController::class, 'edit'])->name('admin.kelaskuliah.edit');
+            Route::put('edit/{id}', [AdminPerkuliahanController::class, 'update'])->name('admin.kelaskuliah.update');
+            Route::delete('{id}', [AdminPerkuliahanController::class, 'destroy'])->name('admin.kelaskuliah.destroy');
+
+            Route::get('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'createMahasiswa'])->name('admin.kelaskuliah.createmahasiswa');
+            Route::post('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'storeMahasiswa'])->name('admin.kelaskuliah.storemahasiswa');
+            Route::delete('{id}/{id_mahasiswa}', [AdminPerkuliahanController::class, 'destroyMahasiswa'])->name('admin.kelaskuliah.destroymahasiswa');
+            Route::get('{id}/nilai/{id_mahasiswa}', [AdminNilaiController::class, 'show'])->name('admin.kelaskuliah.nilaimahasiswa');
+            Route::get('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'edit'])->name('admin.kelaskuliah.nilaimahasiswa.edit');
+            Route::put('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'update'])->name('admin.kelaskuliah.nilaimahasiswa.update');
+        });
+    });
+
+    Route::group(['middleware' => 'role:dosen'], function () {
+        Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
+    });
+
+    Route::group(['middleware' => 'role:mahasiswa'], function () {
+        Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+    });
+});
