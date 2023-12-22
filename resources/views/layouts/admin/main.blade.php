@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include('layouts.admin.header')
+    @include('partials.header')
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-
-
   <!-- Navbar -->
-  @include('layouts.admin.navbar')
-
+  @include('partials.navbar')
 
   <!-- /.navbar -->
 
@@ -23,7 +20,7 @@
     @yield('content')
   </div>
   <!-- /.content-wrapper -->
-  @include('layouts.admin.footer')
+  @include('partials.footer')
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
@@ -32,6 +29,6 @@
   <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
-@include('layouts.admin.script')
+@include('partials.script')
 </body>
 </html>

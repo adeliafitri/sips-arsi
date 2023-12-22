@@ -1,7 +1,7 @@
 {{-- @extends('layouts.admin.main') --}}
 <html>
 <head>
-    @include('layouts.admin.header')
+    @include('partials.header')
 </head>
 
 <body class="hold-transition login-page">
@@ -15,7 +15,7 @@
             <div class="text-center mb-1">
                 <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" width="100px" alt="logo Prodi Arsitektur UIN Malang">
             </div>
-            <h3 class="text-center">SIPS Admin</h3>
+            <h3 class="text-center">OBE Arsitektur</h3>
             <p class="login-box-msg">Enter your details to get sign in to your account</p>
 
             @if($errors->any())
