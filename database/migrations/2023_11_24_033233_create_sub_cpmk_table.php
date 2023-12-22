@@ -20,13 +20,10 @@ class CreateSubCpmkTable extends Migration
             $table->foreignId('cpmk_id')->constrained('cpmk');
             $table->string('kode_subcpmk');
             $table->text('deskripsi')->nullable();
-            $table->string('bentuk_soal');
-            $table->float('bobot_subcpmk');
-            $table->string('waktu_pelaksanaan');
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

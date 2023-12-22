@@ -21,11 +21,12 @@ class CreateDosenTable extends Migration
             $table->string('nama');
             $table->string('nidn')->unique();
             $table->string('telp')->unique();
+            $table->string('email')->unique();
             $table->text('image')->nullable();
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

@@ -17,13 +17,13 @@ class CreateAuthTable extends Migration
 
         Schema::create('auth', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->unique();
+            $table->string('username')->unique();
             $table->string('password');
             $table->enum('role', ['admin', 'mahasiswa', 'dosen']);
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**
