@@ -20,11 +20,12 @@ class CreateAdminTable extends Migration
             $table->foreignId('id_auth')->constrained('auth');
             $table->string('nama');
             $table->string('telp')->unique();
+            $table->string('email')->unique();
             $table->text('image')->nullable();
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

@@ -23,7 +23,7 @@ class CreateMataKuliahTable extends Migration
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

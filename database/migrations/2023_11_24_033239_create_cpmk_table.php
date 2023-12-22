@@ -24,7 +24,7 @@ class CreateCpmkTable extends Migration
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

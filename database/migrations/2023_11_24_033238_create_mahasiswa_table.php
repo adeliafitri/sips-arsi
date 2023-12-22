@@ -20,15 +20,13 @@ class CreateMahasiswaTable extends Migration
             $table->foreignId('id_auth')->constrained('auth');
             $table->string('nama');
             $table->string('nim')->unique();
-            $table->date('tanggal_lahir');
-            $table->enum('jenis_kelamin', ['P', 'L']);
-            $table->text('alamat')->nullable();
+            $table->year('angkatan');
             $table->string('telp')->unique();
             $table->text('image')->nullable();
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**
