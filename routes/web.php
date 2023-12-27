@@ -30,6 +30,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::group(['middleware' => 'auth'], function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
     Route::group(['middleware' => 'role:admin'], function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -77,16 +78,6 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [KelasController::class, 'edit'])->name('admin.kelas.edit');
             Route::put('edit/{id}', [KelasController::class, 'update'])->name('admin.kelas.update');
             Route::delete('{id}', [KelasController::class, 'destroy'])->name('admin.kelas.destroy');
-        });
-
-        Route::prefix('admin/jenis-cpl')->group(function () {
-            Route::get('', [JenisCplController::class, 'index'])->name('admin.jeniscpl');
-            Route::get('create', [JenisCplController::class, 'create'])->name('admin.jeniscpl.create');
-            Route::post('create', [JenisCplController::class, 'store'])->name('admin.jeniscpl.store');
-            // Route::get('/{id}', [JenisCplController::class, 'show'])->name('admin.jeniscpl.show');
-            Route::get('edit/{id}', [JenisCplController::class, 'edit'])->name('admin.jeniscpl.edit');
-            Route::put('edit/{id}', [JenisCplController::class, 'update'])->name('admin.jeniscpl.update');
-            Route::delete('{id}', [JenisCplController::class, 'destroy'])->name('admin.jeniscpl.destroy');
         });
 
         Route::prefix('admin/cpl')->group(function () {
