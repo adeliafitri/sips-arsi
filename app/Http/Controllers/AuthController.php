@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -19,121 +20,57 @@ class AuthController extends Controller
 
     public function login(Request $request) {
         $validate = Validator::make($request->all(),[
-            'email' => 'required|email',
-            'password' => 'required|string|min:8',
+            'username' => 'required',
+            'password' => 'required|string',
         ]);
 
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
-        if (Auth::attempt([
-            'email' => $request->email,
+        $credentials = [
+            'username' => $request->username,
             'password' => $request->password
-            ])) {
+        ];
 
+        if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 // session()->forget(['admin', 'dosen', 'mahasiswa']);
                 // dd($user->id);
-
-                    if ($user->role === 'dosen') {
-                        $dosen = dosen::where('id_auth', $user->id)->first();
-                         // Simpan data dosen dalam session
-                        if ($dosen) {
-                            session(['dosen' => $dosen]);
-                            return redirect()->route('dosen.dashboard');
-                        }else {
-                            return redirect()->back()->withErrors(['error' => 'dosen data not found']);
-                        }
-                        // return redirect()->route('dosen.dashboard');
-                    } elseif ($user->role === 'mahasiswa') {
-                        $mahasiswa = Mahasiswa::where('id_auth', $user->id)->first();
-                         // Simpan data mahasiswa dalam session
-                        if ($mahasiswa) {
-                            session(['mahasiswa' => $mahasiswa]);
-                            return redirect()->route('mahasiswa.dashboard');
-                        }else {
-                            return redirect()->back()->withErrors(['error' => 'mahasiswa data not found']);
-                        }
-                        // return redirect()->route('mahasiswa.dashboard');
-                    } elseif ($user->role === 'admin') {
-                        $admin = Admin::where('id_auth', $user->id)->first();
-                         // Simpan data admin dalam session
-                        if ($admin) {
-                            session(['admin' => $admin]);
-                            return redirect()->route('admin.dashboard');
-                        }else {
-                            return redirect()->back()->withErrors(['error' => 'Admin data not found']);
-                        }
-                    }else {
-                        abort(403, 'Unauthorized');
-                    }
+                switch ($user->role) {
+                    case 'admin':
+                        $userData = Admin::where('id_auth', $user->id)->first();
+                        break;
+                    case 'dosen':
+                        $userData = Dosen::where('id_auth', $user->id)->first();
+                        break;
+                    case 'mahasiswa':
+                        $userData = Mahasiswa::where('id_auth', $user->id)->first();
+                        break;
+                    default:
+                        return response()->json(['error' => 'Invalid user role'], 401);
+                }
+                return $this->respondWithToken(auth()->attempt($credentials), $userData);
         }
 
-        return back()->withErrors(['error' => 'Invalid login credentials']);
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    public function showFormRegister() {
-        return view('register');
-    }
+    protected function respondWithToken($token, $userData)
+    {
+        // $customClaims = ['role' => $user->role]; // Sesuaikan dengan kolom yang sesuai
+        // $token = JWTAuth::claims($customClaims)->fromUser($user);
 
-    public function register(Request $request) {
-        // dd($request->all());
-        $validate = Validator::make($request->all(), [
-            'nama' => 'required|string',
-            'email' => 'required|email|unique:auth',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:mahasiswa,dosen,admin',
-            'nim' => 'required_if:role,mahasiswa|unique:mahasiswa,nim',
-            'tanggal_lahir' => 'required_if:role,mahasiswa',
-            'jenis_kelamin' => 'required_if:role,mahasiswa',
-            'telp' => 'required|string|unique:mahasiswa,telp|unique:dosen,telp|unique:admin,telp',
-            'nidn' => 'sometimes|required_if:role,dosen|unique:dosen,nidn'
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'user' => [
+                'name' => $userData->name,
+                'image' => $userData->image,
+                // tambahkan informasi lain yang mungkin dibutuhkan
+            ],
         ]);
-
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
-        try {
-            $register = User::create([
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => $request->role,
-            ]);
-
-            $id_auth = $register->id;
-
-            if ($request->role === 'mahasiswa') {
-                $mahasiswa = Mahasiswa::create([
-                    'id_auth' => $id_auth,
-                    'nama' => $request->nama,
-                    'nim' => $request->nim,
-                    'tanggal_lahir' => $request->tanggal_lahir,
-                    'jenis_kelamin' => $request->jenis_kelamin,
-                    'telp' => $request->telp,
-                ]);
-            }
-            if ($request->role === 'dosen') {
-                $dosen = Dosen::create([
-                    'id_auth' => $id_auth,
-                    'nama' => $request->nama,
-                    'nidn' => $request->nidn,
-                    'telp' => $request->telp,
-                ]);
-            }
-            if ($request->role === 'admin') {
-                $admin = Admin::create([
-                    'id_auth' => $id_auth,
-                    'nama' => $request->nama,
-                    'telp' => $request->telp,
-                ]);
-            }
-
-            return redirect()->route('login')->with('success', 'Registration successful!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['registration' => $e->getMessage()])->withInput();
-        }
     }
 
     public function logout(Request $request) {
