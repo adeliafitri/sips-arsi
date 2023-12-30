@@ -92,19 +92,19 @@
             @if (session()->has('admin'))
             <li class="nav-item">
                 <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
-                <i class="far fa-user-graduate nav-icon"></i>
+                <i class="fas fa-user-graduate nav-icon"></i>
                 <p>Data Mahasiswa</p>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('admin.dosen') }}" class="nav-link">
-                <i class="far fa-user-tie nav-icon"></i>
+                <i class="fas fa-user-tie nav-icon"></i>
                 <p>Data Dosen</p>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('admin.matakuliah') }}" class="nav-link">
-                <i class="far fa-book-reader nav-icon"></i>
+                <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>
             </li>
