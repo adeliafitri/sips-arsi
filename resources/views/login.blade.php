@@ -30,10 +30,10 @@
           <form action="{{ route('login') }}" method="post">
             @CSRF
             <div class="input-group mb-3">
-              <input type="email" name="email" class="form-control" placeholder="Email">
+              <input type="text" name="username" class="form-control" placeholder="Username">
               <div class="input-group-append">
                 <div class="input-group-text">
-                  <span class="fas fa-envelope"></span>
+                  <span class="fas fa-user"></span>
                 </div>
               </div>
             </div>
@@ -60,10 +60,6 @@
             </a>
           </div> -->
           <!-- /.social-auth-links -->
-
-          <p class="mb-0 mt-3 text-center">
-            Don't have an account? <a href="{{ route('register') }}" class="text-dark fw-bold"><b>Sign up</b></a>
-          </p>
         </div>
         <!-- /.card-body -->
       </div>
