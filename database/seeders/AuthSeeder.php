@@ -15,6 +15,7 @@ class AuthSeeder extends Seeder
     public function run(): void
     {
         DB::table('auth')->insert([
+            'id' => 1,
             'username' => 'admin@gmail.com',
             'password' => Hash::make('admin'),
             'role' => 'admin',

@@ -16,13 +16,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $auth = User::where('username', 'admin@gmail.com')->first()->id;
+        // $auth = User::where('username', 'admin@gmail.com')->first()->id;
 
         DB::table('admin')->insert([
             'nama' => 'Admin',
             'email' => 'admin@gmail.com',
             'telp' => '081456780923',
-            'id_auth' => $auth,
+            'id_auth' => 1,
         ]);
     }
 }

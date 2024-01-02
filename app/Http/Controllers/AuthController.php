@@ -33,24 +33,44 @@ class AuthController extends Controller
             'password' => $request->password
         ];
 
-        if (Auth::attempt($credentials)) {
+        if ($token = Auth::attempt($credentials)) {
                 $user = Auth::user();
                 // session()->forget(['admin', 'dosen', 'mahasiswa']);
                 // dd($user->id);
-                switch ($user->role) {
-                    case 'admin':
-                        $userData = Admin::where('id_auth', $user->id)->first();
-                        break;
-                    case 'dosen':
-                        $userData = Dosen::where('id_auth', $user->id)->first();
-                        break;
-                    case 'mahasiswa':
-                        $userData = Mahasiswa::where('id_auth', $user->id)->first();
-                        break;
-                    default:
-                        return response()->json(['error' => 'Invalid user role'], 401);
+                if ($user->role === 'dosen') {
+                    $dosen = dosen::where('id_auth', $user->id)->first();
+                     // Simpan data dosen dalam session
+                    if ($dosen) {
+                        // session(['dosen' => $dosen]);
+                        return redirect()->route('dosen.dashboard')->with([
+                            "user" => $dosen,
+                        ]);
+                    }else {
+                        return redirect()->back()->withErrors(['error' => 'dosen data not found']);
+                    }
+                    // return redirect()->route('dosen.dashboard');
+                } elseif ($user->role === 'mahasiswa') {
+                    $mahasiswa = Mahasiswa::where('id_auth', $user->id)->first();
+                     // Simpan data mahasiswa dalam session
+                    if ($mahasiswa) {
+                        session(['mahasiswa' => $mahasiswa]);
+                        return redirect()->route('mahasiswa.dashboard');
+                    }else {
+                        return redirect()->back()->withErrors(['error' => 'mahasiswa data not found']);
+                    }
+                    // return redirect()->route('mahasiswa.dashboard');
+                } elseif ($user->role === 'admin') {
+                    $admin = Admin::where('id_auth', $user->id)->first();
+                     // Simpan data admin dalam session
+                    if ($admin) {
+                        session(['admin' => $admin]);
+                        return redirect()->route('admin.dashboard')->with($token);
+                    }else {
+                        return redirect()->back()->withErrors(['error' => 'Admin data not found']);
+                    }
+                }else {
+                    abort(403, 'Unauthorized');
                 }
-                return $this->respondWithToken(auth()->attempt($credentials), $userData);
         }
 
         return response()->json(['error' => 'Unauthorized'], 401);

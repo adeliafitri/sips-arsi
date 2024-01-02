@@ -21,18 +21,17 @@ use App\Http\Controllers\Mahasiswa\MahasiswaController;
 
 
 // Route::get('/', [DashboardController::class, 'index']);
-
-Route::get('/login', [AuthController::class, 'showFormLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showFormRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::group(['middleware' => 'guest'], function () {
+    Route::get('/login', [AuthController::class, 'showFormLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
 Route::group(['middleware' => 'auth'], function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::group(['middleware' => 'role:admin'], function () {
-        Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
         Route::prefix('admin/user')->group(function () {
             Route::get('/{id}', [AdminController::class, 'show'])->name('admin.user');
