@@ -76,23 +76,6 @@ class AuthController extends Controller
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
-    protected function respondWithToken($token, $userData)
-    {
-        // $customClaims = ['role' => $user->role]; // Sesuaikan dengan kolom yang sesuai
-        // $token = JWTAuth::claims($customClaims)->fromUser($user);
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            'user' => [
-                'name' => $userData->name,
-                'image' => $userData->image,
-                // tambahkan informasi lain yang mungkin dibutuhkan
-            ],
-        ]);
-    }
-
     public function logout(Request $request) {
         Auth::logout();
 
