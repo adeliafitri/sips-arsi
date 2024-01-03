@@ -20,12 +20,12 @@ class CreateMatakuliahKelasTable extends Migration
             $table->foreignId('matakuliah_id')->constrained('mata_kuliah');
             $table->foreignId('kelas_id')->constrained('kelas');
             $table->foreignId('dosen_id')->constrained('dosen');
-            $table->string('tahun_ajaran');
-            $table->enum('semester', ['Ganjil', 'Genap']);
+            $table->foreignId('semester_id')->constrained('semester');
+            $table->enum('koordinator', [1, 0]);
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

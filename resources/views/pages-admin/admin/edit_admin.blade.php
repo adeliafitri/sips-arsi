@@ -9,7 +9,7 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{{ route('admin.user', ['id' => $data->id_auth]) }}">Data Admin</a></li>
+              <li class="breadcrumb-item"><a href="{{ route('admin.admins') }}">Data Admin</a></li>
               <li class="breadcrumb-item active">Edit Data</li>
             </ol>
           </div>
@@ -38,7 +38,7 @@
                 <h3 class="card-title col align-self-center">Form Edit Data Admin</h3>
               </div>
                 <div class="card-body">
-                <form action="{{ route('user.proses.edit', ['id' => $data->id_auth]) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('admin.admins.update', ['id' => $data->id]) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="form-group">
@@ -50,25 +50,22 @@
                       <input type="text" class="form-control" id="telp" name="telp" placeholder="No Telepon" value="{{ $data->telp }}">
                     </div>
                     <div class="form-group">
-                        <label for="image">Image</label>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input form-control" id="image" name="image">
-                            <label class="custom-file-label" for="image">Choose file</label>
-                        </div>
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" rows="3" name="email" placeholder="Email" value="{{ $data->email }}">
                     </div>
                     <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control"  disabled id="email" rows="3" name="email" placeholder="Email" value="{{ $data->email }}">
+                        <label for="username">Username</label>
+                        <input type="email" class="form-control" id="username" rows="3" name="username" placeholder="Username" value="{{ $data->username }}">
                     </div>
-                    {{-- <div class="form-group">
+                    <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" rows="3" name="password" placeholder="Password">
                     <small class="text-danger">Tidak wajib diisi jika tidak ingin mengubah password</small>
-                    </div> --}}
+                    </div>
                   </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
-                    <a href="{{ route('admin.user', ['id' => $data->id_auth]) }}" class="btn btn-default">Cancel</a>
+                    <a href="{{ route('admin.admins') }}" class="btn btn-default">Cancel</a>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
                 </form>
