@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
-
+use App\Http\Controllers\ProfileController;
 
 // Route::get('/', [DashboardController::class, 'index']);
 Route::group(['middleware' => 'guest'], function () {
@@ -34,9 +34,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
         Route::prefix('admin/user')->group(function () {
-            Route::get('/{id}', [AdminController::class, 'show'])->name('admin.user');
-            Route::get('edit/{id}', [AdminController::class, 'edit'])->name('admin.user.edit');
-            Route::put('edit/{id}', [AdminController::class, 'update'])->name('user.proses.edit');
+            Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
+            Route::get('edit/{id}', [ProfileController::class, 'edit'])->name('admin.user.edit');
+            Route::put('edit/{id}', [ProfileController::class, 'update'])->name('user.proses.edit');
         });
 
         Route::prefix('admin/mahasiswa')->group(function () {
@@ -87,6 +87,16 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminCplController::class, 'edit'])->name('admin.cpl.edit');
             Route::put('edit/{id}', [AdminCplController::class, 'update'])->name('admin.cpl.update');
             Route::delete('{id}', [AdminCplController::class, 'destroy'])->name('admin.cpl.destroy');
+        });
+
+        Route::prefix('admin/data-admin')->group(function () {
+            Route::get('', [AdminController::class, 'index'])->name('admin.admins');
+            Route::get('create', [AdminController::class, 'create'])->name('admin.admins.create');
+            Route::post('create', [AdminController::class, 'store'])->name('admin.admins.store');
+            // Route::get('/{id}', [adminsController::class, 'show'])->name('admin.admins.show');
+            Route::get('edit/{id}', [AdminController::class, 'edit'])->name('admin.admins.edit');
+            Route::put('edit/{id}', [AdminController::class, 'update'])->name('admin.admins.update');
+            Route::delete('{id}', [AdminController::class, 'destroy'])->name('admin.admins.destroy');
         });
 
         Route::prefix('admin/cpmk')->group(function () {

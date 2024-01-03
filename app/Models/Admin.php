@@ -14,6 +14,7 @@ class Admin extends Model
     protected $fillable = [
         'id_auth',
         'nama',
+        'email',
         'telp',
         'image',
     ];
