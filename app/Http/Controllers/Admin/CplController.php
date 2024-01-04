@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
-use App\Models\JenisCpl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,15 +14,14 @@ class CplController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Cpl::join('jenis_cpl', 'cpl.jeniscpl_id', '=', 'jenis_cpl.id')
-        ->select('cpl.*', 'jenis_cpl.nama_jenis as jenis');
+        $query = Cpl::query();
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
             $query->where(function ($query) use ($searchTerm) {
                 $query->where('cpl.kode_cpl', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('jenis_cpl.nama_jenis', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('cpl.jenis_cpl', 'like', '%' . $searchTerm . '%')
                     ->orWhere('cpl.deskripsi', 'like', '%' . $searchTerm . '%');
             });
         }
@@ -43,8 +41,7 @@ class CplController extends Controller
      */
     public function create()
     {
-        $jenis_cpl = JenisCpl::pluck('nama_jenis', 'id');
-        return view('pages-admin.cpl.tambah_cpl', compact('jenis_cpl'));
+        return view('pages-admin.cpl.tambah_cpl');
     }
 
     /**
@@ -55,7 +52,7 @@ class CplController extends Controller
         $validate = Validator::make($request->all(), [
             'kode_cpl' => 'required|string',
             'deskripsi' => 'required',
-            'jenis_cpl' => 'required|exists:jenis_cpl,id',
+            'jenis_cpl' => 'required',
         ]);
 
         if($validate->fails()){
@@ -66,7 +63,7 @@ class CplController extends Controller
             Cpl::create([
                 'kode_cpl' => $request->kode_cpl,
                 'deskripsi' => $request->deskripsi,
-                'jeniscpl_id' => $request->jenis_cpl,
+                'jenis_cpl' => $request->jenis_cpl,
             ]);
 
             return redirect()->route('admin.cpl')->with('success', 'Data Berhasil Ditambahkan');
@@ -90,11 +87,9 @@ class CplController extends Controller
     {
         $cpl = Cpl::find($id);
 
-        $jenis_cpl = JenisCpl::pluck('nama_jenis', 'id');
         return view('pages-admin.cpl.edit_cpl', [
             'success' => 'Data Ditemukan',
             'data' => $cpl,
-            'jenis' => $jenis_cpl
         ]);
     }
 
@@ -106,7 +101,7 @@ class CplController extends Controller
         $validate = Validator::make($request->all(), [
             'kode_cpl' => 'required|string',
             'deskripsi' => 'required',
-            'jenis_cpl' => 'required|exists:jenis_cpl,id',
+            'jenis_cpl' => 'required',
         ]);
 
         if($validate->fails()){
@@ -118,7 +113,7 @@ class CplController extends Controller
             $cpl->update([
                 'kode_cpl' => $request->kode_cpl,
                 'deskripsi' => $request->deskripsi,
-                'jeniscpl_id' => $request->jenis_cpl,
+                'jenis_cpl' => $request->jenis_cpl,
             ]);
 
             return redirect()->route('admin.cpl')->with([
