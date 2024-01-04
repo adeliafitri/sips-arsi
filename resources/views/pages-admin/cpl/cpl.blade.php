@@ -27,9 +27,9 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
+                <div class="col-sm-8">
                   <form action="{{ route('admin.cpl') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -40,8 +40,17 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
+                <div class="dropdown col-sm-2">
+                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-excel mr-2"></i> Excel
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
+                      <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
+                    </div>
+                </div>
                 <div class="col-sm-2">
-                    <a href="{{ route('admin.cpl.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                    <a href="{{ route('admin.cpl.create') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -71,7 +80,7 @@
                     <tr>
                         <td>{{ $startNumber++ }}</td>
                         <td>{{ $datas->kode_cpl }}</td>
-                        <td>{{ $datas->jenis }}</td>
+                        <td>{{ $datas->jenis_cpl }}</td>
                         <td>{{ $datas->deskripsi }}</td>
                         <td>
                             <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
