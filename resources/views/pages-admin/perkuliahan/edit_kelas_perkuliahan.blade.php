@@ -9,8 +9,8 @@
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="index.php?include=data-kelas-perkuliahan">Data Kelas Perkuliahan</a></li>
-              <li class="breadcrumb-item active">Edit Data</li>
+              <li class="breadcrumb-item"><a href="{{ route('admin.kelaskuliah') }}">Data Kelas Perkuliahan</a></li>
+              <li class="breadcrumb-item active">Edit Data Kelas</li>
             </ol>
           </div>
         </div>
@@ -45,11 +45,11 @@
                 @csrf
                 @method('PUT')
                 <div class="form-group">
-                    <label for="kelas">Kelas</label>
-                        <select class="form-control select2bs4" id="kelas" name="kelas">
-                        <option value="">- Pilih Kelas -</option>
-                        @foreach ($kelas as $id => $name)
-                                <option value="{{ $id }}" {{ $data->kelas_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                    <label for="semester">Semester</label>
+                        <select class="form-control select2bs4" id="semester" name="semester">
+                        <option value="">- Pilih Semester -</option>
+                            @foreach ($semester as $key => $datas)
+                                <option value="{{ $datas->id }}" {{ $data->semester_id == $datas->id ? 'selected' : '' }}>{{ $datas->tahun_ajaran." ".$datas->semester }}</option>
                             @endforeach
                         </select>
                   </div>
@@ -63,6 +63,15 @@
                         </select>
                   </div>
                   <div class="form-group">
+                    <label for="kelas">Kelas</label>
+                        <select class="form-control select2bs4" id="kelas" name="kelas">
+                        <option value="">- Pilih Kelas -</option>
+                        @foreach ($kelas as $id => $name)
+                                <option value="{{ $id }}" {{ $data->kelas_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                  </div>
+                  <div class="form-group">
                     <label for="dosen">Dosen</label>
                         <select class="form-control select2bs4" id="dosen" name="dosen">
                         <option value="">- Pilih Dosen -</option>
@@ -70,17 +79,6 @@
                                 <option value="{{ $id }}" {{ $data->dosen_id == $id ? 'selected' : '' }}>{{ $name }}</option>
                             @endforeach
                         </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="tahun_ajaran">Tahun Ajaran</label>
-                    <input type="text" class="form-control" id="tahun_ajaran" name="tahun_ajaran" placeholder="Tahun Ajaran" value="{{ $data->tahun_ajaran }}">
-                  </div>
-                  <div class="form-group col">
-                    <label for="semester">Semester</label> <br>
-                    <input type="radio" name="semester" value="Ganjil" @if($data->semester=="Ganjil")
-                      checked @endif> Ganjil
-                    <input type="radio" name="semester" value="Genap" @if($data->semester=="Genap")
-                      checked @endif> Genap
                   </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">

@@ -56,7 +56,7 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered">
+                <table class="table table-bordered ">
                   <thead>
                     <tr>
                       <th style="width: 10px">No</th>
@@ -74,13 +74,15 @@
                         <td>{{ $datas->email }}</td>
                         <td>{{ $datas->telp }}</td>
                         <td>
-                            <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                            <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mt-1"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
-                            <form action="{{ route('admin.admins.destroy', $datas->id_auth) }}" method="post" class="mt-1">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                            </form>
+                            <div class="d-flex">
+                                <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                <form action="{{ route('admin.admins.destroy', $datas->id_auth) }}" method="post" class="">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @endforeach

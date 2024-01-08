@@ -65,36 +65,40 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>Kode CPL</th>
-                      <th>Jenis CPL</th>
-                      <th>Deskripsi</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->kode_cpl }}</td>
-                        <td>{{ $datas->jenis_cpl }}</td>
-                        <td>{{ $datas->deskripsi }}</td>
-                        <td>
-                            <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                            <a href="{{ route('admin.cpl.edit', $datas->id) }}" class="btn btn-secondary mt-1"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
-                            <form action="{{ route('admin.cpl.destroy', $datas->id) }}" method="post" class="mt-1">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>Kode CPL</th>
+                            <th>Jenis CPL</th>
+                            <th>Deskripsi</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->kode_cpl }}</td>
+                              <td>{{ $datas->jenis_cpl }}</td>
+                              <td>{{ $datas->deskripsi }}</td>
+                              <td>
+                                  <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                  <div class="d-flex">
+                                    <a href="{{ route('admin.cpl.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                    <form action="{{ route('admin.cpl.destroy', $datas->id) }}" method="post" class="">
+                                        @csrf
+                                        @method('delete')
+                                        <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                    </form>
+                                  </div>
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 

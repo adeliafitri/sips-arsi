@@ -10,7 +10,7 @@
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{{ route('admin.kelaskuliah') }}">Data Kelas Perkuliahan</a></li>
-            <li class="breadcrumb-item active">Tambah Data</li>
+            <li class="breadcrumb-item active">Tambah Data Kelas</li>
           </ol>
         </div>
       </div>
@@ -44,11 +44,11 @@
               <form action="{{ route('admin.kelaskuliah.store') }}" method="post">
                 @csrf
                 <div class="form-group">
-                  <label for="kelas">Kelas</label>
-                      <select class="form-control select2bs4" id="kelas" name="kelas">
-                      <option value="">- Pilih Kelas -</option>
-                      @foreach ($kelas as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                  <label for="semester">Semester</label>
+                      <select class="form-control select2bs4" id="semester" name="semester">
+                      <option value="">- Pilih Semester -</option>
+                      @foreach ($semester as $key => $data)
+                            <option value="{{ $data->id }}">{{ $data->tahun_ajaran ." ". $data->semester }}</option>
                         @endforeach
                       </select>
                 </div>
@@ -62,6 +62,15 @@
                       </select>
                 </div>
                 <div class="form-group">
+                    <label for="kelas">Kelas</label>
+                        <select class="form-control select2bs4" id="kelas" name="kelas">
+                        <option value="">- Pilih Kelas -</option>
+                        @foreach ($kelas as $id => $name)
+                              <option value="{{ $id }}">{{ $name }}</option>
+                          @endforeach
+                        </select>
+                  </div>
+                <div class="form-group">
                   <label for="dosen">Dosen</label>
                       <select class="form-control select2bs4" id="dosen" name="dosen">
                       <option value="">- Pilih Dosen -</option>
@@ -70,15 +79,6 @@
                         @endforeach
                       </select>
                 </div>
-                <div class="form-group">
-                  <label for="tahun_ajaran">Tahun Ajaran</label>
-                  <input type="text" class="form-control" id="tahun_ajaran" name="tahun_ajaran" placeholder="Tahun Ajaran">
-                </div>
-                <div class="form-group">
-                    <label for="semester">Semester</label> <br>
-                    <input type="radio" name="semester" value="Ganjil"> Ganjil
-                    <input type="radio" name="semester" value="Genap"> Genap
-                  </div>
                <!-- /.card-body -->
               <div class="card-footer clearfix">
                   <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Cancel</a>
