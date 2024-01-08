@@ -21,7 +21,7 @@ class CreateMatakuliahKelasTable extends Migration
             $table->foreignId('kelas_id')->constrained('kelas');
             $table->foreignId('dosen_id')->constrained('dosen');
             $table->foreignId('semester_id')->constrained('semester');
-            $table->enum('koordinator', [1, 0]);
+            $table->enum('koordinator', [1, 0])->default(0);
             $table->timestamps();
         });
 
