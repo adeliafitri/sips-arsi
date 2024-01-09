@@ -27,3 +27,7 @@
 <link rel="stylesheet" href="{{ asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}">
+<!-- token csrf for ajax -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

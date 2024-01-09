@@ -21,11 +21,12 @@ class Mahasiswa extends Model
         'alamat',
         'telp',
         'image',
+        'angkatan'
     ];
 
     public function auth()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Auth::class);
     }
 
     public function nilai_mahasiswa()
