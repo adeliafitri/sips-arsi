@@ -1,20 +1,29 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Dosen\DosenController;
+use App\Http\Controllers\Admin\JenisCplController;
+use App\Http\Controllers\Admin\SemesterController;
+use App\Http\Controllers\Admin\MataKuliahController;
+// use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
+use App\Http\Controllers\Mahasiswa\MahasiswaController;
 use App\Http\Controllers\Admin\CplController as AdminCplController;
 use App\Http\Controllers\Admin\CpmkController as AdminCpmkController;
 use App\Http\Controllers\Admin\DosenController as AdminDosenController;
-use App\Http\Controllers\Admin\JenisCplController;
-use App\Http\Controllers\Admin\KelasController;
-use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
-use App\Http\Controllers\Admin\MataKuliahController;
+
+// use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
-// use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
+use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
+use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
@@ -57,6 +66,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminDosenController::class, 'edit'])->name('admin.dosen.edit');
             Route::put('edit/{id}', [AdminDosenController::class, 'update'])->name('admin.dosen.update');
             Route::delete('{id}', [AdminDosenController::class, 'destroy'])->name('admin.dosen.destroy');
+            Route::get('download-excel', [AdminDosenController::class, 'downloadExcel'])->name('admin.dosen.download-excel');
+            Route::post('import-excel', [AdminDosenController::class, 'importExcel'])->name('admin.dosen.import-excel');
         });
 
         Route::prefix('admin/mata-kuliah')->group(function () {
@@ -135,7 +146,18 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'edit'])->name('admin.kelaskuliah.nilaimahasiswa.edit');
             Route::put('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'update'])->name('admin.kelaskuliah.nilaimahasiswa.update');
         });
+
+        Route::prefix('admin/semester')->group(function () {
+            Route::get('', [SemesterController::class, 'index'])->name('admin.semester');
+            Route::get('create', [SemesterController::class, 'create'])->name('admin.semester.create');
+            Route::post('store', [SemesterController::class, 'store'])->name('admin.semester.store');
+            Route::post('update-active/{id}', [SemesterController::class, 'updateIsActive'])->name('admin.semester.update-active');
+            Route::get('edit/{id}', [SemesterController::class, 'edit'])->name('admin.semester.edit');
+            Route::post('edit/{id}', [SemesterController::class, 'update'])->name('admin.semester.update');
+            Route::delete('{id}', [SemesterController::class, 'destroy'])->name('admin.semester.destroy');
+        });
     });
+
 
     Route::group(['middleware' => 'role:dosen'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
@@ -144,4 +166,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
     });
+});
+
+Route::get('/admin/mata_kuliah/detail_mata_kuliah', function () {
+    return View::make('pages-admin.mata_kuliah.detail_mata_kuliah');
 });

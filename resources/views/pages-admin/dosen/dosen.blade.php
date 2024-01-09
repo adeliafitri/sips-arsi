@@ -25,10 +25,10 @@
         <div class="row">
           <div class="col-12">
             <div class="card">
-              <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
+              <div class="card-header d-flex col-md-12 justify-content-between">
+                <div class="col-md-8">
                   <form action="{{ route('admin.dosen') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-md-4">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -38,9 +38,45 @@
                     </div>
                   </form>
                 </div>
-                <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
-                    <a href="{{ route('admin.dosen.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                <div class=" col-md-4 d-flex align-items-end justify-content-end">
+                  <div class="dropdown mr-4">
+                      <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-excel mr-2"></i> Excel
+                      </button>
+                      <div class="dropdown-menu">
+                        <button class="dropdown-item" data-toggle="modal" data-target="#importExcelModal">
+                            <i class="fas fa-upload mr-2"></i> Import Excel
+                        </button>
+                        <a class="dropdown-item" href="{{ route('admin.dosen.download-excel') }}"><i class="fas fa-download mr-2"></i> Download Format</a>
+                      </div>
+                  </div>
+                  {{-- modal import --}}
+                  <div class="modal fade" id="importExcelModal" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importExcelModalLabel">Import Excel</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('admin.dosen.import-excel') }}" method="post" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="excelFile">Choose Excel File</label>
+                                        <input type="file" class="form-control-file" id="excelFile" name="file" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div>
+                      <a href="{{ route('admin.dosen.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                  </div>
                 </div>
               </div>
               <div class="card-body">
@@ -59,11 +95,10 @@
                   <thead>
                     <tr>
                       <th style="width: 10px">No</th>
-                      <th>NIP</th>
+                      <th>NIDN</th>
                       <th>Nama</th>
                       <th>Email</th>
                       <th>No Telp</th>
-                      <th>Image</th>
                       <th style="width: 150px;">Action</th>
                     </tr>
                   </thead>
@@ -75,18 +110,13 @@
                         <td>{{ $datas->nama }}</td>
                         <td>{{ $datas->email }}</td>
                         <td>{{ $datas->telp }}</td>
-                        <td>
-                            <div class="text-center">
-                                <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">
-                            </div>
-                        </td>
-                        <td>
+                        <td class="d-flex">
                             {{-- <a href="{{ route('admin.dosen.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
-                            <a href="{{ route('admin.dosen.edit', $datas->id) }}" class="btn btn-secondary mt-1"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
+                            <a href="{{ route('admin.dosen.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-2"><i class="nav-icon fas fa-edit "></i></a>
                             <form action="{{ route('admin.dosen.destroy', $datas->id) }}" method="post" class="mt-1">
                                 @csrf
                                 @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
+                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt "></i></button>
                             </form>
                         </td>
                     </tr>

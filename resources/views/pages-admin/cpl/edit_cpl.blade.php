@@ -46,15 +46,16 @@
                     <input type="text" class="form-control" id="kode_cpl" name="kode_cpl" placeholder="Kode CPL" value="{{ $data->kode_cpl }}">
                     </div>
                     <div class="form-group">
-                        <label for="jenis_cpl" class="col-sm-2 col-form-label">Jenis cpl</label>
-                        <div class="col-sm-12">
-                            <select id="jenis_cpl" name="jenis_cpl" class="form-control">
-                                <option>- Pilih Jenis CPL -</option>
-                                @foreach ($jenis as $id => $name)
-                                    <option value="{{ $id }}" {{ $data->jeniscpl_id == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                                </select>
-                        </div>
+                        <label for="jenis_cpl" class="col-form-label">Jenis cpl</label>
+                        {{-- <div class="col-sm-12"> --}}
+                        <select id="jenis_cpl" name="jenis_cpl" class="form-control">
+                            <option>- Pilih Jenis CPL -</option>
+                            <option value="Sikap" {{ $data->jenis_cpl == 'Sikap' ? 'selected' : ''}}>Sikap</option>
+                            <option value="Pengetahuan" {{ $data->jenis_cpl == 'Pengetahuan' ? 'selected' : ''}}>Pengetahuan</option>
+                            <option value="Keterampilan Umum" {{ $data->jenis_cpl == 'Keterampilan Umum' ? 'selected' : ''}}>Keterampilan Umum</option>
+                            <option value="Keterampilan Khusus" {{ $data->jenis_cpl == 'Keterampilan Khusus' ? 'selected' : ''}}>Keterampilan Khusus</option>
+                        </select>
+                        {{-- </div> --}}
                     </div>
                     <div class="form-group">
                     <label for="deskripsi">Deskripsi</label>
