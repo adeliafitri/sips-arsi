@@ -127,7 +127,7 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="" class="nav-link">
+                        <a href="{{ route('admin.semester') }}" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Data Semester</p>
                         </a>
@@ -146,14 +146,14 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="{{ route('admin.admins') }}" class="nav-link">
                 <i class="nav-icon fas fa-user"></i>
                 <p>
                     Data Admin
                 </p>
                 </a>
-            </li>
+            </li> --}}
             @endif
             <li class="nav-item">
                 <a href="#" class="nav-link">

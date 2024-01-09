@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Dosen;
+use App\Exports\DosenFormatExcel;
 use App\Models\User;
+use App\Models\Dosen;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Imports\DosenImportExcel;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,7 +21,7 @@ class DosenController extends Controller
     public function index(Request $request)
     {
         $query = Dosen::join('auth', 'dosen.id_auth', '=', 'auth.id')
-        ->select('dosen.*', 'auth.email as email');
+            ->select('dosen.*', 'auth.username as username');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -54,13 +57,13 @@ class DosenController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'nama' => 'required|string',
-            'email' => 'required|email|unique:auth',
+            'email' => 'required|email',
             'nidn' => 'required|unique:dosen,nidn',
             'telp' => 'required|string|unique:dosen,telp',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
@@ -80,24 +83,25 @@ class DosenController extends Controller
 
             $password = 'dosen1234';
             $register = User::create([
-                'email' => $request->email,
+                'username' => $request->email,
                 'password' => Hash::make($password),
                 'role' => 'dosen',
             ]);
 
             $id_auth = $register->id;
-
+            // dd($request->email);
             Dosen::create([
                 'id_auth' => $id_auth,
                 'nama' => $request->nama,
                 'nidn' => $request->nidn,
                 'telp' => $request->telp,
+                'email' => $request->email,
                 'image' => $image
             ]);
 
             return redirect()->route('admin.dosen')->with('success', 'Data Dosen Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -115,9 +119,9 @@ class DosenController extends Controller
     public function edit($id)
     {
         $dosen = Dosen::join('auth', 'dosen.id_auth', '=', 'auth.id')
-                    ->where('dosen.id', $id)
-                    ->select('dosen.*', 'auth.email') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('dosen.id', $id)
+            ->select('dosen.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
 
         return view('pages-admin.dosen.edit_dosen', [
             'success' => 'Data Ditemukan',
@@ -138,7 +142,7 @@ class DosenController extends Controller
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
@@ -160,11 +164,11 @@ class DosenController extends Controller
             $dosen = Dosen::where('id', $id)->first();
             $password = $request->password;
 
-            if($password){
+            if ($password) {
                 $user = User::Where('id_auth', $dosen->id_auth)->first();
 
                 $user->update([
-                        'password' => $password ? Hash::make($password) : $user->password,
+                    'password' => $password ? Hash::make($password) : $user->password,
                 ]);
             }
 
@@ -199,5 +203,24 @@ class DosenController extends Controller
             return redirect()->route('admin.dosen')
                 ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
+    }
+
+    public function downloadExcel()
+    {
+        return Excel::download(new DosenFormatExcel(), 'dosen-excel.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new DosenImportExcel(), $file);
+
+        return redirect()->back()->with('success', 'Data imported successfully.');
     }
 }
