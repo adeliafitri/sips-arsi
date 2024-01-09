@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanControll
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
@@ -144,4 +144,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
     });
+});
+
+Route::get('/admin/mata_kuliah/detail_mata_kuliah', function () {
+    return View::make ('pages-admin.mata_kuliah.detail_mata_kuliah');
 });
