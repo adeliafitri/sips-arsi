@@ -19,7 +19,7 @@ class MahasiswaController extends Controller
     public function index(Request $request)
     {
         $query = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-        ->select('mahasiswa.*', 'auth.email as email');
+        ->select('mahasiswa.*', 'auth.username as username');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -55,13 +55,10 @@ class MahasiswaController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'nama' => 'required|string',
-            'email' => 'required|email|unique:auth',
             'nim' => 'required|unique:mahasiswa,nim',
-            'tanggal_lahir' => 'required',
-            'jenis_kelamin' => 'required',
-            'alamat' => 'required',
             'telp' => 'required|string|unique:mahasiswa,telp',
-            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'angkatan' => 'required|numeric',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         if($validate->fails()){
@@ -82,10 +79,12 @@ class MahasiswaController extends Controller
                 $request->file('image')->storeAs('public/image', $image);
             }
 
-            $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
-            $password = 'arsi1234';
+            $angkatan = Carbon::createFromFormat('Y', $request->angkatan)->format('Y');
+            $nim = ($request->nim);
+            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+            $password = $nim;
             $register = User::create([
-                'email' => $request->email,
+                'username' => $request->nim,
                 'password' => Hash::make($password),
                 'role' => 'mahasiswa',
             ]);
@@ -96,15 +95,14 @@ class MahasiswaController extends Controller
                 'id_auth' => $id_auth,
                 'nama' => $request->nama,
                 'nim' => $request->nim,
-                'tanggal_lahir' => $tanggalLahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
                 'telp' => $request->telp,
-                'alamat' => $request->alamat,
+                'angkatan' => $angkatan,
                 'image' => $image
             ]);
 
             return redirect()->route('admin.mahasiswa')->with('success', 'Data Mahasiswa Berhasil Ditambahkan');
         } catch (\Exception $e) {
+            // dd($e->getMessage(), $e->getTrace());
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
@@ -116,7 +114,7 @@ class MahasiswaController extends Controller
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
                     ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.email') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
 
         return view('pages-admin.mahasiswa.detail_mahasiswa', [
@@ -132,7 +130,7 @@ class MahasiswaController extends Controller
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
                     ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.email') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
 
         return view('pages-admin.mahasiswa.edit_mahasiswa', [
@@ -150,11 +148,12 @@ class MahasiswaController extends Controller
             'password' => 'nullable|min:8',
             'nama' => 'required|string',
             'nim' => 'required',
-            'tanggal_lahir' => 'required',
-            'jenis_kelamin' => 'required',
-            'alamat' => 'required',
+            'angkatan' => 'required|numeric',
+            // 'tanggal_lahir' => 'required',
+            // 'jenis_kelamin' => 'required',
+            // 'alamat' => 'required',
             'telp' => 'required|string',
-            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         if($validate->fails()){
@@ -162,7 +161,8 @@ class MahasiswaController extends Controller
         }
 
         try {
-            $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+            $angkatan = Carbon::createFromFormat('Y', $request->angkatan)->format('Y');
+            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
             $image = null;
 
             // Jika ada file gambar yang diunggah, proses upload
@@ -191,10 +191,8 @@ class MahasiswaController extends Controller
             $mahasiswa->update([
                 'nama' => $request->nama,
                 'nim' => $request->nim,
-                'tanggal_lahir' => $tanggalLahir,
-                'jenis_kelamin' => $request->jenis_kelamin,
                 'telp' => $request->telp,
-                'alamat' => $request->alamat,
+                'angkatan' => $angkatan,
                 'image' => $image ? $image : $mahasiswa->image,
             ]);
 
@@ -214,10 +212,12 @@ class MahasiswaController extends Controller
     public function destroy($id)
     {
         try {
-            Mahasiswa::where('id', $id)->delete();
-
-            return redirect()->route('admin.mahasiswa')
+            $mahasiswa = Mahasiswa::where('id_auth', $id)->delete();
+            if ($mahasiswa) {
+                User::where('id', $id)->delete();
+                return redirect()->route('admin.mahasiswa')
                 ->with('success', 'Data berhasil dihapus');
+            }
         } catch (\Exception $e) {
             return redirect()->route('admin.mahasiswa')
                 ->with('error', 'Data gagal dihapus: ' . $e->getMessage());

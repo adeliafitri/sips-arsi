@@ -26,9 +26,9 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
+                <div class="col-10 p-0">
                   <form action="{{ route('admin.kelas') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-4 mr-3 p-0">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -39,8 +39,8 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
-                    <a href="{{ route('admin.kelas.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                <div class="col-sm-2 p-0 align-items-right">
+                    <a href="{{ route('admin.kelas.create') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -68,13 +68,13 @@
                     <tr>
                         <td>{{ $startNumber++ }}</td>
                         <td>{{ $datas->nama_kelas }}</td>
-                        <td>
+                        <td class="d-flex justify-content-center">
                             <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                            <a href="{{ route('admin.kelas.edit', $datas->id) }}" class="btn btn-secondary mt-1"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
+                            <a href="{{ route('admin.kelas.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
                             <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
                                 @csrf
                                 @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
+                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
                             </form>
                         </td>
                     </tr>
