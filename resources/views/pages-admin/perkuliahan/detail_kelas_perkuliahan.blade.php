@@ -41,16 +41,16 @@
             <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
             <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
             <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
-            <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> 15</p>
+            <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
         </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
-                  <form action="product.php?aksi=cari" method="post">
-                    <div class="input-group col-sm-4 mr-3">
+                <div class="col-8">
+                  <form action="{{ route('admin.kelaskuliah.show', $data->id) }}" method="GET">
+                    <div class="input-group col-sm-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -61,8 +61,17 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
+                <div class="dropdown col-sm-2">
+                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-excel mr-2"></i> Excel
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
+                      <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
+                    </div>
+                </div>
                 <div class="col-sm-2">
-                    <a href="{{ route('admin.kelaskuliah.createmahasiswa', $data->id) }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                    <a href="{{ route('admin.kelaskuliah.createmahasiswa', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -85,7 +94,7 @@
                       <th>Nama Mahasiswa</th>
                       <th>Nilai Akhir</th>
                       <th>Keterangan</th>
-                      <th style="width: 250px;">Action</th>
+                      <th style="width: 150px;">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -95,14 +104,16 @@
                         <td>{{ $mahasiswas->nim }}</td>
                         <td>{{ $mahasiswas->nama }}</td>
                         <td>{{ $mahasiswas->nilai_akhir }}</td>
-                        <td>Lulus</td>
+                        <td>{{ $keterangan[$mahasiswas->id] }}</td>
                         <td>
-                            <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail Nilai</a>
-                            <form action="{{ route('admin.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post" class="mt-1">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                            </form>
+                            <div class="d-flex">
+                                <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                                <form action="{{ route('admin.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @endforeach

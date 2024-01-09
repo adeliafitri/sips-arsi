@@ -3,20 +3,20 @@
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
-      <div class="container-fluid">
+    <div class="container-fluid">
         <div class="row mb-2">
-          <div class="col-sm-6">
+            <div class="col-sm-6">
             <h1 class="m-0">Data Mata Kuliah</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
+            </div><!-- /.col -->
+            <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
-              <li class="breadcrumb-item active">Data Mata Kuliah</li>
+                <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
+                <li class="breadcrumb-item active">Data Mata Kuliah</li>
             </ol>
-          </div><!-- /.col -->
+            </div><!-- /.col -->
         </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
+    </div><!-- /.container-fluid -->
+</div>
     <!-- /.content-header -->
 
    <!-- Main content -->
@@ -72,13 +72,13 @@
                         <td>{{ $datas->kode_matkul }}</td>
                         <td>{{ $datas->nama_matkul }}</td>
                         <td>{{ $datas->sks }}</td>
-                        <td>
-                            <a href="" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a>
-                            <a href="{{ route('admin.matakuliah.edit', $datas->id) }}" class="btn btn-secondary mt-1"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
-                            <form action="{{ route('admin.matakuliah.destroy', $datas->id) }}" method="post" class="mt-1">
+                        <td class="d-flex justify-content-center">
+                            <a href="{{ '/admin/mata_kuliah/detail_mata_kuliah' }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye"></i></a>
+                            <a href="{{ route('admin.matakuliah.edit', $datas->id) }}" class="btn btn-secondary ml-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
+                            <form action="{{ route('admin.matakuliah.destroy', $datas->id) }}" method="post">
                                 @csrf
                                 @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
+                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
                             </form>
                         </td>
                     </tr>

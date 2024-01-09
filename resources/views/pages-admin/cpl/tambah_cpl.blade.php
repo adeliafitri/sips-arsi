@@ -9,7 +9,7 @@
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="index.php?include=data-cpl">Data CPL</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('admin.cpl') }}">Data CPL</a></li>
             <li class="breadcrumb-item active">Tambah Data</li>
           </ol>
         </div>
@@ -49,14 +49,15 @@
                 </div>
                 <div class="form-group">
                   <label for="jenis_cpl">Jenis CPL</label>
-                  <div class="col-12">
+                  {{-- <div class="col-12"> --}}
                     <select id="jenis_cpl" name="jenis_cpl" class="form-control">
                         <option>- Pilih Jenis CPL -</option>
-                        @foreach ($jenis_cpl as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
-                        @endforeach
+                        <option value="Sikap">Sikap</option>
+                        <option value="Pengetahuan">Pengetahuan</option>
+                        <option value="Keterampilan Umum">Keterampilan Umum</option>
+                        <option value="Keterampilan Khusus">Keterampilan Khusus</option>
                     </select>
-                  </div>
+                  {{-- </div> --}}
                 </div>
                 <div class="form-group">
                   <label for="deskripsi">Deskripsi</label>

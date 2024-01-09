@@ -14,13 +14,8 @@ class Cpl extends Model
     protected $fillable = [
         'kode_cpl',
         'deskripsi',
-        'jeniscpl_id',
+        'jenis_cpl',
     ];
-
-    public function jenis_cpl()
-    {
-        return $this->belongsTo(JenisCpl::class);
-    }
 
     public function cpmk()
     {
