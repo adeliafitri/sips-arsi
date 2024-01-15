@@ -73,9 +73,9 @@ class PerkuliahanController extends Controller
             'kelas' => 'required|exists:kelas,id',
             'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'dosen' => 'required|exists:dosen,id',
-            'tahun_ajaran' => 'required|string',
             'semester' => 'required',
         ]);
+        // dd($validate);
 
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
@@ -86,10 +86,9 @@ class PerkuliahanController extends Controller
                 'kelas_id' => $request->kelas,
                 'matakuliah_id' => $request->mata_kuliah,
                 'dosen_id' => $request->dosen,
-                'tahun_ajaran' => $request->tahun_ajaran,
-                'semester' => $request->semester,
+                'semester_id' => $request->semester,
             ]);
-
+            // dd($request->semester);
             return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
@@ -256,7 +255,6 @@ class PerkuliahanController extends Controller
             'kelas' => 'required|exists:kelas,id',
             'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'dosen' => 'required|exists:dosen,id',
-            'tahun_ajaran' => 'required|string',
             'semester' => 'required',
         ]);
 
@@ -270,8 +268,7 @@ class PerkuliahanController extends Controller
                 'kelas_id' => $request->kelas,
                 'matakuliah_id' => $request->mata_kuliah,
                 'dosen_id' => $request->dosen,
-                'tahun_ajaran' => $request->tahun_ajaran,
-                'semester' => $request->semester,
+                'semester_id' => $request->semester,
             ]);
 
             return redirect()->route('admin.kelaskuliah')->with([

@@ -60,6 +60,7 @@
                     <label for="email">Email</label>
                     <input type="email" class="form-control"  disabled id="email" rows="3" name="email" placeholder="Email" value="{{ $data->email }}">
                     </div>
+                    <a href="" class="text-danger">Change Password</a>
                     {{-- <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" rows="3" name="password" placeholder="Password">
