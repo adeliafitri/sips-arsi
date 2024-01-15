@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ class ProfileController extends Controller
         // dd($id);
         $admin = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
                     ->where('admin.id_auth', $id)
-                    ->select('admin.*', 'auth.email') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->select('admin.*', 'auth.role') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
         // dd($admin);
         if (!$admin) {
@@ -23,12 +24,12 @@ class ProfileController extends Controller
             'data' => $admin,
         ]);
     }
-    
+
     public function edit($id) {
         // dd($id);
         $admin = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
                     ->where('admin.id_auth', $id)
-                    ->select('admin.*', 'auth.email') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->select('admin.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
         // dd($admin);
         if (!$admin) {
@@ -69,10 +70,9 @@ class ProfileController extends Controller
                 'telp' => $request->telp,
                 'image' => $image ? $image : $admin->image,
             ]);
-//             dd($admin->getAttributes()); // Mengecek apakah atribut sudah di-update sesuai harapan
+            session(['admin' => $admin]);
+            //dd($admin->getAttributes()); // Mengecek apakah atribut sudah di-update sesuai harapan
 
-// // Setelah update, cek apakah perubahan disimpan dengan benar
-// dd($admin->fresh()->getAttributes());
             return redirect()->route('admin.user', $id)->with([
                 'success' => 'User updated successfully.',
                 'data' => $admin

@@ -44,20 +44,20 @@
             @endif
             </div>
         </div> --}}
+        {{-- @if (session()->has('admin')) --}}
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                @if ($user)
-                    <img src="{{ asset('storage/image/' . $user->image) }}" class="img-circle elevation-2" alt="User Image">
-                @endif
+                @php
+                    $user = session('admin');
+                    $image = $user->image;
+                @endphp
+                    <img src="{{ asset('storage/image/' . $image) }}" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                @if ($user)
-                    <a href="#" class="d-block">{{ $user->nama }}</a>
-                @else
-                    <p>Welcome, Guest!</p>
-                @endif
+                    <a href="{{ route('admin.user', $user->id_auth) }}" class="d-block">{{ $user->nama }}</a>
             </div>
         </div>
+        {{-- @endif --}}
 
         <!-- SidebarSearch Form -->
         <div class="form-inline">
@@ -146,44 +146,15 @@
                     </li>
                 </ul>
             </li>
-            {{-- <li class="nav-item">
+            <li class="nav-item">
                 <a href="{{ route('admin.admins') }}" class="nav-link">
                 <i class="nav-icon fas fa-user"></i>
                 <p>
                     Data Admin
                 </p>
                 </a>
-            </li> --}}
-            @endif
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-user"></i>
-                <p>
-                    User
-                    <i class="fas fa-angle-left right"></i>
-                </p>
-                </a>
-                <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    @if (session()->has('admin'))
-                    <a href="{{ route('admin.user', ['id' => Auth::id()]) }}" class="nav-link">
-                    {{-- @elseif (session()->has('dosen'))
-                    <a href="{{ route('dosen.user', ['id' => Auth::id()]) }}" class="nav-link">
-                    @elseif (session()->has('mahasiswa'))
-                    <a href="{{ route('mahasiswa.user', ['id' => Auth::id()]) }}" class="nav-link"> --}}
-                    @endif
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Pengaturan User</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="pages/UI/icons.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Ubah Password</p>
-                    </a>
-                </li>
-                </ul>
             </li>
+            @endif
             <li class="nav-item">
                 <form action="{{ route('logout') }}" method="post">
                     @csrf
