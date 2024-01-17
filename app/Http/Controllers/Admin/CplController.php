@@ -134,11 +134,9 @@ class CplController extends Controller
         try {
             Cpl::where('id', $id)->delete();
 
-            return redirect()->route('admin.cpl')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
-            return redirect()->route('admin.cpl')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
 }

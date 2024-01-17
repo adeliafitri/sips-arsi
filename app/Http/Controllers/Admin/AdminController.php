@@ -131,18 +131,16 @@ class AdminController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
         try {
             $admin = Admin::where('id_auth', $id)->delete();
             if ($admin) {
                 User::where('id', $id)->delete();
-                return redirect()->route('admin.admins')
-                ->with('success', 'Data berhasil dihapus');
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             }
         } catch (\Exception $e) {
-            return redirect()->route('admin.admins')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
 }
