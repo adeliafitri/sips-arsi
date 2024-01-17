@@ -19,11 +19,11 @@ class CreateCplTable extends Migration
             $table->id();
             $table->string('kode_cpl');
             $table->text('deskripsi')->nullable();
-            $table->foreignId('jeniscpl_id')->constrained('jenis_cpl');
+            $table->enum('jenis_cpl', ['Sikap', 'Pengetahuan', 'Keterampilan Umum', 'Keterampilan Khusus']);
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

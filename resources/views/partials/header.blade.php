@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SIPS Arsi UIN Malang</title>
+<title>OBE Arsitektur UIN Malang</title>
 
 <!-- Google Font: Source Sans Pro -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -27,3 +27,7 @@
 <link rel="stylesheet" href="{{ asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}">
+<!-- token csrf for ajax -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

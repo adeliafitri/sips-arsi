@@ -19,12 +19,12 @@ class CreateNilaiMahasiswaTable extends Migration
             $table->id();
             $table->foreignId('mahasiswa_id')->constrained('mahasiswa');
             $table->foreignId('matakuliah_kelasid')->constrained('matakuliah_kelas');
-            $table->foreignId('subcpmk_id')->constrained('sub_cpmk');
+            $table->foreignId('soal_id')->constrained('soal_sub_cpmk');
             $table->float('nilai')->default(0);
             $table->timestamps();
         });
 
-        Schema::enableForeignKeyConstraints();
+        // Schema::enableForeignKeyConstraints();
     }
 
     /**

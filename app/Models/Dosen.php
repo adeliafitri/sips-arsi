@@ -9,7 +9,7 @@ class Dosen extends Model
 {
     use HasFactory;
 
-    protected $table ='dosen';
+    protected $table = 'dosen';
 
     protected $fillable = [
         'id_auth',
@@ -17,6 +17,7 @@ class Dosen extends Model
         'nidn',
         'telp',
         'image',
+        'email'
     ];
 
     public function auth()

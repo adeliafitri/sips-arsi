@@ -1,7 +1,7 @@
 {{-- @extends('layouts.admin.main') --}}
 <html>
 <head>
-    @include('layouts.admin.header')
+    @include('partials.header')
 </head>
 
 <body class="hold-transition login-page">
@@ -15,7 +15,7 @@
             <div class="text-center mb-1">
                 <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" width="100px" alt="logo Prodi Arsitektur UIN Malang">
             </div>
-            <h3 class="text-center">SIPS Admin</h3>
+            <h3 class="text-center">OBE Arsitektur</h3>
             <p class="login-box-msg">Enter your details to get sign in to your account</p>
 
             @if($errors->any())
@@ -30,10 +30,10 @@
           <form action="{{ route('login') }}" method="post">
             @CSRF
             <div class="input-group mb-3">
-              <input type="email" name="email" class="form-control" placeholder="Email">
+              <input type="text" name="username" class="form-control" placeholder="Username">
               <div class="input-group-append">
                 <div class="input-group-text">
-                  <span class="fas fa-envelope"></span>
+                  <span class="fas fa-user"></span>
                 </div>
               </div>
             </div>
@@ -60,10 +60,6 @@
             </a>
           </div> -->
           <!-- /.social-auth-links -->
-
-          <p class="mb-0 mt-3 text-center">
-            Don't have an account? <a href="{{ route('register') }}" class="text-dark fw-bold"><b>Sign up</b></a>
-          </p>
         </div>
         <!-- /.card-body -->
       </div>

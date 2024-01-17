@@ -5,11 +5,11 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Data Mahasiswa</h1>
+            <h1>Data Admin</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="index.php?include=data-mahasiswa">Data Mahasiswa</a></li>
+              <li class="breadcrumb-item"><a href="{{ route('admin.user', ['id' => $data->id_auth]) }}">Data Admin</a></li>
               <li class="breadcrumb-item active">Edit Data</li>
             </ol>
           </div>
@@ -35,7 +35,7 @@
                     @endif
                 </div>
               <div class="card-header d-flex justify-content-end">
-                <h3 class="card-title col align-self-center">Form Edit Data Mahasiswa</h3>
+                <h3 class="card-title col align-self-center">Form Edit Data Admin</h3>
               </div>
                 <div class="card-body">
                 <form action="{{ route('user.proses.edit', ['id' => $data->id_auth]) }}" method="post" enctype="multipart/form-data">
@@ -60,6 +60,7 @@
                     <label for="email">Email</label>
                     <input type="email" class="form-control"  disabled id="email" rows="3" name="email" placeholder="Email" value="{{ $data->email }}">
                     </div>
+                    <a href="" class="text-danger">Change Password</a>
                     {{-- <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" rows="3" name="password" placeholder="Password">

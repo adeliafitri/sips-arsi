@@ -44,20 +44,20 @@
             @endif
             </div>
         </div> --}}
+        {{-- @if (session()->has('admin')) --}}
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                @if ($user)
-                    <img src="{{ asset('storage/image/' . $user->image) }}" class="img-circle elevation-2" alt="User Image">
-                @endif
+                @php
+                    $user = session('admin');
+                    $image = $user->image;
+                @endphp
+                    <img src="{{ asset('storage/image/' . $image) }}" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                @if ($user)
-                    <a href="#" class="d-block">{{ $user->nama }}</a>
-                @else
-                    <p>Welcome, Guest!</p>
-                @endif
+                    <a href="{{ route('admin.user', $user->id_auth) }}" class="d-block">{{ $user->nama }}</a>
             </div>
         </div>
+        {{-- @endif --}}
 
         <!-- SidebarSearch Form -->
         <div class="form-inline">
@@ -91,8 +91,34 @@
             </li>
             @if (session()->has('admin'))
             <li class="nav-item">
+                <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                <p>Data Mahasiswa</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.dosen') }}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Data Dosen</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.matakuliah') }}" class="nav-link">
+                <i class="fas fa-book-reader nav-icon"></i>
+                <p>Data RPS</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link">
+                <i class="nav-icon fas fa-clipboard-list"></i>
+                <p>
+                    Data Kelas Perkuliahan
+                </p>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-copy"></i>
+                <i class="nav-icon fas fa-database"></i>
                 <p>
                     Data Master
                     <i class="fas fa-angle-left right"></i>
@@ -100,119 +126,35 @@
                 </p>
                 </a>
                 <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Mahasiswa</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.dosen') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Dosen</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.matakuliah') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Mata Kuliah</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.kelas') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Kelas</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.jeniscpl') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Jenis CPL</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.cpl') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data CPL</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.cpmk') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data CPMK</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.subcpmk') }}" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Sub-CPMK</p>
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.semester') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data Semester</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.kelas') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data Kelas</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.cpl') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data CPL</p>
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link">
-                <i class="nav-icon fas fa-clipboard-list"></i>
-                <p>
-                    Data Kelas Perkuliahan
-                    <!-- <i class="right fas fa-angle-left"></i> -->
-                </p>
-                </a>
-                <!-- <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="pages/layout/fixed-sidebar.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Kelas Perkuliahan</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="pages/layout/fixed-sidebar.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Data Pendaftaran Mata Kuliah</p>
-                    </a>
-                </li>
-                </ul> -->
-            </li>
-            {{-- <li class="nav-item">
-                <a href="{{ route('admin.nilai') }}" class="nav-link">
-                <i class="nav-icon fas fa-chart-pie"></i>
-                <p>
-                    Data Penilaian Mahasiswa
-                    <!-- <i class="right fas fa-angle-left"></i> -->
-                </p>
-                </a>
-            </li> --}}
-            @endif
-            <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('admin.admins') }}" class="nav-link">
                 <i class="nav-icon fas fa-user"></i>
-
                 <p>
-                    User
-                    <i class="fas fa-angle-left right"></i>
+                    Data Admin
                 </p>
                 </a>
-                <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    @if (session()->has('admin'))
-                    <a href="{{ route('admin.user', ['id' => Auth::id()]) }}" class="nav-link">
-                    {{-- @elseif (session()->has('dosen'))
-                    <a href="{{ route('dosen.user', ['id' => Auth::id()]) }}" class="nav-link">
-                    @elseif (session()->has('mahasiswa'))
-                    <a href="{{ route('mahasiswa.user', ['id' => Auth::id()]) }}" class="nav-link"> --}}
-                    @endif
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Pengaturan User</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="pages/UI/icons.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Ubah Password</p>
-                    </a>
-                </li>
-                </ul>
             </li>
+            @endif
             <li class="nav-item">
                 <form action="{{ route('logout') }}" method="post">
                     @csrf
