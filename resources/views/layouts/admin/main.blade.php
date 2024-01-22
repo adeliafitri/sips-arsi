@@ -8,7 +8,6 @@
 
   <!-- Navbar -->
   @include('partials.navbar')
-
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
