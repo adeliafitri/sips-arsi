@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Dosen;
 use App\Models\Kelas;
-use App\Models\KelasKuliah;
+use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
-use App\Models\Semester;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Facades\DB;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class PerkuliahanController extends Controller
@@ -92,6 +92,45 @@ class PerkuliahanController extends Controller
             return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+        }
+    }
+
+    public function updateKoordinator(Request $request, int $id)
+    {
+        try {
+            // dd($request->koordinator);
+            $kelas_kuliah = KelasKuliah::where('id', $id)->first();
+
+            $oldKoordinatorValue = $kelas_kuliah->koordinator;
+            // dd($kelas_kuliah->koordinator);
+
+            $kelas_kuliah->update([
+                'koordinator' => $request->koordinator
+            ]);
+            // dd($query->toSql(), $query->getBindings());
+
+            if ($oldKoordinatorValue != $request->koordinator) {
+                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->matakuliah_id, $request->koordinator);
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Data koordinator berhasil diupdate']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data koordinator gagal diupdate: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function updateOtherData($dosenID, $matakuliahID, $newKoordinatorValue)
+    {
+        try {
+            KelasKuliah::where('dosen_id', $dosenID)
+            ->where('matakuliah_id', $matakuliahID)
+            ->update([
+                'koordinator' => $newKoordinatorValue
+            ]);
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
         }
     }
 

@@ -40,6 +40,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
             Route::get('edit/{id}', [ProfileController::class, 'edit'])->name('admin.user.edit');
             Route::put('edit/{id}', [ProfileController::class, 'update'])->name('user.proses.edit');
+            Route::get('profile/changePass', [ProfileController::class, 'showFormChangePass'])->name('admin.user.changePass');
+            Route::post('profile/changePass', [ProfileController::class, 'changePassword'])->name('changePass');
         });
 
         Route::prefix('admin/mahasiswa')->group(function () {
@@ -128,6 +130,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('', [AdminPerkuliahanController::class, 'index'])->name('admin.kelaskuliah');
             Route::get('create', [AdminPerkuliahanController::class, 'create'])->name('admin.kelaskuliah.create');
             Route::post('create', [AdminPerkuliahanController::class, 'store'])->name('admin.kelaskuliah.store');
+            Route::post('update-koordinator/{id}', [AdminPerkuliahanController::class, 'updateKoordinator'])->name('admin.kelaskuliah.update-koordinator');
             Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
             Route::get('edit/{id}', [AdminPerkuliahanController::class, 'edit'])->name('admin.kelaskuliah.edit');
             Route::put('edit/{id}', [AdminPerkuliahanController::class, 'update'])->name('admin.kelaskuliah.update');
