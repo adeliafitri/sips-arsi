@@ -82,11 +82,18 @@ class PerkuliahanController extends Controller
         }
 
         try {
+            $existingRecord = KelasKuliah::where('matakuliah_id', $request->mata_kuliah)
+            ->where('dosen_id', $request->dosen)
+            ->first();
+
+            $koordinatorValue = $existingRecord ? $existingRecord->koordinator : "0";
+
             KelasKuliah::create([
                 'kelas_id' => $request->kelas,
                 'matakuliah_id' => $request->mata_kuliah,
                 'dosen_id' => $request->dosen,
                 'semester_id' => $request->semester,
+                'koordinator' => $koordinatorValue,
             ]);
             // dd($request->semester);
             return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
@@ -217,7 +224,7 @@ class PerkuliahanController extends Controller
 
         try {
             $get_matkul = "SELECT `matakuliah_id` FROM `matakuliah_kelas` WHERE `id`= '$id'";
-        $result = DB::select($get_matkul);
+            $result = DB::select($get_matkul);
 
         if (empty($result)) {
             return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
@@ -327,12 +334,13 @@ class PerkuliahanController extends Controller
     {
         try {
             KelasKuliah::where('id', $id)->delete();
-
-            return redirect()->route('admin.kelaskuliah')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.kelaskuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 

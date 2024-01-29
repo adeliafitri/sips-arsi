@@ -45,7 +45,7 @@
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
+                      <a class="dropdown-item" href="{{ route('admin.cpl.download-excel') }}"><i class="fas fa-upload mr-2"></i> Export</a>
                       <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
                     </div>
                 </div>
