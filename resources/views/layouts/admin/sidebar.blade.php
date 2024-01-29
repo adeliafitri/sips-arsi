@@ -59,30 +59,14 @@
         </div>
         {{-- @endif --}}
 
-        <!-- SidebarSearch Form -->
-        <div class="form-inline">
-            <div class="input-group" data-widget="sidebar-search">
-            <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-            <div class="input-group-append">
-                <button class="btn btn-sidebar">
-                <i class="fas fa-search fa-fw"></i>
-                </button>
-            </div>
-            </div>
-        </div>
-
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
                 @if (session()->has('admin'))
-                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
-                @elseif (session()->has('dosen'))
-                <a href="{{ route('dosen.dashboard') }}" class="nav-link active">
-                @elseif (session()->has('mahasiswa'))
-                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link active">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 @endif
-                <i class="nav-icon fas fa-th"></i>
+                <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                     Dashboard
                     <!-- <span class="right badge badge-danger">New</span> -->
@@ -91,25 +75,25 @@
             </li>
             @if (session()->has('admin'))
             <li class="nav-item">
-                <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
+                <a href="{{ route('admin.mahasiswa') }}" class="nav-link {{ request()->routeIs('admin.mahasiswa') ? 'active' : '' }}">
                 <i class="fas fa-user-graduate nav-icon"></i>
                 <p>Data Mahasiswa</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.dosen') }}" class="nav-link">
+                <a href="{{ route('admin.dosen') }}" class="nav-link {{ request()->routeIs('admin.dosen') ? 'active' : '' }}">
                 <i class="fas fa-user-tie nav-icon"></i>
                 <p>Data Dosen</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.matakuliah') }}" class="nav-link">
+                <a href="{{ route('admin.matakuliah') }}" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link">
+                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link {{ request()->routeIs('admin.kelaskuliah') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Data Kelas Perkuliahan
@@ -117,7 +101,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link {{ request()->routeIs(['admin.semester', 'admin.kelas', 'admin.cpl']) ? 'active' : '' }}">
                 <i class="nav-icon fas fa-database"></i>
                 <p>
                     Data Master
@@ -147,7 +131,7 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.admins') }}" class="nav-link">
+                <a href="{{ route('admin.admins') }}" class="nav-link {{ request()->routeIs('admin.admins') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-user"></i>
                 <p>
                     Data Admin

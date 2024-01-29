@@ -17,6 +17,9 @@ class Cpl extends Model
         'jenis_cpl',
     ];
 
+    // Enum values for jenis_cpl column
+    public static $jenisCPLOptions = ['Sikap', 'Pengetahuan', 'Keterampilan Umum', 'Keterampilan Khusus'];
+
     public function cpmk()
     {
         return $this->hasMany(Cpmk::class);

@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
+use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
+use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use Illuminate\Support\Facades\View;
 
 
@@ -94,6 +96,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminCplController::class, 'edit'])->name('admin.cpl.edit');
             Route::put('edit/{id}', [AdminCplController::class, 'update'])->name('admin.cpl.update');
             Route::delete('{id}', [AdminCplController::class, 'destroy'])->name('admin.cpl.destroy');
+            Route::get('download-excel', [AdminCplController::class, 'downloadExcel'])->name('admin.cpl.download-excel');
         });
 
         Route::prefix('admin/data-admin')->group(function () {
@@ -158,6 +161,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:dosen'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
+
+        Route::prefix('dosen/user')->group(function () {
+            Route::get('/{id}', [DosenProfileController::class, 'show'])->name('dosen.user');
+            Route::get('edit/{id}', [DosenProfileController::class, 'edit'])->name('dosen.user.edit');
+            Route::put('edit/{id}', [DosenProfileController::class, 'update'])->name('dosen.proses.edit');
+            Route::get('profile/changePass', [DosenProfileController::class, 'showFormChangePass'])->name('dosen.user.changePass');
+            Route::post('profile/changePass', [DosenProfileController::class, 'changePassword'])->name('dosen.changePass');
+        });
+
+        Route::prefix('dosen/kelas-kuliah')->group(function () {
+            Route::get('', [DosenPerkuliahanController::class, 'index'])->name('dosen.kelaskuliah');
+            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+        });
     });
 
     Route::group(['middleware' => 'role:mahasiswa'], function () {
