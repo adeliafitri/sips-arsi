@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Dosen\DosenController;
@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
+use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
+use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
 // Route::get('/', [DashboardController::class, 'index']);
@@ -39,6 +41,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
             Route::get('edit/{id}', [ProfileController::class, 'edit'])->name('admin.user.edit');
             Route::put('edit/{id}', [ProfileController::class, 'update'])->name('user.proses.edit');
+            Route::get('profile/changePass', [ProfileController::class, 'showFormChangePass'])->name('admin.user.changePass');
+            Route::post('profile/changePass', [ProfileController::class, 'changePassword'])->name('changePass');
         });
 
         Route::prefix('admin/mahasiswa')->group(function () {
@@ -95,6 +99,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminCplController::class, 'edit'])->name('admin.cpl.edit');
             Route::put('edit/{id}', [AdminCplController::class, 'update'])->name('admin.cpl.update');
             Route::delete('{id}', [AdminCplController::class, 'destroy'])->name('admin.cpl.destroy');
+            Route::get('download-excel', [AdminCplController::class, 'downloadExcel'])->name('admin.cpl.download-excel');
         });
 
         Route::prefix('admin/data-admin')->group(function () {
@@ -131,6 +136,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('', [AdminPerkuliahanController::class, 'index'])->name('admin.kelaskuliah');
             Route::get('create', [AdminPerkuliahanController::class, 'create'])->name('admin.kelaskuliah.create');
             Route::post('create', [AdminPerkuliahanController::class, 'store'])->name('admin.kelaskuliah.store');
+            Route::post('update-koordinator/{id}', [AdminPerkuliahanController::class, 'updateKoordinator'])->name('admin.kelaskuliah.update-koordinator');
             Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
             Route::get('edit/{id}', [AdminPerkuliahanController::class, 'edit'])->name('admin.kelaskuliah.edit');
             Route::put('edit/{id}', [AdminPerkuliahanController::class, 'update'])->name('admin.kelaskuliah.update');
@@ -166,6 +172,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:dosen'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
+
+        Route::prefix('dosen/user')->group(function () {
+            Route::get('/{id}', [DosenProfileController::class, 'show'])->name('dosen.user');
+            Route::get('edit/{id}', [DosenProfileController::class, 'edit'])->name('dosen.user.edit');
+            Route::put('edit/{id}', [DosenProfileController::class, 'update'])->name('dosen.proses.edit');
+            Route::get('profile/changePass', [DosenProfileController::class, 'showFormChangePass'])->name('dosen.user.changePass');
+            Route::post('profile/changePass', [DosenProfileController::class, 'changePassword'])->name('dosen.changePass');
+        });
+
+        Route::prefix('dosen/kelas-kuliah')->group(function () {
+            Route::get('', [DosenPerkuliahanController::class, 'index'])->name('dosen.kelaskuliah');
+            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+        });
     });
 
     Route::group(['middleware' => 'role:mahasiswa'], function () {

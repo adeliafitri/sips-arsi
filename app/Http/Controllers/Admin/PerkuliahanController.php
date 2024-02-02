@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
-use App\Models\KelasKuliah;
+use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
-use App\Models\Semester;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Facades\DB;
+use App\Models\NilaiAkhirMahasiswa;
 use Illuminate\Support\Facades\Validator;
 
 class PerkuliahanController extends Controller
@@ -74,26 +74,71 @@ class PerkuliahanController extends Controller
             'kelas' => 'required|exists:kelas,id',
             'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'dosen' => 'required|exists:dosen,id',
-            'tahun_ajaran' => 'required|string',
             'semester' => 'required',
         ]);
+        // dd($validate);
 
         if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
         try {
+            $existingRecord = KelasKuliah::where('matakuliah_id', $request->mata_kuliah)
+            ->where('dosen_id', $request->dosen)
+            ->first();
+
+            $koordinatorValue = $existingRecord ? $existingRecord->koordinator : "0";
+
             KelasKuliah::create([
                 'kelas_id' => $request->kelas,
                 'matakuliah_id' => $request->mata_kuliah,
                 'dosen_id' => $request->dosen,
-                'tahun_ajaran' => $request->tahun_ajaran,
-                'semester' => $request->semester,
+                'semester_id' => $request->semester,
+                'koordinator' => $koordinatorValue,
             ]);
-
+            // dd($request->semester);
             return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function updateKoordinator(Request $request, int $id)
+    {
+        try {
+            // dd($request->koordinator);
+            $kelas_kuliah = KelasKuliah::where('id', $id)->first();
+
+            $oldKoordinatorValue = $kelas_kuliah->koordinator;
+            // dd($kelas_kuliah->koordinator);
+
+            $kelas_kuliah->update([
+                'koordinator' => $request->koordinator
+            ]);
+            // dd($query->toSql(), $query->getBindings());
+
+            if ($oldKoordinatorValue != $request->koordinator) {
+                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->matakuliah_id, $request->koordinator);
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Data koordinator berhasil diupdate']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data koordinator gagal diupdate: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function updateOtherData($dosenID, $matakuliahID, $newKoordinatorValue)
+    {
+        try {
+            KelasKuliah::where('dosen_id', $dosenID)
+            ->where('matakuliah_id', $matakuliahID)
+            ->update([
+                'koordinator' => $newKoordinatorValue
+            ]);
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
         }
     }
 
@@ -272,7 +317,6 @@ class PerkuliahanController extends Controller
             'kelas' => 'required|exists:kelas,id',
             'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'dosen' => 'required|exists:dosen,id',
-            'tahun_ajaran' => 'required|string',
             'semester' => 'required',
         ]);
 
@@ -286,8 +330,7 @@ class PerkuliahanController extends Controller
                 'kelas_id' => $request->kelas,
                 'matakuliah_id' => $request->mata_kuliah,
                 'dosen_id' => $request->dosen,
-                'tahun_ajaran' => $request->tahun_ajaran,
-                'semester' => $request->semester,
+                'semester_id' => $request->semester,
             ]);
 
             return redirect()->route('admin.kelaskuliah')->with([
@@ -307,12 +350,13 @@ class PerkuliahanController extends Controller
     {
         try {
             KelasKuliah::where('id', $id)->delete();
-
-            return redirect()->route('admin.kelaskuliah')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.kelaskuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 

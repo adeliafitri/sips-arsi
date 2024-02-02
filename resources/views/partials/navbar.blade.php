@@ -5,11 +5,18 @@
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="index.php?include=dashboard" class="nav-link">Home</a>
+                @if (session()->has('admin'))
+                <a href="{{ route('admin.dashboard') }}" class="nav-link">
+                @elseif (session()->has('dosen'))
+                <a href="{{ route('dosen.dashboard') }}" class="nav-link">
+                @elseif (session()->has('mahasiswa'))
+                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link">
+                @endif
+            Home</a>
         </li>
-        <li class="nav-item d-none d-sm-inline-block">
+        {{-- <li class="nav-item d-none d-sm-inline-block">
             <a href="#" class="nav-link">Contact</a>
-        </li>
+        </li> --}}
         </ul>
 
         <!-- Right navbar links -->
@@ -37,7 +44,7 @@
         </li> -->
 
         <!-- Notifications Dropdown Menu -->
-        <li class="nav-item dropdown">
+        {{-- <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
             <i class="far fa-bell"></i>
             <span class="badge badge-warning navbar-badge">15</span>
@@ -62,7 +69,7 @@
             <div class="dropdown-divider"></div>
             <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
             </div>
-        </li>
+        </li> --}}
         <li class="nav-item">
             <a class="nav-link" data-widget="fullscreen" href="#" role="button">
             <i class="fas fa-expand-arrows-alt"></i>
