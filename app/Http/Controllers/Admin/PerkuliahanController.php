@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
 use App\Models\KelasKuliah;
@@ -23,12 +24,12 @@ class PerkuliahanController extends Controller
     public function index(Request $request)
     {
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
-        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
-        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('matakuliah_kelas.*', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
-        ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
+            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+            ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+            ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
+            ->select('matakuliah_kelas.*', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
+            ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -57,7 +58,7 @@ class PerkuliahanController extends Controller
      */
     public function create()
     {
-        $kelas= Kelas::pluck('nama_kelas', 'id');
+        $kelas = Kelas::pluck('nama_kelas', 'id');
         $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
         $dosen = Dosen::pluck('nama', 'id');
         $semester = Semester::all();
@@ -77,7 +78,7 @@ class PerkuliahanController extends Controller
             'semester' => 'required',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
@@ -92,7 +93,7 @@ class PerkuliahanController extends Controller
 
             return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -102,20 +103,26 @@ class PerkuliahanController extends Controller
     public function show(Request $request, $id)
     {
         $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
-        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
-        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-        ->select('matakuliah_kelas.*', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen'
-        )
-        ->where('matakuliah_kelas.id', $id)->first();
+            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+            ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+            ->select(
+                'matakuliah_kelas.*',
+                'semester.tahun_ajaran',
+                'semester.semester',
+                'kelas.nama_kelas as kelas',
+                'mata_kuliah.nama_matkul as nama_matkul',
+                'dosen.nama as nama_dosen'
+            )
+            ->where('matakuliah_kelas.id', $id)->first();
 
         $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
         // dd($jumlah_mahasiswa);
 
         $query = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
-        ->select('mahasiswa.*', 'nilaiakhir_mahasiswa.nilai_akhir as nilai_akhir')
-        // ->distinct()
-        ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id);
+            ->select('mahasiswa.*', 'nilaiakhir_mahasiswa.nilai_akhir as nilai_akhir')
+            // ->distinct()
+            ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id);
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -158,65 +165,70 @@ class PerkuliahanController extends Controller
 
     public function createMahasiswa($id)
     {
-        $mahasiswa= Mahasiswa::pluck('nama', 'id');
+        $mahasiswa = Mahasiswa::pluck('nama', 'id');
         $kelas_kuliah = KelasKuliah::find($id);
         $matakuliah_kelas = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
-        ->select('matakuliah_kelas.*', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul')
-        ->get();
+            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->select('matakuliah_kelas.*', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul')
+            ->get();
 
         return view('pages-admin.perkuliahan.tambah_daftar_mahasiswa', compact('kelas_kuliah', 'mahasiswa', 'matakuliah_kelas'));
     }
 
-    public function storeMahasiswa(Request $request, $id){
+    public function storeMahasiswa(Request $request, $id)
+    {
         $validate = Validator::make($request->all(), [
             'mahasiswa' => 'required|exists:mahasiswa,id',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
         try {
-            $get_matkul = "SELECT `matakuliah_id` FROM `matakuliah_kelas` WHERE `id`= '$id'";
-        $result = DB::select($get_matkul);
+            $matkul_id = KelasKuliah::where('id', $id)->value('matakuliah_id');
+            // $get_matkul = "SELECT `matakuliah_id` FROM `matakuliah_kelas` WHERE `id`= '$id'";
+            // $result = DB::select($get_matkul);
 
-        if (empty($result)) {
-            return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
-        }
-
-        $id_matkul = $result[0]->matakuliah_id;
-
-        // Your existing SQL query
-        $sql_get = "SELECT `s`.`id` FROM `sub_cpmk` `s`
-        INNER JOIN `cpmk` `c` ON `s`.`cpmk_id` = `c`.`id`
-        INNER JOIN `mata_kuliah` `m` ON `c`.`matakuliah_id` = `m`.`id`
-        WHERE `m`.`id` = $id_matkul";
-
-        $results = DB::select($sql_get);
-
-        foreach ($results as $data_subcpmk) {
-            $id_subcpmk = $data_subcpmk->id;
-            try {
-                NilaiMahasiswa::create([
-                    'mahasiswa_id' => $request->mahasiswa,
-                    'matakuliah_kelasid' => $id,
-                    'subcpmk_id' => $id_subcpmk,
-                ]);
-
-            } catch (\Exception $e) {
-                return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            if (empty($matkul_id)) {
+                return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
             }
-        }
 
-        NilaiAkhirMahasiswa::create([
-            'mahasiswa_id' => $request->mahasiswa,
-            'matakuliah_kelasid' => $id,
-        ]);
+            // $id_matkul = $result[0]->matakuliah_i                                                                                                                                                                     d;
 
-        return redirect()->route('admin.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
+            // Your existing SQL query
+            $soal_sub_cpmk = Cpmk::join('sub_cpmk', 'cpmk.id', 'sub_cpmk.cpmk_id')
+                ->join('soal_sub_cpmk', 'sub_cpmk.id', 'soal_sub_cpmk.subcpmk_id')
+                ->where('cpmk.matakuliah_id', $matkul_id)->select('soal_sub_cpmk.id as soal_id')->get();
+
+            // $sql_get = "SELECT `s`.`id` FROM `sub_cpmk` `s`
+            // INNER JOIN `cpmk` `c` ON `s`.`cpmk_id` = `c`.`id`
+            // INNER JOIN `mata_kuliah` `m` ON `c`.`matakuliah_id` = `m`.`id`
+            // WHERE `m`.`id` = $id_matkul";
+
+            // $results = DB::select($sql_get);
+            foreach ($soal_sub_cpmk as $data) {
+                // dd($data);
+                // $soal_id = $data->soal_id;
+                try {
+                    NilaiMahasiswa::create([
+                        'mahasiswa_id' => $request->mahasiswa,
+                        'matakuliah_kelasid' => $id,
+                        'soal_id' => $data->soal_id,
+                    ]);
+                } catch (\Exception $e) {
+                    return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+                }
+            }
+
+            NilaiAkhirMahasiswa::create([
+                'mahasiswa_id' => $request->mahasiswa,
+                'matakuliah_kelasid' => $id,
+            ]);
+
+            return redirect()->route('admin.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -226,14 +238,18 @@ class PerkuliahanController extends Controller
     public function edit(string $id)
     {
         $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
-        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
-        // ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-        ->select('matakuliah_kelas.*', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen'
-        )
-        ->where('matakuliah_kelas.id', $id)->first();
+            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+            // ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+            ->select(
+                'matakuliah_kelas.*',
+                'kelas.nama_kelas as kelas',
+                'mata_kuliah.nama_matkul as nama_matkul',
+                'dosen.nama as nama_dosen'
+            )
+            ->where('matakuliah_kelas.id', $id)->first();
 
-        $kelas= Kelas::pluck('nama_kelas', 'id');
+        $kelas = Kelas::pluck('nama_kelas', 'id');
         $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
         $dosen = Dosen::pluck('nama', 'id');
         $semester = Semester::all();
@@ -260,7 +276,7 @@ class PerkuliahanController extends Controller
             'semester' => 'required',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
@@ -304,12 +320,12 @@ class PerkuliahanController extends Controller
     {
         try {
             NilaiMahasiswa::where('mahasiswa_id', $id_mahasiswa)
-            ->where('matakuliah_kelasid', $id)
-            ->delete();
+                ->where('matakuliah_kelasid', $id)
+                ->delete();
 
             NilaiAkhirMahasiswa::where('mahasiswa_id', $id_mahasiswa)
-            ->where('matakuliah_kelasid', $id)
-            ->delete();
+                ->where('matakuliah_kelasid', $id)
+                ->delete();
 
             return redirect()->route('admin.kelaskuliah')
                 ->with('success', 'Data berhasil dihapus');
@@ -318,5 +334,4 @@ class PerkuliahanController extends Controller
                 ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
-
 }

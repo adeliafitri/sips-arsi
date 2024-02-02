@@ -39,6 +39,9 @@
 <!-- bs-custom-file-input -->
 <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 
+<script src="/js/app.js"></script>
+
+
 <script>
     $(document).ready(function () {
     //Initialize Select2 Elements

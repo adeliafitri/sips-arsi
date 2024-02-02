@@ -30,5 +30,7 @@
 </div>
 <!-- ./wrapper -->
 @include('partials.script')
+@yield('script')
+
 </body>
 </html>
