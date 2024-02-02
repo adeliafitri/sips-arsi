@@ -130,13 +130,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     is_active: value
                 },
                 success: function(data) {
-                    console.log('success');
-                    Swal.fire({
+                  Swal.fire({
                       title: "Deleted!",
                       text: "Your file has been deleted.",
                       icon: "success"
-                    });
-                    window.location.href = "{{ route('admin.semester') }}";
+                  }).then((result) => {
+                      // Check if the user clicked "OK"
+                      if (result.isConfirmed) {
+                          // Redirect to the desired URL
+                          window.location.href = "{{ route('admin.semester') }}";
+                      }
+                  });
                 },
                 error: function(error) {
                     console.log(error);
