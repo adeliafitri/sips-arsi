@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\CplFormatExcel;
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
 
 class CplController extends Controller
 {
@@ -136,28 +134,11 @@ class CplController extends Controller
         try {
             Cpl::where('id', $id)->delete();
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            return redirect()->route('admin.cpl')
+                ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            return redirect()->route('admin.cpl')
+                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
-
-    public function downloadExcel()
-    {
-        return Excel::download(new CplFormatExcel(), 'cpl-excel.xlsx');
-    }
-
-    // public function importExcel(Request $request)
-    // {
-    //     $request->validate([
-    //         'file' => 'required|mimes:xlsx,xls'
-    //     ]);
-
-    //     $file = $request->file('file');
-
-
-    //     Excel::import(new DosenImportExcel(), $file);
-
-    //     return redirect()->back()->with('success', 'Data imported successfully.');
-    // }
 }

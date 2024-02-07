@@ -1,5 +1,4 @@
-@extends('layouts.dosen.main')
-
+@extends('layouts.admin.main')
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -22,41 +21,8 @@
   <!-- Main content -->
   <section class="content">
     <div class="container-fluid">
+      <!-- Small boxes (Stat box) -->
       <!-- <div class="row"> -->
-        <!-- Small boxes (Stat box) -->
-      <div class="row">
-        <div class="col-lg-6 col-12">
-          <!-- small box -->
-          <div class="small-box bg-info">
-            <div class="inner">
-              <h3>8</h3>
-
-              <p>Jumlah Mata Kuliah Ajar</p>
-            </div>
-            <div class="icon">
-              <i class="ion ion-person-add"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-6 col-12">
-          <!-- small box -->
-          <div class="small-box bg-success">
-            <div class="inner">
-              <h3>9</h3>
-
-              <p>Jumlah Kelas Perkuliahan</p>
-            </div>
-            <div class="icon">
-              <i class="ion ion-pie-graph"></i>
-            </div>
-            <a href="" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-      </div>
-      <!-- /.row -->
         <div class="callout callout-info">
             <h5><i class="fas fa-info"></i> Pengumuman</h5>
             This page has been enhanced for printing. Click the print button at the bottom of the invoice to test.
@@ -65,6 +31,21 @@
       <!-- /.row -->
       <!-- Main row -->
       <div class="row">
+      <div class="col-6">
+          <!-- small box -->
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>8</h3>
+
+              <p>Jumlah Mata Kuliah</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-ios-people"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
         <!-- BAR CHART -->
         <div class="card card-info">
             <div class="card-header">

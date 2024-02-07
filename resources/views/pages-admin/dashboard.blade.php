@@ -33,14 +33,14 @@
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h3>{{ $jml_mahasiswa }}</h3>
+              <h3>500</h3>
 
               <p>Jumlah Mahasiswa</p>
             </div>
             <div class="icon">
               <i class="ion ion-ios-people"></i>
             </div>
-            <a href="{{ route('admin.mahasiswa') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>
         </div>
         <!-- ./col -->
@@ -48,14 +48,14 @@
           <!-- small box -->
           <div class="small-box bg-success">
             <div class="inner">
-              <h3>{{ $jml_dosen }}</h3>
+              <h3>53</h3>
 
               <p>Jumlah Dosen</p>
             </div>
             <div class="icon">
               <i class="ion ion-android-people"></i>
             </div>
-            <a href="{{ route('admin.dosen') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>
         </div>
         <!-- ./col -->
@@ -63,7 +63,7 @@
           <!-- small box -->
           <div class="small-box bg-warning">
             <div class="inner">
-              <h3>{{ $jml_matkul }}</h3>
+              <h3>30</h3>
 
               <p>Jumlah Mata Kuliah</p>
             </div>
@@ -78,14 +78,14 @@
           <!-- small box -->
           <div class="small-box bg-danger">
             <div class="inner">
-              <h3>{{ $jml_kelas }}</h3>
+              <h3>20</h3>
 
               <p>Jumlah Kelas Perkuliahan</p>
             </div>
             <div class="icon">
               <i class="ion ion-pie-graph"></i>
             </div>
-            <a href="{{ route('admin.kelaskuliah') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>
         </div>
         <!-- ./col -->

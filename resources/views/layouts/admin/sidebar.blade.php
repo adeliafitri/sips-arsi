@@ -44,29 +44,45 @@
             @endif
             </div>
         </div> --}}
-        {{-- @if (session()->has('admin')) --}}
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                @php
-                    $user = session('admin');
-                    $image = $user->image;
-                @endphp
-                    <img src="{{ asset('storage/image/' . $image) }}" class="img-circle elevation-2" alt="User Image">
+                @if ($user)
+                    <img src="{{ asset('storage/image/' . $user->image) }}" class="img-circle elevation-2" alt="User Image">
+                @endif
             </div>
             <div class="info">
-                    <a href="{{ route('admin.user', $user->id_auth) }}" class="d-block">{{ $user->nama }}</a>
+                @if ($user)
+                    <a href="#" class="d-block">{{ $user->nama }}</a>
+                @else
+                    <p>Welcome, Guest!</p>
+                @endif
             </div>
         </div>
-        {{-- @endif --}}
+
+        <!-- SidebarSearch Form -->
+        <div class="form-inline">
+            <div class="input-group" data-widget="sidebar-search">
+            <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+            <div class="input-group-append">
+                <button class="btn btn-sidebar">
+                <i class="fas fa-search fa-fw"></i>
+                </button>
+            </div>
+            </div>
+        </div>
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
                 @if (session()->has('admin'))
-                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
+                @elseif (session()->has('dosen'))
+                <a href="{{ route('dosen.dashboard') }}" class="nav-link active">
+                @elseif (session()->has('mahasiswa'))
+                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link active">
                 @endif
-                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <i class="nav-icon fas fa-th"></i>
                 <p>
                     Dashboard
                     <!-- <span class="right badge badge-danger">New</span> -->
@@ -75,25 +91,25 @@
             </li>
             @if (session()->has('admin'))
             <li class="nav-item">
-                <a href="{{ route('admin.mahasiswa') }}" class="nav-link {{ request()->routeIs('admin.mahasiswa') ? 'active' : '' }}">
+                <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
                 <i class="fas fa-user-graduate nav-icon"></i>
                 <p>Data Mahasiswa</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.dosen') }}" class="nav-link {{ request()->routeIs('admin.dosen') ? 'active' : '' }}">
+                <a href="{{ route('admin.dosen') }}" class="nav-link">
                 <i class="fas fa-user-tie nav-icon"></i>
                 <p>Data Dosen</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.matakuliah') }}" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
+                <a href="{{ route('admin.matakuliah') }}" class="nav-link">
                 <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link {{ request()->routeIs('admin.kelaskuliah') ? 'active' : '' }}">
+                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Data Kelas Perkuliahan
@@ -101,7 +117,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link {{ request()->routeIs(['admin.semester', 'admin.kelas', 'admin.cpl']) ? 'active' : '' }}">
+                <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-database"></i>
                 <p>
                     Data Master
@@ -130,15 +146,44 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.admins') }}" class="nav-link {{ request()->routeIs('admin.admins') ? 'active' : '' }}">
+            {{-- <li class="nav-item">
+                <a href="{{ route('admin.admins') }}" class="nav-link">
                 <i class="nav-icon fas fa-user"></i>
                 <p>
                     Data Admin
                 </p>
                 </a>
-            </li>
+            </li> --}}
             @endif
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-user"></i>
+                <p>
+                    User
+                    <i class="fas fa-angle-left right"></i>
+                </p>
+                </a>
+                <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    @if (session()->has('admin'))
+                    <a href="{{ route('admin.user', ['id' => Auth::id()]) }}" class="nav-link">
+                    {{-- @elseif (session()->has('dosen'))
+                    <a href="{{ route('dosen.user', ['id' => Auth::id()]) }}" class="nav-link">
+                    @elseif (session()->has('mahasiswa'))
+                    <a href="{{ route('mahasiswa.user', ['id' => Auth::id()]) }}" class="nav-link"> --}}
+                    @endif
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Pengaturan User</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="pages/UI/icons.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Ubah Password</p>
+                    </a>
+                </li>
+                </ul>
+            </li>
             <li class="nav-item">
                 <form action="{{ route('logout') }}" method="post">
                     @csrf

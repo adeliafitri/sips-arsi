@@ -89,12 +89,12 @@
                         <td>{{ $datas->nama_dosen }}</td>
                         <td>
                             <div class="row justify-content-center">
-                                <form>
+                                <form action="">
                                     <div class="form-group">
                                         {{-- <label for="toogleActive">Active</label> --}}
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="koordinator" {{ $datas->koordinator == 1 ? 'checked' : '' }} onclick="changeKoordinator({{ $datas->id }})">
-                                            <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                                            <input type="checkbox" class="custom-control-input" id="isActive" name="koordinator" {{ $datas->koordinator == 1 ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="isActive"></label>
                                         </div>
                                     </div>
                                 </form>
@@ -105,12 +105,11 @@
                             <div class="d-flex">
                                 <a href="{{ route('admin.kelaskuliah.show', $datas->id) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
                                 <a href="{{ route('admin.kelaskuliah.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                <a class="btn btn-danger" onclick="deleteKelasKuliah({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                                {{-- <form action="{{ route('admin.kelaskuliah.destroy', $datas->id) }}" method="post">
+                                <form action="{{ route('admin.kelaskuliah.destroy', $datas->id) }}" method="post" class="">
                                     @csrf
                                     @method('delete')
                                     <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                </form> --}}
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -137,103 +136,3 @@
     </section>
     <!-- /.content -->
 @endsection
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-       //content goes here
-    });
-
-          function changeKoordinator(id){
-            console.log(id);
-            Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
-          }).then((result) => {
-            if (result.isConfirmed) {
-                var isActiveCheckbox = document.getElementById('isActive-' + id);
-                var isActiveValue = isActiveCheckbox.checked ? 1 : 0;
-
-                    $.ajax({
-                    url: "{{ url('admin/kelas-kuliah/update-koordinator') }}/" + id,
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        koordinator: isActiveValue
-                    },
-                    success: function(data) {
-                        console.log('success');
-                        Swal.fire({
-                          title: "Updated!",
-                          text: "Koordinator has been changed.",
-                          icon: "success"
-                        }).then((result) => {
-                            // Check if the user clicked "OK"
-                            if (result.isConfirmed) {
-                                // Redirect to the desired URL
-                                window.location.reload();
-                            }
-                        });
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
-            }
-          });
-
-          }
-
-          function deleteKelasKuliah(id){
-            console.log(id);
-            Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-          }).then((result) => {
-            if (result.isConfirmed) {
-                    $.ajax({
-                    url: "{{ url('admin/kelas-kuliah') }}/" + id,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            console.log(response.message);
-
-                            Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
-                            icon: "success"
-                            }).then((result) => {
-                                // Check if the user clicked "OK"
-                                if (result.isConfirmed) {
-                                    // Redirect to the desired URL
-                                    window.location.reload();
-                                };
-                                    // window.location.href = "{{ route('admin.kelas') }}";
-                            });
-                        } else {
-                            console.log(response.message);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error during AJAX request:', error);
-                    }
-                });
-            }
-          });
-
-          }
-        </script>

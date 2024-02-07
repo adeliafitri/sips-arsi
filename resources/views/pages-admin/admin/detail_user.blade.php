@@ -27,7 +27,7 @@
             <div class="col-12">
                 <div class="card bg-light d-flex flex-fill">
                   <div class="card-header text-muted border-bottom-0">
-                    {{ $data->role }}
+                    Admin
                   </div>
                   <div class="card-body pt-0">
                     <div class="row">

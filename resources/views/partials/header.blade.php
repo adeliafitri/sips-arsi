@@ -31,9 +31,3 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-{{-- <script src="{{ asset('js/app.js') }}" defer></script> --}}
-<!-- Include jQuery from a CDN -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-

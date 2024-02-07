@@ -41,8 +41,10 @@ class AuthController extends Controller
                     $dosen = dosen::where('id_auth', $user->id)->first();
                      // Simpan data dosen dalam session
                     if ($dosen) {
-                        session(['dosen' => $dosen]);
-                        return redirect()->route('dosen.dashboard')->with($token);
+                        // session(['dosen' => $dosen]);
+                        return redirect()->route('dosen.dashboard')->with([
+                            "user" => $dosen,
+                        ]);
                     }else {
                         return redirect()->back()->withErrors(['error' => 'dosen data not found']);
                     }
@@ -52,7 +54,7 @@ class AuthController extends Controller
                      // Simpan data mahasiswa dalam session
                     if ($mahasiswa) {
                         session(['mahasiswa' => $mahasiswa]);
-                        return redirect()->route('mahasiswa.dashboard')->with($token);
+                        return redirect()->route('mahasiswa.dashboard');
                     }else {
                         return redirect()->back()->withErrors(['error' => 'mahasiswa data not found']);
                     }
@@ -71,7 +73,7 @@ class AuthController extends Controller
                 }
         }
 
-        return response()->json(['error' => 'Unauthorized   '], 401);
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
 
     public function logout(Request $request) {

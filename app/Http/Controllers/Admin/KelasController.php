@@ -124,13 +124,12 @@ class KelasController extends Controller
     {
         try {
             Kelas::where('id', $id)->delete();
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
-            // return redirect()->route('admin.kelas')
-            //     ->with('success', 'Data berhasil dihapus');
+
+            return redirect()->route('admin.kelas')
+                ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
-            // return redirect()->route('admin.kelas')
-            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return redirect()->route('admin.kelas')
+                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 }
