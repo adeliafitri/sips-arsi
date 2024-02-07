@@ -159,8 +159,5 @@
             <!-- /.row -->
         </div><!-- /.container-fluid -->
     </section>
-
-
-
-
 @endsection
+

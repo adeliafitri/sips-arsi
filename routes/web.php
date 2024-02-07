@@ -9,6 +9,7 @@ use App\Http\Controllers\Dosen\DosenController;
 use App\Http\Controllers\Admin\JenisCplController;
 use App\Http\Controllers\Admin\SemesterController;
 use App\Http\Controllers\Admin\MataKuliahController;
+use App\Http\Controllers\Admin\RpsController;
 // use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
 use App\Http\Controllers\Admin\CplController as AdminCplController;
@@ -20,14 +21,11 @@ use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
-use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
-use App\Http\Controllers\AuthController;
-use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
+// use App\Http\Controllers\AuthController;
+// use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Dosen\DosenController;
-use App\Http\Controllers\Mahasiswa\MahasiswaController;
-use App\Http\Controllers\ProfileController;
 
 // Route::get('/', [DashboardController::class, 'index']);
 Route::group(['middleware' => 'guest'], function () {
@@ -72,12 +70,19 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('admin/mata-kuliah')->group(function () {
             Route::get('', [MataKuliahController::class, 'index'])->name('admin.matakuliah');
-            Route::get('create', [MataKuliahController::class, 'create'])->name('admin.matakuliah.create');
+            Route::get('create', [MataKuliahController::class, 'create'])->name('admin.matakuliah.create.matkul');
             Route::post('create', [MataKuliahController::class, 'store'])->name('admin.matakuliah.store');
             // Route::get('/{id}', [MataKuliahController::class, 'show'])->name('admin.matakuliah.show');
             Route::get('edit/{id}', [MataKuliahController::class, 'edit'])->name('admin.matakuliah.edit');
             Route::put('edit/{id}', [MataKuliahController::class, 'update'])->name('admin.matakuliah.update');
             Route::delete('{id}', [MataKuliahController::class, 'destroy'])->name('admin.matakuliah.destroy');
+        });
+
+        Route::prefix('admin/rps')->group(function () {
+            Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
+            Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
+            Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
+            // Route::get('create', [RpsController::class, 'create'])->name('admin.matakuliah.add');
         });
 
         Route::prefix('admin/kelas')->group(function () {

@@ -3,6 +3,7 @@
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <section class="content-header">
         <div class="container-fluid">
@@ -40,306 +41,42 @@
                         <div class="card-header d-flex justify-content-end">
                             <h3 class="card-title col align-self-center">Form Tambah Data Mata Kuliah</h3>
                             <!-- <div class="col-sm-2">
-                            <a href="index.php?include=data-mahasiswa" class="btn btn-warning"><i class="nav-icon fas fa-arrow-left mr-2"></i> Kembali</a>
-                            </div> -->
+                                <a href="index.php?include=data-mahasiswa" class="btn btn-warning"><i class="nav-icon fas fa-arrow-left mr-2"></i> Kembali</a>
+                                </div> -->
                         </div>
                         <div class="card-body">
                             <div class="container">
-                                <div id="stepper1" class="bs-stepper">
-                                    <div class="bs-stepper-header">
-                                        <div class="step" data-target="#test-l-1">
-                                            <button type="button" class="btn step-trigger">
-                                                <span class="bs-stepper-circle">1</span>
-                                                <span class="bs-stepper-label">First step</span>
-                                            </button>
+                                <form action="{{ route('admin.matakuliah.create.matkul') }}" method="post"
+                                    enctype="multipart/form-data" id="myForm">
+                                    @CSRF
+                                    <div id="test-l-1" class="content">
+                                        <div class="form-group">
+                                            <label for="kode_matkul">Kode Matkul</label>
+                                            <input type="text" class="form-control" id="kode_matkul"
+                                                name="kode_matkul" placeholder="Kode Mata Kuliah" required>
                                         </div>
-                                        <div class="line"></div>
-                                        <div class="step" data-target="#test-l-2">
-                                            <button type="button" class="btn step-trigger">
-                                                <span class="bs-stepper-circle">2</span>
-                                                <span class="bs-stepper-label">Second step</span>
-                                            </button>
+                                        <div class="form-group">
+                                            <label for="nama_matkul">Nama Matkul</label>
+                                            <input type="text" class="form-control" id="nama_matkul"
+                                                name="nama_matkul" placeholder="Nama Mata Kuliah">
                                         </div>
-                                        <div class="line"></div>
-                                        <div class="step" data-target="#test-l-3">
-                                            <button type="button" class="btn step-trigger">
-                                                <span class="bs-stepper-circle">3</span>
-                                                <span class="bs-stepper-label">Third step</span>
-                                            </button>
+                                        <div class="form-group">
+                                            <label for="sks">SKS</label>
+                                            <input type="number" class="form-control" id="sks" name="sks"
+                                                placeholder="SKS">
                                         </div>
-                                        <div class="line"></div>
-                                        <div class="step" data-target="#test-l-4">
-                                            <button type="button" class="btn step-trigger">
-                                                <span class="bs-stepper-circle">4</span>
-                                                <span class="bs-stepper-label">Fourth step</span>
-                                            </button>
-                                        </div>
+
+                                        <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
-                                    <div class="bs-stepper-content">
-                                        <div id="test-l-1" class="content">
-                                            <form action="{{ route('admin.matakuliah.store') }}" method="post"
-                                                enctype="multipart/form-data">
-                                                @CSRF
-                                                <div class="form-group">
-                                                    <label for="kode_matkul">Kode Matkul</label>
-                                                    <input type="text" class="form-control" id="kode_matkul"
-                                                        name="kode_matkul" placeholder="Kode Mata Kuliah">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="nama_matkul">Nama Matkul</label>
-                                                    <input type="text" class="form-control" id="nama_matkul"
-                                                        name="nama_matkul" placeholder="Nama Mata Kuliah">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="sks">SKS</label>
-                                                    <input type="number" class="form-control" id="sks" name="sks"
-                                                        placeholder="SKS">
-                                                </div>
-                                            </form>
-                                            <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Cancel</a>
-                                            <button type="button" class="btn btn-primary"
-                                                onclick="stepper1.next()">Selanjutnya</button>
-                                        </div>
-
-                                        <div id="test-l-2" class="content">
-                                            <form action="{{ route('admin.matakuliah.store') }}" method="post"
-                                                enctype="multipart/form-data">
-                                                @CSRF
-                                                <div class="sortinput" style="margin-bottom: 1rem">
-                                                    <label for="pilih_cpl">Pilih CPL</label>
-                                                    <select class="form-select w-100 mb-1"
-                                                        style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;"
-                                                        onfocus="this.style.borderColor = '#80bdff';"
-                                                        onblur="this.style.borderColor = '#939ba2';"
-                                                        aria-label="Default select example">
-                                                        <option selected>Pilih CPL</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="kode_cpmk">Kode CPMK</label>
-                                                    <input type="text" class="form-control" id="kode_cpmk"
-                                                        name="kode_cpmk" placeholder="Kode CPMK">
-                                                </div>
-                                                <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="deskripsi">Deskripsi</label>
-                                                    <textarea id="deskripsi" name="deskripsi"
-                                                        style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px"
-                                                        required></textarea>
-                                                </div>
-                                            </form>
-                                            <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                <form action="" method="post">
-                                                    @csrf
-                                                    @method('')
-                                                    <button class="btn btn-primary" type="submit"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
-                                                </form>
-                                            </div>
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 10px">No</th>
-                                                        <th>Kode CPL</th>
-                                                        <th>Kode CPMK</th>
-                                                        <th>Deskripsi</th>
-                                                        <th style="width: 150px;">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {{-- @foreach ($data as $key => $datas) --}}
-                                                        <tr>
-                                                            <td>1</td>
-                                                            <td>CPL1</td>
-                                                            <td>CPMK1</td>
-                                                            <td>Deskripsi 1</td>
-                                                            <td class="d-flex justify-content-center">
-                                                                <form
-                                                                    action=""
-                                                                    method="post">
-                                                                    @csrf
-                                                                    @method('delete')
-                                                                    <button class="btn btn-danger ml-1" type="submit"><i
-                                                                            class="nav-icon fas fa-trash-alt"></i></button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    {{-- @endforeach --}}
-                                                </tbody>
-                                            </table>
-                                            <button class="btn btn-primary"
-                                                onclick="stepper1.previous()">Sebelumnya</button>
-                                            <button type="button" class="btn btn-primary"
-                                                onclick="stepper1.next()">Selanjutnya</button>
-                                        </div>
-
-                                        <div id="test-l-3" class="content">
-                                            <form action="{{ route('admin.matakuliah.store') }}" method="post"
-                                                enctype="multipart/form-data">
-                                                @CSRF
-                                                <div class="sortinput" style="margin-bottom: 1rem">
-                                                    <label for="pilih_cpl">Pilih CPMK</label>
-                                                    <select class="form-select w-100 mb-1"
-                                                        style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;"
-                                                        onfocus="this.style.borderColor = '#80bdff';"
-                                                        onblur="this.style.borderColor = '#939ba2';"
-                                                        aria-label="Default select example">
-                                                        <option selected>Pilih CPMK</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="kode_cpmk">Kode Sub CPMK</label>
-                                                    <input type="text" class="form-control" id="kode_cpmk"
-                                                        name="kode_cpmk" placeholder="Kode CPMK">
-                                                </div>
-                                                <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="deskripsi">Deskripsi</label>
-                                                    <textarea id="deskripsi" name="deskripsi"
-                                                        style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px"
-                                                        required></textarea>
-                                                </div>
-                                            </form>
-                                            <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                <form action="" method="post">
-                                                    @csrf
-                                                    @method('')
-                                                    <button class="btn btn-primary" type="submit"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
-                                                </form>
-                                            </div>
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 10px">No</th>
-                                                        <th>Kode CPL</th>
-                                                        <th>Kode CPMK</th>
-                                                        <th>Deskripsi</th>
-                                                        <th style="width: 150px;">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {{-- @foreach ($data as $key => $datas) --}}
-                                                        <tr>
-                                                            <td>1</td>
-                                                            <td>CPL1</td>
-                                                            <td>CPMK1</td>
-                                                            <td>Deskripsi 1</td>
-                                                            <td class="d-flex justify-content-center">
-                                                                <form
-                                                                    action=""
-                                                                    method="post">
-                                                                    @csrf
-                                                                    @method('delete')
-                                                                    <button class="btn btn-danger ml-1" type="submit"><i
-                                                                            class="nav-icon fas fa-trash-alt"></i></button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    {{-- @endforeach --}}
-                                                </tbody>
-                                            </table>
-                                            <button class="btn btn-primary"
-                                                onclick="stepper1.previous()">Sebelumnya</button>
-                                            <button type="button" class="btn btn-primary"
-                                                onclick="stepper1.next()">Selanjutnya</button>
-                                        </div>
-
-                                        <div id="test-l-4" class="content">
-                                            <form action="{{ route('admin.matakuliah.store') }}" method="post"
-                                                enctype="multipart/form-data">
-                                                @CSRF
-                                                <div class="sortinput" style="margin-bottom: 1rem">
-                                                    <label for="pilih_cpl">Pilih Sub CPMK</label>
-                                                    <select class="form-select w-100 mb-1"
-                                                        style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;"
-                                                        onfocus="this.style.borderColor = '#80bdff';"
-                                                        onblur="this.style.borderColor = '#939ba2';"
-                                                        aria-label="Default select example">
-                                                        <option selected>Pilih Sub CPMK</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
-                                                    </select>
-                                                </div>
-                                                <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="bentuk_soal">Bentuk Soal</label>
-                                                    <textarea id="bentuk_soal" name="bentuk_soal"
-                                                        style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px"
-                                                        required></textarea>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-lg-4">
-                                                        <label for="bobot">Bobot</label>
-                                                        <div class="input-group mb-3">
-                                                            <input type="number" class="form-control" placeholder="Bobot" aria-label="Bobot" aria-describedby="basic-addon2">
-                                                            <div class="input-group-append">
-                                                            <span class="input-group-text" id="basic-addon2">%</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-8">
-                                                        <label for="waktu_pelaksanaan">Waktu Pelaksanaan</label>
-                                                        <div class="input-group mb-3">
-                                                            <input type="number" class="form-control" aria-describedby="basic-addon2" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </form>
-                                            <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                <form action="" method="post">
-                                                    @csrf
-                                                    @method('')
-                                                    <button class="btn btn-primary" type="submit"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
-                                                </form>
-                                            </div>
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 10px">No</th>
-                                                        <th>Kode CPL</th>
-                                                        <th>Kode CPMK</th>
-                                                        <th>Deskripsi</th>
-                                                        <th style="width: 150px;">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {{-- @foreach ($data as $key => $datas) --}}
-                                                        <tr>
-                                                            <td>1</td>
-                                                            <td>CPL1</td>
-                                                            <td>CPMK1</td>
-                                                            <td>Deskripsi 1</td>
-                                                            <td class="d-flex justify-content-center">
-                                                                <form
-                                                                    action=""
-                                                                    method="post">
-                                                                    @csrf
-                                                                    @method('delete')
-                                                                    <button class="btn btn-danger ml-1" type="submit"><i
-                                                                            class="nav-icon fas fa-trash-alt"></i></button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    {{-- @endforeach --}}
-                                                </tbody>
-                                            </table>
-                                            <button class="btn btn-primary"
-                                                onclick="stepper1.previous()">Sebelumnya</button>
-                                            <button type="button" class="btn btn-primary"
-                                                onclick="stepper1.next()">Simpan</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                         <script src="dist/js/bs-stepper.js"></script>
                         <script>
                             var stepper1Node = document.querySelector('#stepper1');
                             var stepper1 = new Stepper(document.querySelector('#stepper1'));
+                            var saveAndNextBtn = document.getElementById('saveAndNextBtn');
 
                             stepper1Node.addEventListener('show.bs-stepper', function(event) {
                                 console.warn('show.bs-stepper', event);
@@ -347,15 +84,287 @@
                             stepper1Node.addEventListener('shown.bs-stepper', function(event) {
                                 console.warn('shown.bs-stepper', event);
                             });
-                        </script>
 
-                    </div>
-                    <!-- /.card -->
-                </div>
-                <!-- /.col -->
-            </div>
-            <!-- /.row -->
+                            // Array to store data
+                            let dataArray = [];
+                            // Function to handle button click
+                            function handleButton1Click() {
+                                // Check if the form is empty
+                                if (isFormEmpty()) {
+                                    alert("Form is empty. Please fill in the fields.");
+                                } else {
+                                    // Add data if form is not empty
+                                    addData();
+
+                                    // Clear the form
+                                    clearForm();
+                                }
+                            }
+
+                            function handleButton2Click() {
+                                if (isFormEmpty()) {
+                                    alert("Form is empty. Please fill in the fields.");
+                                } else {
+                                    // Add data if form is not empty
+                                    addData2();
+
+                                    // Clear the form
+                                    clearForm();
+                                }
+                            }
+
+                            function handleButton3Click() {
+                                if (isFormEmpty()) {
+                                    alert("Form is empty. Please fill in the fields.");
+                                } else {
+                                    // Add data if form is not empty
+                                    addData3();
+
+                                    // Clear the form
+                                    clearForm();
+                                }
+                            }
+
+                            // Function to check if form is empty
+                            function isFormEmpty() {
+                                let cpl_id = document.getElementById("cpl_id").value.trim();
+                                let kode_cpmk = document.getElementById("kode_cpmk").value.trim();
+                                let deskripsi_cpmk = document.getElementById("deskripsi_cpmk").value.trim();
+                                let pilih_cpmk = document.getElementById("pilih_cpmk").value.trim();
+                                let kode_subcpmk = document.getElementById("kode_subcpmk").value.trim();
+                                let deskripsi_subcpmk = document.getElementById("deskripsi_subcpmk").value.trim();
+                                let pilih_subcpmk = document.getElementById("pilih_subcpmk").value.trim();
+                                let bentuk_soal = document.getElementById("bentuk_soal").value.trim();
+                                let bobot = document.getElementById("bobot").value.trim();
+                                let waktu_pelaksanaan = document.getElementById("waktu_pelaksanaan").value.trim();
+
+                                return cpl_id === "" && kode_cpmk === "" && deskripsi_cpmk === "" &&
+                                        pilih_cpmk === "" && kode_subcpmk === "" && deskripsi_subcpmk === "" &&
+                                        pilih_subcpmk === "" && bentuk_soal === "" && bobot === "" && waktu_pelaksanaan === "";
+                            }
+
+                            // Function to add data 1
+                            function addData() {
+                            // Get values from the form
+                                //step 2
+                                let cpl_id = document.getElementById("cpl_id").value;
+                                let kode_cpmk = document.getElementById("kode_cpmk").value;
+                                let deskripsi_cpmk = document.getElementById("deskripsi_cpmk").value;
+                                const newOptionInput = document.getElementById('kode_cpmk');
+                                const dynamicDropdown = document.getElementById('pilih_cpmk');
+                                const newOptionValue = newOptionInput.value.trim();
+
+                                    if (newOptionValue !== '') {
+                                        // Check if the option already exists
+                                        if (!dynamicDropdown.querySelector(`option[value="${newOptionValue}"]`)) {
+                                            // Create a new option element
+                                            const newOption = document.createElement('option');
+                                            newOption.value = newOptionValue;
+                                            newOption.text = newOptionValue;
+
+                                            // Add the new option to the dropdown
+                                            dynamicDropdown.add(newOption);
+
+                                            // Clear the input
+                                            newOptionInput.value = '';
+                                        }
+                                    //     else {
+                                    //         alert('Option already exists.');
+                                    //     }
+                                    // } else {
+                                    //     alert('Please enter a valid option.');
+                                    }
+
+                                // Push data into the array
+                                dataArray.push({ cpl_id, kode_cpmk, deskripsi_cpmk });
+
+                                // Display the array in a table
+                                displayData();
+
+                                // Clear the form
+                                clearForm();
+                            }
+
+                            // Function to add data 2
+                            function addData2() {
+                            // Get values from the form
+                                //step 2
+                                let pilih_cpmk = document.getElementById("pilih_cpmk").value;
+                                let kode_subcpmk = document.getElementById("kode_subcpmk").value;
+                                let deskripsi_subcpmk = document.getElementById("deskripsi_subcpmk").value;
+                                const newOptionInput = document.getElementById('kode_subcpmk');
+                                const dynamicDropdown = document.getElementById('pilih_subcpmk');
+                                const newOptionValue = newOptionInput.value.trim();
+
+                                    if (newOptionValue !== '') {
+                                        // Check if the option already exists
+                                        if (!dynamicDropdown.querySelector(`option[value="${newOptionValue}"]`)) {
+                                            // Create a new option element
+                                            const newOption = document.createElement('option');
+                                            newOption.value = newOptionValue;
+                                            newOption.text = newOptionValue;
+
+                                            // Add the new option to the dropdown
+                                            dynamicDropdown.add(newOption);
+
+                                            // Clear the input
+                                            newOptionInput.value = '';
+                                        }
+                                    //     else {
+                                    //         alert('Option already exists.');
+                                    //     }
+                                    // } else {
+                                    //     alert('Please enter a valid option.');
+                                    }
+
+                                // Push data into the array
+                                dataArray.push({ pilih_cpmk, kode_subcpmk, deskripsi_subcpmk });
+
+                                // Display the array in a table
+                                displayData2();
+
+                                // Clear the form
+                                clearForm();
+                            }
+
+                            // Function to add data 3
+                            function addData3() {
+                            // Get values from the form
+                                //step 2
+                                let pilih_subcpmk = document.getElementById("pilih_subcpmk").value;
+                                let bentuk_soal = document.getElementById("bentuk_soal").value;
+                                let bobot = document.getElementById("bobot").value;
+                                let waktu_pelaksanaan = document.getElementById("waktu_pelaksanaan").value;
+
+                                // Push data into the array
+                                dataArray.push({ pilih_subcpmk, bentuk_soal, bobot, waktu_pelaksanaan });
+
+                                // Display the array in a table
+                                displayData3();
+
+                                // Clear the form
+                                clearForm();
+                            }
+
+                            // Function to clear the form
+                            function clearForm() {
+                                document.getElementById("cpl_id").value = "";
+                                document.getElementById("kode_cpmk").value = "";
+                                document.getElementById("deskripsi_cpmk").value = "";
+                                document.getElementById("pilih_cpmk").value = "";
+                                document.getElementById("kode_subcpmk").value = "";
+                                document.getElementById("deskripsi_subcpmk").value = "";
+                                document.getElementById("pilih_subcpmk").value = "";
+                                document.getElementById("bentuk_soal").value = "";
+                                document.getElementById("bobot").value = "";
+                                document.getElementById("waktu_pelaksanaan").value = "";
+                            }
+
+                            // Function to display data in a table 1
+                            function displayData() {
+                                let dataTable = document.getElementById("dataTable");
+                                let tbody = document.getElementById("dataArray");
+                                tbody.innerHTML = ''; // Clear previous table
+
+                                // Create table rows for each data entry
+                                dataArray.forEach((data, index) => {
+                                    let row = tbody.insertRow();
+                                    let cellNumber = row.insertCell(0);
+                                    let cellCpl_id = row.insertCell(1);
+                                    let cellKode_cpmk = row.insertCell(2);
+                                    let cellDeskripsi_cpmk = row.insertCell(3);
+                                    let cellAction = row.insertCell(4);
+
+                                    cellNumber.textContent = index + 1;
+                                    cellCpl_id.textContent = data.cpl_id;
+                                    cellKode_cpmk.textContent = data.kode_cpmk;
+                                    cellDeskripsi_cpmk.textContent = data.deskripsi_cpmk;
+
+                                    // Add delete button with onclick event
+                                    let deleteButton = document.createElement("button");
+                                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                                    deleteButton.classList.add("btn", "btn-danger");
+                                    deleteButton.onclick = function () {
+                                    deleteData(index);
+                                    };
+                                    cellAction.appendChild(deleteButton);
+                                });
+                            }
+
+                            // Function to display data in a table 2
+                            function displayData2() {
+                                let dataTable = document.getElementById("dataTable2");
+                                let tbody = document.getElementById("dataArray2");
+                                tbody.innerHTML = ''; // Clear previous table
+
+                                // Create table rows for each data entry
+                                dataArray.forEach((data, index) => {
+                                    let row = tbody.insertRow();
+                                    let cellNumber = row.insertCell(0);
+                                    let cellPilih_cpmk = row.insertCell(1);
+                                    let cellKode_subcpmk = row.insertCell(2);
+                                    let cellDeskripsi_subcpmk = row.insertCell(3);
+                                    let cellAction = row.insertCell(4);
+
+                                    cellNumber.textContent = index + 1;
+                                    cellPilih_cpmk.textContent = data.pilih_cpmk;
+                                    cellKode_subcpmk.textContent = data.kode_subcpmk;
+                                    cellDeskripsi_subcpmk.textContent = data.deskripsi_subcpmk;
+
+                                    // Add delete button with onclick event
+                                    let deleteButton = document.createElement("button");
+                                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                                    deleteButton.classList.add("btn", "btn-danger");
+                                    deleteButton.onclick = function () {
+                                    deleteData(index);
+                                    };
+                                    cellAction.appendChild(deleteButton);
+                                });
+                            }
+
+                            // Function to display data in a table 3
+                            function displayData3() {
+                                let dataTable = document.getElementById("dataTable3");
+                                let tbody = document.getElementById("dataArray3");
+                                tbody.innerHTML = ''; // Clear previous table
+
+                                // Create table rows for each data entry
+                                dataArray.forEach((data, index) => {
+                                    let row = tbody.insertRow();
+                                    let cellNumber = row.insertCell(0);
+                                    let cellPilih_subcpmk = row.insertCell(1);
+                                    let cellBentuk_soal = row.insertCell(2);
+                                    let cellBobot = row.insertCell(3);
+                                    let cellWaktu_pelaksanaan = row.insertCell(4);
+                                    let cellAction = row.insertCell(5);
+
+                                    cellNumber.textContent = index + 1;
+                                    cellPilih_subcpmk.textContent = data.pilih_subcpmk;
+                                    cellBentuk_soal.textContent = data.bentuk_soal;
+                                    cellBobot.textContent = data.bobot;
+                                    cellWaktu_pelaksanaan.textContent = data.waktu_pelaksanaan;
+
+                                    // Add delete button with onclick event
+                                    let deleteButton = document.createElement("button");
+                                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                                    deleteButton.classList.add("btn", "btn-danger");
+                                    deleteButton.onclick = function () {
+                                    deleteData(index);
+                                    };
+                                    cellAction.appendChild(deleteButton);
+                                });
+                            }
+
+                                // Function to delete data
+                                function deleteData(index) {
+                                    dataArray.splice(index, 1);
+                                    displayData(), displayData2(), displayData3();
+                            }
+
+                        </script>
+                    </div><!-- /.card -->
+                </div><!-- /.col -->
+            </div><!-- /.row -->
         </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
+    </section><!-- /.content -->
 @endsection
