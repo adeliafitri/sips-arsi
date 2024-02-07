@@ -1,15 +1,15 @@
-@extends('layouts.admin.main')
+@extends('layouts.dosen.main')
 
 @section('content')
 <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Data Admin</h1>
+            <h1>Data Dosen</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{{ route('admin.user', ['id' => $data->id_auth]) }}">Data Admin</a></li>
+              <li class="breadcrumb-item"><a href="{{ route('dosen.user', ['id' => $data->id_auth]) }}">Profile User</a></li>
               <li class="breadcrumb-item active">Edit Data</li>
             </ol>
           </div>
@@ -35,10 +35,10 @@
                     @endif
                 </div>
               <div class="card-header d-flex justify-content-end">
-                <h3 class="card-title col align-self-center">Form Edit Data Admin</h3>
+                <h3 class="card-title col align-self-center">Form Edit Data Dosen</h3>
               </div>
                 <div class="card-body">
-                <form action="{{ route('user.proses.edit', ['id' => $data->id_auth]) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('dosen.proses.edit', ['id' => $data->id_auth]) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="form-group">
@@ -60,7 +60,7 @@
                     <label for="email">Email</label>
                     <input type="email" class="form-control"  disabled id="email" rows="3" name="email" placeholder="Email" value="{{ $data->email }}">
                     </div>
-                    <a href="{{ route('admin.user.changePass') }}" class="text-danger">Change Password</a>
+                    <a href="{{ route('dosen.user.changePass') }}" class="text-danger">Change Password</a>
                     {{-- <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" rows="3" name="password" placeholder="Password">
@@ -69,7 +69,7 @@
                   </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
-                    <a href="{{ route('admin.user', ['id' => $data->id_auth]) }}" class="btn btn-default">Cancel</a>
+                    <a href="{{ route('dosen.user', ['id' => $data->id_auth]) }}" class="btn btn-default">Cancel</a>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
                 </form>

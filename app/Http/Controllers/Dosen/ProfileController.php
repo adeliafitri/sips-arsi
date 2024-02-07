@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
+use App\Models\Dosen;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,33 +14,33 @@ class ProfileController extends Controller
 {
     public function show($id) {
         // dd($id);
-        $admin = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
-                    ->where('admin.id_auth', $id)
-                    ->select('admin.*', 'auth.role') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+        $dosen = Dosen::join('auth', 'dosen.id_auth', '=', 'auth.id')
+                    ->where('dosen.id_auth', $id)
+                    ->select('dosen.*', 'auth.role') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
-        // dd($admin);
-        if (!$admin) {
-            return redirect()->route('pages-admin.admin.detail_user')->withErrors(['error' => 'Admin not found']);
+        // dd($dosen);
+        if (!$dosen) {
+            return redirect()->route('pages-dosen.dosen.detail_user')->withErrors(['error' => 'dosen not found']);
         }
-        return view('pages-admin.admin.detail_user', [
+        return view('pages-dosen.dosen.detail_user', [
             'success' => 'Data Found',
-            'data' => $admin,
+            'data' => $dosen,
         ]);
     }
 
     public function edit($id) {
         // dd($id);
-        $admin = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
-                    ->where('admin.id_auth', $id)
-                    ->select('admin.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+        $dosen = Dosen::join('auth', 'dosen.id_auth', '=', 'auth.id')
+                    ->where('dosen.id_auth', $id)
+                    ->select('dosen.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
-        // dd($admin);
-        if (!$admin) {
-            return redirect()->route('pages-admin.admin.edit_user')->withErrors(['error' => 'Admin not found']);
+        // dd($dosen);
+        if (!$dosen) {
+            return redirect()->route('pages-dosen.dosen.edit_user')->withErrors(['error' => 'dosen not found']);
         }
-        return view('pages-admin.admin.edit_user', [
+        return view('pages-dosen.dosen.edit_user', [
             'success' => 'Data Found',
-            'data' => $admin,
+            'data' => $dosen,
         ]);
     }
 
@@ -67,26 +67,26 @@ class ProfileController extends Controller
             }
 
             // Update data produk berdasarkan ID
-            $admin = Admin::where('id_auth', $id)->first();
-            $admin->update([
+            $dosen = dosen::where('id_auth', $id)->first();
+            $dosen->update([
                 'nama' => $request->nama,
                 'telp' => $request->telp,
-                'image' => $image ? $image : $admin->image,
+                'image' => $image ? $image : $dosen->image,
             ]);
-            session(['admin' => $admin]);
-            //dd($admin->getAttributes()); // Mengecek apakah atribut sudah di-update sesuai harapan
+            session(['dosen' => $dosen]);
+            //dd($dosen->getAttributes()); // Mengecek apakah atribut sudah di-update sesuai harapan
 
-            return redirect()->route('admin.user', $id)->with([
+            return redirect()->route('dosen.user', $id)->with([
                 'success' => 'User updated successfully.',
-                'data' => $admin
+                'data' => $dosen
             ]);
         } catch (\Exception $e) {
-            return redirect()->route('admin.user.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+            return redirect()->route('dosen.user.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
         }
     }
 
     public function showFormChangePass() {
-        return view('pages-admin.admin.changePass');
+        return view('pages-dosen.dosen.changePass');
     }
 
     public function changePassword(Request $request)

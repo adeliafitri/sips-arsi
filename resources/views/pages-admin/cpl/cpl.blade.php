@@ -45,7 +45,7 @@
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
+                      <a class="dropdown-item" href="{{ route('admin.cpl.download-excel') }}"><i class="fas fa-upload mr-2"></i> Export</a>
                       <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
                     </div>
                 </div>
@@ -87,11 +87,12 @@
                                   <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
                                   <div class="d-flex">
                                     <a href="{{ route('admin.cpl.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                    <form action="{{ route('admin.cpl.destroy', $datas->id) }}" method="post" class="">
+                                    <a class="btn btn-danger" onclick="deleteCpl({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                    {{-- <form action="{{ route('admin.cpl.destroy', $datas->id) }}" method="post" class="">
                                         @csrf
                                         @method('delete')
                                         <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                    </form>
+                                    </form> --}}
                                   </div>
                               </td>
                           </tr>
@@ -119,3 +120,56 @@
     </section>
     <!-- /.content -->
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+       //content goes here
+    });
+
+          function deleteCpl(id){
+            console.log(id);
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/cpl') }}/" + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Deleted!",
+                            text: "Your file has been deleted.",
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error during AJAX request:', error);
+                    }
+                });
+            }
+          });
+
+          }
+</script>

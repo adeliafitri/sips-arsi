@@ -1,4 +1,4 @@
-@extends('layouts.admin.main')
+@extends('layouts.dosen.main')
 
 @section('content')
 
@@ -51,7 +51,7 @@
                   </div>
                   <div class="card-footer">
                     <div class="text-right">
-                      <a href="{{ route('admin.user.edit', ['id' => $data->id_auth]) }}" class="btn btn-sm btn-primary">
+                      <a href="{{ route('dosen.user.edit', ['id' => $data->id_auth]) }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-edit"></i> Edit Profile
                       </a>
                     </div>

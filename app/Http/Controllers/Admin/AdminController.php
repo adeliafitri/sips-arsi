@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Dosen;
+use App\Models\KelasKuliah;
+use App\Models\Mahasiswa;
+use App\Models\MataKuliah;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +18,11 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function dashboard() {
-        return view('pages-admin.dashboard');
+        $jml_mahasiswa = Mahasiswa::count();
+        $jml_dosen = Dosen::count();
+        $jml_matkul = MataKuliah::count();
+        $jml_kelas= KelasKuliah::count();
+        return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas'));
     }
 
     public function index(Request $request) {
@@ -123,18 +131,16 @@ class AdminController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
         try {
             $admin = Admin::where('id_auth', $id)->delete();
             if ($admin) {
                 User::where('id', $id)->delete();
-                return redirect()->route('admin.admins')
-                ->with('success', 'Data berhasil dihapus');
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             }
         } catch (\Exception $e) {
-            return redirect()->route('admin.admins')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
 }

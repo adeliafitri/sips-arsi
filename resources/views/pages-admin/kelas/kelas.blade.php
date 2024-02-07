@@ -71,11 +71,12 @@
                         <td class="d-flex justify-content-center">
                             <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
                             <a href="{{ route('admin.kelas.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
-                            <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
+                            <a class="btn btn-danger mt-1" onclick="deleteKelas({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                            {{-- <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
                                 @csrf
                                 @method('delete')
                                 <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                            </form>
+                            </form> --}}
                         </td>
                     </tr>
                     @endforeach
@@ -101,3 +102,56 @@
     </section>
     <!-- /.content -->
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+       //content goes here
+    });
+
+          function deleteKelas(id){
+            console.log(id);
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/kelas') }}/" + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Deleted!",
+                            text: "Your file has been deleted.",
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error during AJAX request:', error);
+                    }
+                });
+            }
+          });
+
+          }
+        </script>

@@ -1,26 +1,22 @@
-@extends('layouts.admin.main')
-
-{{-- @section('form')
-    @include('pages-admin.mata_kuliah.partials.detail.detail_cpl')
-@endsection --}}
+@extends('layouts.dosen.main')
 
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
-    <div class="container-fluid">
+      <div class="container-fluid">
         <div class="row mb-2">
-            <div class="col-sm-6">
-            <h1 class="m-0">Data Mata Kuliah</h1>
-            </div><!-- /.col -->
-            <div class="col-sm-6">
+          <div class="col-sm-6">
+            <h1 class="m-0">Data Kelas Perkuliahan</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
-                <li class="breadcrumb-item active">Data Mata Kuliah</li>
+              <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
+              <li class="breadcrumb-item active">Data Kelas Perkuliahan</li>
             </ol>
-            </div><!-- /.col -->
+          </div><!-- /.col -->
         </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
-</div>
+      </div><!-- /.container-fluid -->
+    </div>
     <!-- /.content-header -->
 
    <!-- Main content -->
@@ -30,9 +26,9 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
-                  <form action="{{ route('admin.matakuliah') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                <div class="col-8">
+                  <form action="{{ route('dosen.kelaskuliah') }}" method="GET">
+                    <div class="input-group col-sm-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -43,9 +39,6 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
-                    <a href="{{ route('admin.matakuliah.create.matkul') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
-                </div>
               </div>
               <div class="card-body">
               <div class="col-sm-12 mt-3">
@@ -63,39 +56,47 @@
                   <thead>
                     <tr>
                       <th style="width: 10px">No</th>
-                      <th>Kode Mata Kuliah</th>
-                      <th>Nama Mata Kuliah</th>
-                      <th>SKS</th>
+                      <th style="width: 150px;">Tahun Ajaran</th>
+                      <th style="width: 100px;">Semester</th>
+                      <th>Mata Kuliah</th>
+                      <th>Kelas</th>
+                      {{-- <th>Dosen</th> --}}
+                      {{-- <th style="width: 100px;">Koordinator</th> --}}
+                      <th style="width: 200px;">Jumlah Mahasiswa</th>
                       <th style="width: 150px;">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    @foreach ($data as $key => $datas)
+                  @foreach ($data as $key => $datas)
                     <tr>
                         <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->kode_matkul }}</td>
+                        <td>{{ $datas->tahun_ajaran }}</td>
+                        <td>{{ $datas->semester }}</td>
                         <td>{{ $datas->nama_matkul }}</td>
-                        <td>{{ $datas->sks }}</td>
-
-                           
-
-                        <td class="d-flex justify-content-center">
-                            <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
-                             <a href="{{ route('admin.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
-                            <a href="{{ route('admin.matakuliah.edit', $datas->id) }}" class="btn btn-secondary ml-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
-                            <form action="{{ route('admin.matakuliah.destroy', $datas->id) }}" method="post">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                            </form>
+                        <td>{{ $datas->kelas }}</td>
+                        {{-- <td>{{ $datas->nama_dosen }}</td> --}}
+                        {{-- <td>
+                            <div class="row justify-content-center">
+                                <form>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="koordinator" {{ $datas->koordinator == 1 ? 'checked' : '' }} onclick="changeKoordinator({{ $datas->id }})">
+                                            <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </td> --}}
+                        <td>{{ $datas->jumlah_mahasiswa }}</td>
+                        <td>
+                            <div class="d-flex">
+                                <a href="" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                            </div>
                         </td>
                     </tr>
-                    @endforeach
+                  @endforeach
                   </tbody>
                 </table>
-                <h6 onclick="tesload()">
-                  hello
-                </h6>
               </div>
               <!-- /.card-body -->
 
@@ -116,16 +117,5 @@
     </section>
     <!-- /.content -->
 @endsection
-@section('JSMataKuliah')
 
-  <script>
-    function tesload(){
-              console.log('ted');
-          }
-
-    
-  </script>
-@endsection
-
-{{-- @yield('JSDetailMataKuliah'); --}}
 
