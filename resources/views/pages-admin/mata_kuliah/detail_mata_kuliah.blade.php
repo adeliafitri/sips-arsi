@@ -181,6 +181,5 @@
                 detailCpl({{ $data->id }});
         });
     </script>
- 
-
 @endsection
+
