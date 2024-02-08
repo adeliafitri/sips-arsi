@@ -87,7 +87,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('admin/rps')->group(function () {
             Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
-            Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
+            Route::post('create/subcpmk/', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
+            Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
             Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
             // Route::get('create', [RpsController::class, 'create'])->name('admin.matakuliah.add');
         });
