@@ -29,6 +29,6 @@
 </div>
 <!-- ./wrapper -->
 @include('partials.script')
-@yield('scripts')
+@yield('script')
 </body>
 </html>

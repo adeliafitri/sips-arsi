@@ -1,5 +1,9 @@
 @extends('layouts.admin.main')
 
+{{-- @section('form')
+    @include('pages-admin.mata_kuliah.partials.detail.detail_cpl')
+@endsection --}}
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -40,7 +44,7 @@
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
                 <div class="col-sm-2">
-                    <a href="{{ route('admin.matakuliah.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                    <a href="{{ route('admin.matakuliah.create.matkul') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -72,8 +76,12 @@
                         <td>{{ $datas->kode_matkul }}</td>
                         <td>{{ $datas->nama_matkul }}</td>
                         <td>{{ $datas->sks }}</td>
+
+                           
+
                         <td class="d-flex justify-content-center">
-                            <a href="{{ '/admin/mata_kuliah/detail_mata_kuliah' }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye"></i></a>
+                            <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
+                             <a href="{{ route('admin.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
                             <a href="{{ route('admin.matakuliah.edit', $datas->id) }}" class="btn btn-secondary ml-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
                             <form action="{{ route('admin.matakuliah.destroy', $datas->id) }}" method="post">
                                 @csrf
@@ -85,6 +93,9 @@
                     @endforeach
                   </tbody>
                 </table>
+                <h6 onclick="tesload()">
+                  hello
+                </h6>
               </div>
               <!-- /.card-body -->
 
@@ -105,3 +116,16 @@
     </section>
     <!-- /.content -->
 @endsection
+@section('JSMataKuliah')
+
+  <script>
+    function tesload(){
+              console.log('ted');
+          }
+
+    
+  </script>
+@endsection
+
+{{-- @yield('JSDetailMataKuliah'); --}}
+
