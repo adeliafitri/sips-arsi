@@ -22,6 +22,8 @@ use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
 use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
+use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
+use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
 use Illuminate\Support\Facades\View;
 
 
@@ -178,6 +180,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+
+        Route::prefix('mahasiswa/user')->group(function () {
+            Route::get('/{id}', [MahasiswaProfileController::class, 'show'])->name('mahasiswa.user');
+            Route::get('edit/{id}', [MahasiswaProfileController::class, 'edit'])->name('mahasiswa.user.edit');
+            Route::put('edit/{id}', [MahasiswaProfileController::class, 'update'])->name('mahasiswa.proses.edit');
+            Route::get('profile/changePass', [MahasiswaProfileController::class, 'showFormChangePass'])->name('mahasiswa.user.changePass');
+            Route::post('profile/changePass', [MahasiswaProfileController::class, 'changePassword'])->name('mahasiswa.changePass');
+        });
+
+        Route::prefix('mahasiswa/nilai')->group(function () {
+            Route::get('', [MahasiswaNilaiController::class, 'index'])->name('mahasiswa.nilai');
+            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+        });
     });
 });
 

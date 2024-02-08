@@ -1,4 +1,4 @@
-@extends('layouts.admin.main')
+@extends('layouts.mahasiswa.main')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -24,15 +24,15 @@
     <div class="container-fluid">
       <!-- Small boxes (Stat box) -->
       <!-- <div class="row"> -->
-        <div class="callout callout-info">
+        {{-- <div class="callout callout-info">
             <h5><i class="fas fa-info"></i> Pengumuman</h5>
             This page has been enhanced for printing. Click the print button at the bottom of the invoice to test.
-        </div>
+        </div> --}}
       <!-- </div> -->
       <!-- /.row -->
       <!-- Main row -->
       <div class="row">
-      <div class="col-6">
+      {{-- <div class="col-6">
           <!-- small box -->
           <div class="small-box bg-info">
             <div class="inner">
@@ -45,8 +45,30 @@
             </div>
             <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
           </div>
-        </div>
+        </div> --}}
         <!-- ./col -->
+        <!-- PIE CHART -->
+        <div class="col-md-6">
+            <div class="card card-info ml-2">
+                <div class="card-header">
+                  <h3 class="card-title">Penilaian Mahasiswa</h3>
+
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                      <i class="fas fa-times"></i>
+                    </button> -->
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
         <div class="col-md-6">
         <div class="card">
             <div class="card-header">
@@ -88,30 +110,9 @@
             <!-- /.card-body -->
           </div>
         </div>
-        <!-- PIE CHART -->
-        <div class="col-md-6">
-        <div class="card card-info ml-2">
-            <div class="card-header">
-              <h3 class="card-title">Penilaian Mahasiswa</h3>
 
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
-                  <i class="fas fa-times"></i>
-                </button> -->
-              </div>
-            </div>
-            <div class="card-body">
-              <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-        </div>
 
-          <div class="col-md-6">
+          {{-- <div class="col-md-6">
           <div class="card card-info ml-2">
             <div class="card-header">
               <h3 class="card-title">Data SKS Mahasiswa</h3>
@@ -131,7 +132,7 @@
             <!-- /.card-body -->
           </div>
           <!-- /.card -->
-      </div>
+      </div> --}}
           </div>
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
