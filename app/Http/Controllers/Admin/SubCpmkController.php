@@ -47,6 +47,7 @@ class SubCpmkController extends Controller
         $cpmk = Cpmk::join('mata_kuliah', 'mata_kuliah.id', '=', 'cpmk.matakuliah_id')
         ->select('cpmk.id', 'cpmk.kode_cpmk', 'mata_kuliah.nama_matkul')
         ->get();
+        $kode_cpmk = Cpmk::pluck('kode_cpmk', 'id');
 
         return view('pages-admin.sub_cpmk.tambah_sub_cpmk', compact('cpmk'));
     }
