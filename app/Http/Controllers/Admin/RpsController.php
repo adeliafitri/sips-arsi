@@ -46,14 +46,14 @@ class RpsController extends Controller
                 'deskripsi' => $request->deskripsi_cpmk,
             ]);
 
-
+            // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
             return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
-    public function storesubcpmk(Request $request) {
+    public function storesubcpmk(Request $request, $id) {
 
         try {
             SubCpmk::create([
@@ -63,7 +63,8 @@ class RpsController extends Controller
             ]);
 
             // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
-            return redirect()->route('admin.rps.storecpmk')->with('success', 'Data Berhasil Ditambahkan');
+            return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.rps.storecpmk')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }

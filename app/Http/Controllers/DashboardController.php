@@ -12,7 +12,7 @@ class DashboardController extends Controller
         //     'title' => 'Home Page'
         // );
 
-        return view('pages-admin.dashboard');
+        return view('pages-mahasiswa.dashboard');
     }
 
 }

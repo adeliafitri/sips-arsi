@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanControll
 
 use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
+use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
+use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
 use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
 // use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
@@ -87,7 +89,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('admin/rps')->group(function () {
             Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
-            Route::post('create/subcpmk/', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
+            Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
             Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
             Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
             // Route::get('create', [RpsController::class, 'create'])->name('admin.matakuliah.add');
@@ -201,6 +203,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+
+        Route::prefix('mahasiswa/user')->group(function () {
+            Route::get('/{id}', [MahasiswaProfileController::class, 'show'])->name('mahasiswa.user');
+            Route::get('edit/{id}', [MahasiswaProfileController::class, 'edit'])->name('mahasiswa.user.edit');
+            Route::put('edit/{id}', [MahasiswaProfileController::class, 'update'])->name('mahasiswa.proses.edit');
+            Route::get('profile/changePass', [MahasiswaProfileController::class, 'showFormChangePass'])->name('mahasiswa.user.changePass');
+            Route::post('profile/changePass', [MahasiswaProfileController::class, 'changePassword'])->name('mahasiswa.changePass');
+        });
+
+        Route::prefix('mahasiswa/nilai')->group(function () {
+            Route::get('', [MahasiswaNilaiController::class, 'index'])->name('mahasiswa.nilai');
+            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+        });
     });
 });
 
