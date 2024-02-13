@@ -115,12 +115,25 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {{-- @foreach ($data as $key => $datas)
+                                                    {{-- {{ (json_encode($data_cpmk)) }} --}}
+                                                    @foreach ($data_cpmk as $key => $datas)
                                                     <tr>
-                                                        <td>{{ $startNumber++ }}</td>
-                                                        <td>{{ $datas->nama_kelas }}</td>
+                                                        <td>{{ $start_number++ }}</td>
+                                                        <td>{{ $datas->cpl_id }}</td>
+                                                        <td>{{ $datas->kode_cpmk }}</td>
+                                                        <td>{{ $datas->deskripsi }}</td>
+                                                        <td class="d-flex justify-content-center">
+                                                            <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                                            <a href="" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
+                                                            <a class="btn btn-danger mt-1" onclick="deleteCpmk({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                                            {{-- <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
+                                                                @csrf
+                                                                @method('delete')
+                                                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                                            </form> --}}
+                                                        </td>
                                                     </tr>
-                                                    @endforeach --}}
+                                                    @endforeach
                                                 </tbody>
                                             </table>
                                             <button type="button" class="btn btn-primary"
@@ -278,7 +291,56 @@
                                 console.warn('shown.bs-stepper', event);
                             });
 
+                            document.addEventListener('DOMContentLoaded', function () {
+                            //content goes here
+                            });
 
+                                function deleteCpmk(id){
+                                    console.log(id);
+                                    Swal.fire({
+                                    title: "Are you sure?",
+                                    text: "You won't be able to revert this!",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#3085d6",
+                                    cancelButtonColor: "#d33",
+                                    confirmButtonText: "Yes, delete it!"
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                            $.ajax({
+                                            url: "{{ url('admin/rps/deletecpmk') }}/" + id,
+                                            type: 'DELETE',
+                                            headers: {
+                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                            },
+                                            success: function(response) {
+                                                if (response.status === 'success') {
+                                                    console.log(response.message);
+
+                                                    Swal.fire({
+                                                    title: "Deleted!",
+                                                    text: "Your file has been deleted.",
+                                                    icon: "success"
+                                                    }).then((result) => {
+                                                        // Check if the user clicked "OK"
+                                                        if (result.isConfirmed) {
+                                                            // Redirect to the desired URL
+                                                            window.location.reload();
+                                                        };
+                                                            // window.location.href = "{{ route('admin.kelas') }}";
+                                                    });
+                                                } else {
+                                                    console.log(response.message);
+                                                }
+                                            },
+                                            error: function(error) {
+                                                console.error('Error during AJAX request:', error);
+                                            }
+                                        });
+                                    }
+                                });
+
+                                }
                         </script>
                     </div><!-- /.card -->
                 </div><!-- /.col -->

@@ -14,14 +14,24 @@ use Illuminate\Support\Facades\Validator;
 
 class RpsController extends Controller
 {
+
+    // public function index()
+    // {
+
+    //     // return $data_matkul;
+    //     return view('pages-admin.mata_kuliah.tambah_rps')->with('data', $data_cpmk);
+    // }
+
     public function create($id)
     {
         $matkul= MataKuliah::find($id);
         $cpl= Cpl::pluck('kode_cpl', 'id');
         $kode_cpmk = Cpmk::pluck('kode_cpmk', 'id');
         $kode_subcpmk = SubCpmk::pluck('kode_subcpmk', 'id');
-        return view('pages-admin.mata_kuliah.tambah_rps', compact('cpl','matkul','kode_cpmk','kode_subcpmk'));
-
+        $data_cpmk =Cpmk::where('matakuliah_id', '=', $id)->paginate(5);
+        $start_number = ($data_cpmk->currentPage() - 1) * $data_cpmk->perPage() + 1;
+        // dd($data_cpmk);
+        return view('pages-admin.mata_kuliah.tambah_rps', compact('cpl','matkul','kode_cpmk','kode_subcpmk', 'data_cpmk', 'start_number'));
     }
 
     public function storecpmk(Request $request, $id)
@@ -35,6 +45,7 @@ class RpsController extends Controller
         // if($validate->fails()){
         //     return redirect()->back()->withErrors($validate)->withInput();
         // }
+
 
 
         try {
@@ -86,6 +97,20 @@ class RpsController extends Controller
             return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
 
+    }
+
+    public function destroyCpmk($id)
+    {
+        try {
+            Cpmk::where('id', $id)->delete();
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.kelas')
+            //     ->with('success', 'Data berhasil dihapus');
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.kelas')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+        }
     }
 
 }
