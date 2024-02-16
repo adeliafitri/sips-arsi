@@ -3,12 +3,28 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
+use App\Models\KelasKuliah;
+use App\Models\MataKuliah;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DosenController extends Controller
 {
     public function dashboard() {
-        return view('pages-dosen.dashboard');
+        $matakuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
+        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
+        ->select('mata_kuliah.nama_matkul as nama_matkul')
+        ->where('dosen.id_auth', Auth::user()->id)
+        ->where('semester.is_active', '1')
+        ->distinct()
+        ->get();
+
+        return view('pages-dosen.dashboard',[
+            'data' => $matakuliah
+        ]);
     }
 
     public function index()

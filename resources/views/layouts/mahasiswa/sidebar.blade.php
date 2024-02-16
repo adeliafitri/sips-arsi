@@ -5,81 +5,64 @@
         <span class="brand-text font-weight-dark">Prodi Arsitektur</span>
     </a>
 
+    @php
+    $user = session('admin') ?? session('mahasiswa') ?? session('mahasiswa');
+    // dd(session()->all());
+    @endphp
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-            <img src="./assets-admin/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                @php
+                    $user = session('mahasiswa');
+                    $image = $user->image;
+                    $defaultImage = 'default-150x150.png';
+                @endphp
+                @if($image && file_exists(public_path('storage/image/' . $image)))
+                    <img src="{{ asset('storage/image/' . $image) }}" class="img-circle elevation-2" alt="User Image">
+                @else
+                    <img src="{{ asset('dist/img/' . $defaultImage) }}" class="img-circle elevation-2" alt="Default Image">
+                @endif
+                    {{-- <img src="{{ asset('storage/image/' . $image) }}" class="img-circle elevation-2" alt="User Image"> --}}
             </div>
             <div class="info">
-            <a href="#" class="d-block">Admin</a>
+                    <a href="{{ route('mahasiswa.user', $user->id_auth) }}" class="d-block">{{ $user->nama }}</a>
             </div>
         </div>
-
-        <!-- SidebarSearch Form -->
-        <div class="form-inline">
-            <div class="input-group" data-widget="sidebar-search">
-            <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-            <div class="input-group-append">
-                <button class="btn btn-sidebar">
-                <i class="fas fa-search fa-fw"></i>
-                </button>
-            </div>
-            </div>
-        </div>
+        {{-- @endif --}}
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
-                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link active">
-                <i class="nav-icon fas fa-th"></i>
+                @if (session()->has('mahasiswa'))
+                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link {{ request()->routeIs('mahasiswa.dashboard') ? 'active' : '' }}">
+                @endif
+                <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                     Dashboard
                     <!-- <span class="right badge badge-danger">New</span> -->
                 </p>
                 </a>
             </li>
+            @if (session()->has('mahasiswa'))
             <li class="nav-item">
-                <a href="" class="nav-link">
-                <i class="nav-icon fas fa-clipboard-list"></i>
-                <p>
-                    Data Nilai
-                    <!-- <i class="right fas fa-angle-left"></i> -->
-                </p>
+                <a href="{{ route('mahasiswa.nilai') }}" class="nav-link {{ request()->routeIs('mahasiswa.nilai') ? 'active' : '' }}">
+                <i class="fas fa-book-reader nav-icon"></i>
+                <p>Data Nilai</p>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
-                <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-user"></i>
-                <p>
-                    User
-                    <i class="fas fa-angle-left right"></i>
-                </p>
-                </a>
-                <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="pages/UI/general.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Pengaturan User</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="pages/UI/icons.html" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Ubah Password</p>
-                    </a>
-                </li>
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a href="" class="nav-link">
-                <i class="nav-icon fas fa-sign-out-alt"></i>
-                <p>
-                    Logout
-                </p>
-                </a>
+                <form action="{{ route('logout') }}" method="post">
+                    @csrf
+                    <button type="submit" class="nav-link">
+                        <i class="nav-icon fas fa-sign-out-alt text-start"></i>
+                        <p class="text-start">
+                            Logout
+                        </p>
+                    </button>
+                </form>
             </li>
             </ul>
         </nav>
