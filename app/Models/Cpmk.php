@@ -28,6 +28,6 @@ class Cpmk extends Model
     }
     public function sub_cpmk()
     {
-        return $this->hasMany(SubCpmk::class);
+        return $this->hasMany(SubCpmk::class, 'cpmk_id');
     }
 }

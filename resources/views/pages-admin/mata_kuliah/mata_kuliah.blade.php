@@ -77,7 +77,7 @@
                         <td>{{ $datas->nama_matkul }}</td>
                         <td>{{ $datas->sks }}</td>
 
-                           
+
 
                         <td class="d-flex justify-content-center">
                             <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
@@ -94,7 +94,6 @@
                   </tbody>
                 </table>
                 <h6 onclick="tesload()">
-                  hello
                 </h6>
               </div>
               <!-- /.card-body -->
@@ -123,7 +122,7 @@
               console.log('ted');
           }
 
-    
+
   </script>
 @endsection
 

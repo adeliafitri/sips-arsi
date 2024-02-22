@@ -14,7 +14,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('admin.matakuliah') }}">Data Mata Kuliah</a></li>
-                        <li class="breadcrumb-item active">Tambah Data RPS</li>
+                        <li class="breadcrumb-item active">Edit Data RPS</li>
                     </ol>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                             @endif
                         </div>
                         <div class="card-header d-flex justify-content-end">
-                            <h3 class="card-title col align-self-center">Form Tambah Data RPS</h3>
+                            <h3 class="card-title col align-self-center">Form Edit Data RPS</h3>
                         </div>
                         <div class="card-body">
                             <div class="container">
@@ -329,9 +329,6 @@
 
                             stepper1Node.addEventListener('show.bs-stepper', function(event) {
                                 console.warn('show.bs-stepper', event);
-                                // Simpan langkah saat ini sebelum langkah baru ditampilkan
-                                var currentStep = stepper1Node.querySelector('.bs-stepper-pane.active').getAttribute('data-bs-target');
-                                simpanLangkahSaatIni(currentStep);
                             });
                             stepper1Node.addEventListener('shown.bs-stepper', function(event) {
                                 console.warn('shown.bs-stepper', event);
@@ -371,34 +368,19 @@
                                                         // Check if the user clicked "OK"
                                                         if (result.isConfirmed) {
                                                             // Redirect to the desired URL
-                                                            // Perbarui langkah saat ini setelah berhasil menghapus data
-                                                            var currentStep = dapatkanLangkahSaatIni();
-                                                            navigasiLangkah(currentStep); // Kembali ke langkah saat ini
+                                                            window.location.reload();
                                                         };
                                                             // window.location.href = "{{ route('admin.kelas') }}";
                                                     });
                                                 } else {
                                                     console.log(response.message);
-                                                    // Tampilkan notifikasi gagal
-                                                    Swal.fire({
-                                                        title: "Error!",
-                                                        text: "An error occurred while deleting the file.",
-                                                        icon: "error"
-                                                    });
                                                 }
                                             },
                                             error: function(error) {
                                                 console.error('Error during AJAX request:', error);
-                                                // Tampilkan notifikasi gagal
-                                                Swal.fire({
-                                                    title: "Error!",
-                                                    text: "An error occurred while processing your request.",
-                                                    icon: "error"
-                                                });
                                             }
                                         });
                                     }
-
                                 });
                                 }
 
@@ -431,30 +413,17 @@
                                                     }).then((result) => {
                                                         // Check if the user clicked "OK"
                                                         if (result.isConfirmed) {
-                                                            // Perbarui langkah saat ini setelah berhasil menghapus data
-                                                            var currentStep = dapatkanLangkahSaatIni();
-                                                            navigasiLangkah(currentStep); // Kembali ke langkah saat ini
+                                                            // Redirect to the desired URL
+                                                            window.location.reload();
                                                         };
                                                             // window.location.href = "{{ route('admin.kelas') }}";
                                                     });
                                                 } else {
                                                     console.log(response.message);
-                                                    // Tampilkan notifikasi gagal
-                                                    Swal.fire({
-                                                        title: "Error!",
-                                                        text: "An error occurred while deleting the file.",
-                                                        icon: "error"
-                                                    });
                                                 }
                                             },
                                             error: function(error) {
                                                 console.error('Error during AJAX request:', error);
-                                                // Tampilkan notifikasi gagal
-                                                Swal.fire({
-                                                    title: "Error!",
-                                                    text: "An error occurred while processing your request.",
-                                                    icon: "error"
-                                                });
                                             }
                                         });
                                     }
@@ -490,50 +459,23 @@
                                                     }).then((result) => {
                                                         // Check if the user clicked "OK"
                                                         if (result.isConfirmed) {
-                                                            // Perbarui langkah saat ini setelah berhasil menghapus data
-                                                            var currentStep = dapatkanLangkahSaatIni();
-                                                            navigasiLangkah(currentStep); // Kembali ke langkah saat ini
+                                                            // Redirect to the desired URL
+                                                            window.location.reload();
                                                         };
                                                             // window.location.href = "{{ route('admin.kelas') }}";
                                                     });
                                                 } else {
                                                     console.log(response.message);
-                                                    // Tampilkan notifikasi gagal
-                                                    Swal.fire({
-                                                        title: "Error!",
-                                                        text: "An error occurred while deleting the file.",
-                                                        icon: "error"
-                                                    });
                                                 }
                                             },
                                             error: function(error) {
                                                 console.error('Error during AJAX request:', error);
-                                                // Tampilkan notifikasi gagal
-                                                Swal.fire({
-                                                    title: "Error!",
-                                                    text: "An error occurred while processing your request.",
-                                                    icon: "error"
-                                                });
                                             }
                                         });
                                     }
                                 });
                                 }
-// Fungsi untuk menyimpan langkah saat ini di local storage
-function simpanLangkahSaatIni(langkah) {
-                                        localStorage.setItem('langkahSaatIni', langkah);
-                                    }
 
-                                    // Fungsi untuk mendapatkan langkah saat ini dari local storage
-                                    function dapatkanLangkahSaatIni() {
-                                        return localStorage.getItem('langkahSaatIni');
-                                    }
-
-                                    // Fungsi untuk menavigasi antar langkah
-                                    function navigasiLangkah(langkah) {
-                                        var stepper1 = new Stepper(document.querySelector('#stepper1'));
-                                        stepper1.to(langkah);
-                                    }
 
                         </script>
                     </div><!-- /.card -->
