@@ -126,11 +126,6 @@
                                                             <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
                                                             <a href="" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
                                                             <a class="btn btn-danger mt-1" onclick="deleteCpmk({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                                                            {{-- <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
-                                                                @csrf
-                                                                @method('delete')
-                                                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                                            </form> --}}
                                                         </td>
                                                     </tr>
                                                     @endforeach
