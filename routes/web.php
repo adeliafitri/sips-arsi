@@ -91,10 +91,14 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('{id}', [RpsController::class, 'index'])->name('admin.rps');
             Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
             Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
-            Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
+            Route::post('create/soal/{id}', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
             Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
             Route::delete('deletecpmk/{id}', [RpsController::class, 'destroyCpmk'])->name('admin.rps.destroycpmk');
+            Route::delete('deletecpmk/sub/{id}', [RpsController::class, 'destroySubCpmk'])->name('admin.rps.destroysubcpmk');
+            Route::delete('deletecpmk/sub/soal/{id}', [RpsController::class, 'destroySoal'])->name('admin.rps.destroysoal');
             // Route::get('create', [RpsController::class, 'create'])->name('admin.matakuliah.add');
+            // Route::get('edit/{id}', [MataKuliahController::class, 'edit'])->name('admin.matakuliah.edit');
+            // Route::put('edit/{id}', [MataKuliahController::class, 'update'])->name('admin.matakuliah.update');
         });
 
         Route::prefix('admin/kelas')->group(function () {

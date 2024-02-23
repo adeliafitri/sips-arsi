@@ -15,10 +15,6 @@ class SubCpmk extends Model
         'cpmk_id',
         'kode_subcpmk',
         'deskripsi',
-        'waktu_pelaksanaan',
-        'bentuk_soal',
-        'bobot_subcpmk',
-        'waktu_pelaksanaan',
     ];
 
     public function cpmk()
