@@ -66,8 +66,6 @@ class RpsController extends Controller
         //     return redirect()->back()->withErrors($validate)->withInput();
         // }
 
-
-
         try {
             $id_matkul = $id;
             Cpmk::create([
@@ -76,6 +74,8 @@ class RpsController extends Controller
                 'kode_cpmk' => $request->kode_cpmk,
                 'deskripsi' => $request->deskripsi_cpmk,
             ]);
+
+
 
             // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
             return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
@@ -184,4 +184,163 @@ class RpsController extends Controller
         }
     }
 
+    public function editCpmk($id)
+    {
+        try{
+            $cpmk = Cpmk::join('cpl', 'cpmk.cpl_id', '=', 'cpl.id')
+                    ->where('cpmk.id', $id)
+                    ->select('cpmk.*', 'cpl.id as cpl_id') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->first();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $cpmk]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateCpmk(Request $request)
+    {
+        try{
+            // $cpl = $request->cpl_id;
+            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+
+            // Update data produk berdasarkan ID
+            $cpmk = Cpmk::where('id', $request->cpmk_id)->first();
+
+            $cpmk->update([
+                'cpl_id' => $request->cpl_id,
+                'kode_cpmk' => $request->kode_cpmk,
+                'deskripsi' => $request->deskripsi_cpmk,
+            ]);
+
+            return redirect()->route('admin.rps')->with([
+                'success' => 'Data updated successfully.',
+                'data' => $cpmk
+            ]);
+        } catch (\Exception $e) {
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    // public function updateCpmk(Request $request, $id)
+    // {
+    //     try {
+    //         // Temukan entri Cpmk berdasarkan id
+    //         $cpmk = Cpmk::find($id);
+
+    //         // Periksa apakah entri ditemukan
+    //         if ($cpmk) {
+    //             // Perbarui data Cpmk
+    //             $cpmk->update([
+    //                 'cpl_id' => $request->cpl_id,
+    //                 'kode_cpmk' => $request->kode_cpmk,
+    //                 'deskripsi' => $request->deskripsi_cpmk,
+    //             ]);
+
+    //             return redirect()->route('admin.mata-kuliah')->with([
+    //                 'success' => 'Data berhasil diperbarui.',
+    //                 'data' => $cpmk
+    //             ]);
+    //         } else {
+    //             // Jika entri tidak ditemukan, kembalikan respons dengan pesan error
+    //             // return redirect()->route('admin.mata-kuliah')->with('error', 'Data tidak ditemukan.');
+    //             return redirect()->route('admin.rps.editcpmk', ['id' => $cpmk->id])->with('success', 'Data berhasil diperbarui.');
+
+    //         }
+    //     } catch (\Exception $e) {
+    //         // Tangani kesalahan dan kembalikan respons dengan pesan error
+    //         return redirect()->route('admin.rps.updatecpmk')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+    //     }
+    // }
+
+    public function editSubCpmk($id)
+    {
+        try{
+            $subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+                    ->where('sub_cpmk.id', $id)
+                    ->select('sub_cpmk.*', 'cpmk.id as cpmk_id') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->first();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $subcpmk]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateSubCpmk(Request $request)
+    {
+        try{
+            // $cpl = $request->cpl_id;
+            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+
+            // Update data produk berdasarkan ID
+            $subcpmk = SubCpmk::where('id', $request->subcpmk_id)->first();
+
+            $subcpmk->update([
+                'cpmk_id' => $request->pilih_cpmk,
+                'kode_subcpmk' => $request->kode_subcpmk,
+                'deskripsi' => $request->deskripsi_subcpmk,
+            ]);
+
+            return redirect()->route('admin.rps')->with([
+                'success' => 'Data updated successfully.',
+                'data' => $subcpmk
+            ]);
+        } catch (\Exception $e) {
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function editSoalSubCpmk($id)
+    {
+        try{
+            $soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+                ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+                ->where('cpmk.matakuliah_id', $id)
+                ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                ->first();
+
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $soalsubcpmk]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateSoalSubCpmk(Request $request)
+    {
+        try{
+            // $cpl = $request->cpl_id;
+            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+
+            // Update data produk berdasarkan ID
+            $soalsubcpmk = SubCpmk::where('id', $request->subcpmk_id)->first();
+
+            $soalsubcpmk->update([
+                'subcpmk_id' => $request->pilih_subcpmk,
+                'bentuk_soal' => $request->bentuk_soal,
+                'bobot_soal' => $request->bobot,
+                'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
+            ]);
+
+            return redirect()->route('admin.rps')->with([
+                'success' => 'Data updated successfully.',
+                'data' => $soalsubcpmk
+            ]);
+        } catch (\Exception $e) {
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
+
 }
+
+    /**
+     * Update the specified resource in storage.
+     */
+
+
+
