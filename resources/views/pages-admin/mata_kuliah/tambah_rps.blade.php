@@ -526,7 +526,7 @@ function simpanLangkahSaatIni(langkah) {
 
                                     // Fungsi untuk menavigasi antar langkah
                                     function navigasiLangkah(langkah) {
-                                        var stepper1 = new Stepper(document.querySelector('#stepper1'));
+                                        // var stepper1 = new Stepper(document.querySelector('#stepper1'));
                                         stepper1.to(langkah);
                                     }
 

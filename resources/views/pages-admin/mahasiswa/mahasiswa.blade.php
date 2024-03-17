@@ -46,8 +46,31 @@
                                     <i class="fas fa-file-excel mr-2"></i> Excel
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
-                                    <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
+                                    <a class="dropdown-item" href="{{ route('admin.mahasiswa.download-excel') }}"><i class="fas fa-upload mr-2"></i> Export</a>
+                                    <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-download mr-2"></i> Import</a>
+                                </div>
+                            </div>
+                            {{-- modal import --}}
+                            <div class="modal fade" id="importExcelModal" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="importExcelModalLabel">Import Excel</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ route('admin.mahasiswa.import-excel') }}" method="post" enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <label for="excelFile">Choose Excel File</label>
+                                                    <input type="file" class="form-control-file" id="excelFile" name="file" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Upload</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {{-- <div class="col-sm-2">

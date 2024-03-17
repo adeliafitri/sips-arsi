@@ -17,6 +17,7 @@ use App\Models\NilaiAkhirMahasiswa;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DaftarMahasiswaFormatExcel;
+use App\Imports\DaftarMahasiswaImportExcel;
 
 class PerkuliahanController extends Controller
 {
@@ -385,18 +386,18 @@ class PerkuliahanController extends Controller
         return Excel::download(new DaftarMahasiswaFormatExcel(), 'daftar-mahasiswa-excel.xlsx');
     }
 
-    // public function importExcel(Request $request)
-    // {
-    //     $request->validate([
-    //         'file' => 'required|mimes:xlsx,xls'
-    //     ]);
+    public function importExcel(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
 
-    //     $file = $request->file('file');
+        $file = $request->file('file');
 
 
-    //     Excel::import(new DosenImportExcel(), $file);
+        Excel::import(new DaftarMahasiswaImportExcel($id), $file);
 
-    //     return redirect()->back()->with('success', 'Data imported successfully.');
-    // }
+        return redirect()->back()->with('success', 'Data imported successfully.');
+    }
 }
 

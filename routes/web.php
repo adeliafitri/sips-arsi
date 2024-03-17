@@ -59,6 +59,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminMahasiswaController::class, 'edit'])->name('admin.mahasiswa.edit');
             Route::put('edit/{id}', [AdminMahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
             Route::delete('{id}', [AdminMahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
+            Route::get('excel/download', [AdminMahasiswaController::class, 'downloadExcel'])->name('admin.mahasiswa.download-excel');
+            Route::post('excel/import', [AdminMahasiswaController::class, 'importExcel'])->name('admin.mahasiswa.import-excel');
         });
 
         Route::prefix('admin/dosen')->group(function () {
@@ -165,6 +167,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'createMahasiswa'])->name('admin.kelaskuliah.createmahasiswa');
             Route::post('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'storeMahasiswa'])->name('admin.kelaskuliah.storemahasiswa');
             Route::get('mahasiswa/download-excel', [AdminPerkuliahanController::class, 'downloadExcel'])->name('admin.kelaskuliah.mahasiswa.download-excel');
+            Route::post('/{id}/mahasiswa/import-excel', [AdminPerkuliahanController::class, 'importExcel'])->name('admin.kelaskuliah.mahasiswa.import-excel');
             Route::delete('{id}/{id_mahasiswa}', [AdminPerkuliahanController::class, 'destroyMahasiswa'])->name('admin.kelaskuliah.destroymahasiswa');
             Route::get('{id}/nilai/{id_mahasiswa}', [AdminNilaiController::class, 'show'])->name('admin.kelaskuliah.nilaimahasiswa');
             Route::get('/nilai/tugas', [AdminNilaiController::class, 'nilaiTugas'])->name('admin.kelaskuliah.nilaitugas');
