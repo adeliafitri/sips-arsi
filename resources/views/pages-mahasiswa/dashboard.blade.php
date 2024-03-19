@@ -1,5 +1,10 @@
 @extends('layouts.mahasiswa.main')
 
+<!-- Preloader -->
+<div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Arsitektur UIN Maulana Malik Ibrahim Malang" height="60" width="60">
+  </div>
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">

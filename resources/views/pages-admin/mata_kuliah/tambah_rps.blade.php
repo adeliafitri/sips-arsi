@@ -99,7 +99,6 @@
                                                     <label for="deskripsi">Deskripsi</label>
                                                     <textarea id="deskripsi_cpmk" name="deskripsi_cpmk" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea>
                                                 </div>
-
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
                                                     <button class="btn btn-primary" type="submit" id="tambah-cpmk"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
@@ -121,7 +120,7 @@
                                                     @foreach ($data_cpmk as $key => $datas)
                                                     <tr>
                                                         <td>{{ $start_nocpmk++ }}</td>
-                                                        <td>{{ $datas->cpl_id }}</td>
+                                                        <td>{{ $datas->kode_cpl }}</td>
                                                         <td>{{ $datas->kode_cpmk }}</td>
                                                         <td>{{ $datas->deskripsi }}</td>
                                                         <td class="d-flex justify-content-center">
@@ -574,6 +573,8 @@
                                     function saveEditedCpmk() {
                                     // Mendapatkan nilai input dari form atau elemen lainnya
                                     var form = $('#myFormCpmk');
+                                    // formData = form.serialize();
+                                    // console.log(formData);
 
                                     // Melakukan permintaan AJAX untuk menyimpan data yang diedit
                                     $.ajax({
@@ -582,11 +583,12 @@
                                         headers: {
                                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                                             },
-                                        contentType: 'application/json', // Tipe konten yang dikirimkan dalam permintaan
+                                        contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
                                         data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
                                         success: function(response){
                                             // Handle success response
                                             console.log('Data berhasil diperbarui:', response);
+                                            window.location.reload();
                                             // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
                                         },
                                         error: function(xhr){
@@ -637,7 +639,7 @@
                                         headers: {
                                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                                             },
-                                        contentType: 'application/json', // Tipe konten yang dikirimkan dalam permintaan
+                                        contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
                                         data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
                                         success: function(response){
                                             // Handle success response

@@ -31,13 +31,15 @@ class RpsController extends Controller
             ->where('cpmk.matakuliah_id', $id)
             ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
             // dd ($kode_subcpmk);
-        $data_cpmk =Cpmk::where('matakuliah_id', '=', $id)->paginate(5);
+        $data_cpmk =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('matakuliah_id', '=', $id)
+        ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
+        ->paginate(5);
         $start_nocpmk = ($data_cpmk->currentPage() - 1) * $data_cpmk->perPage() + 1;
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         $data_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
             ->where('cpmk.matakuliah_id', $id)
             ->select('cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
-
             ->paginate(5);
         $start_nosubcpmk = ($data_subcpmk->currentPage() - 1) * $data_subcpmk->perPage() + 1;
         $data_soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
@@ -132,20 +134,6 @@ class RpsController extends Controller
         }
     }
 
-
-    // public function destroyCpmk($id)
-    // {
-    //     try {
-    //         Cpmk::where('id', $id)->delete();
-    //         return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
-    //         // return redirect()->route('admin.kelas')
-    //         //     ->with('success', 'Data berhasil dihapus');
-    //     } catch (\Exception $e) {
-    //         return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
-    //         // return redirect()->route('admin.kelas')
-    //         //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
-    //     }
-    // }
     public function destroyCpmk($id)
     {
         try {
@@ -201,9 +189,7 @@ class RpsController extends Controller
     public function updateCpmk(Request $request)
     {
         try{
-            // $cpl = $request->cpl_id;
-            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
-
+            // dd($request->all());
             // Update data produk berdasarkan ID
             $cpmk = Cpmk::where('id', $request->cpmk_id)->first();
 
@@ -213,46 +199,12 @@ class RpsController extends Controller
                 'deskripsi' => $request->deskripsi_cpmk,
             ]);
 
-            return redirect()->route('admin.rps')->with([
-                'success' => 'Data updated successfully.',
-                'data' => $cpmk
-            ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate','data' => $cpmk]);
         } catch (\Exception $e) {
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
         }
     }
-
-    // public function updateCpmk(Request $request, $id)
-    // {
-    //     try {
-    //         // Temukan entri Cpmk berdasarkan id
-    //         $cpmk = Cpmk::find($id);
-
-    //         // Periksa apakah entri ditemukan
-    //         if ($cpmk) {
-    //             // Perbarui data Cpmk
-    //             $cpmk->update([
-    //                 'cpl_id' => $request->cpl_id,
-    //                 'kode_cpmk' => $request->kode_cpmk,
-    //                 'deskripsi' => $request->deskripsi_cpmk,
-    //             ]);
-
-    //             return redirect()->route('admin.mata-kuliah')->with([
-    //                 'success' => 'Data berhasil diperbarui.',
-    //                 'data' => $cpmk
-    //             ]);
-    //         } else {
-    //             // Jika entri tidak ditemukan, kembalikan respons dengan pesan error
-    //             // return redirect()->route('admin.mata-kuliah')->with('error', 'Data tidak ditemukan.');
-    //             return redirect()->route('admin.rps.editcpmk', ['id' => $cpmk->id])->with('success', 'Data berhasil diperbarui.');
-
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Tangani kesalahan dan kembalikan respons dengan pesan error
-    //         return redirect()->route('admin.rps.updatecpmk')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
-    //     }
-    // }
 
     public function editSubCpmk($id)
     {
@@ -271,9 +223,6 @@ class RpsController extends Controller
     public function updateSubCpmk(Request $request)
     {
         try{
-            // $cpl = $request->cpl_id;
-            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
-
             // Update data produk berdasarkan ID
             $subcpmk = SubCpmk::where('id', $request->subcpmk_id)->first();
 
