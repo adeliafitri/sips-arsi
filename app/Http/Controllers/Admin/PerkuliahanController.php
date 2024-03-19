@@ -87,8 +87,8 @@ class PerkuliahanController extends Controller
 
         try {
             $existingRecord = KelasKuliah::where('matakuliah_id', $request->mata_kuliah)
-            ->where('dosen_id', $request->dosen)
-            ->first();
+                ->where('dosen_id', $request->dosen)
+                ->first();
 
             $koordinatorValue = $existingRecord ? $existingRecord->koordinator : "0";
 
@@ -134,10 +134,10 @@ class PerkuliahanController extends Controller
     {
         try {
             KelasKuliah::where('dosen_id', $dosenID)
-            ->where('matakuliah_id', $matakuliahID)
-            ->update([
-                'koordinator' => $newKoordinatorValue
-            ]);
+                ->where('matakuliah_id', $matakuliahID)
+                ->update([
+                    'koordinator' => $newKoordinatorValue
+                ]);
 
             return true;
         } catch (\Throwable $th) {
@@ -208,8 +208,6 @@ class PerkuliahanController extends Controller
             'startNumber' => $startNumber,
         ]);
     }
-
-
 
     public function createMahasiswa($id)
     {
