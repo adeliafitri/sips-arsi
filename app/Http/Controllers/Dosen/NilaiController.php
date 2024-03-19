@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\NilaiAkhirMahasiswa;
@@ -89,7 +89,7 @@ class NilaiController extends Controller
         $query_sub = [];
         $subNumber = [];
         // dd($nilai_mahasiswa);
-        return view('pages-admin.perkuliahan.detail_nilai_mahasiswa', [
+        return view('pages-dosen.perkuliahan.detail_nilai_mahasiswa', [
             'data' => $nilai_mahasiswa,
             'nilai_subcpmk' => $nilai_subcpmk,
             'startNumber' => $startNumber,
@@ -98,47 +98,6 @@ class NilaiController extends Controller
             // 'cpmk' => $result,
             // 'cpmkNumber' => $cpmkNumber
         ]);
-    }
-
-    public function edit($id, $id_mahasiswa, $id_subcpmk)
-    {
-        $nilai_subcpmk = NilaiMahasiswa::join('sub_cpmk', 'nilai_mahasiswa.subcpmk_id', '=', 'sub_cpmk.id')
-            ->select('nilai_mahasiswa.*', 'sub_cpmk.kode_subcpmk as kode_subcpmk')
-            ->where('nilai_mahasiswa.matakuliah_kelasid', $id)
-            ->where('nilai_mahasiswa.mahasiswa_id', $id_mahasiswa)
-            ->where('nilai_mahasiswa.subcpmk_id', $id_subcpmk)
-            ->first();
-
-        return view('pages-admin.perkuliahan.edit_nilai_mahasiswa', compact('nilai_subcpmk'));
-    }
-
-    public function update(Request $request, $id, $id_mahasiswa, $id_subcpmk)
-    {
-        $validate = Validator::make($request->all(), [
-            'nilai' => 'required',
-        ]);
-
-        if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
-        try {
-            $nilai_subcpmk = NilaiMahasiswa::where('nilai_mahasiswa.matakuliah_kelasid', $id)
-                ->where('nilai_mahasiswa.mahasiswa_id', $id_mahasiswa)
-                ->where('nilai_mahasiswa.subcpmk_id', $id_subcpmk)
-                ->first();
-            $nilai_subcpmk->update([
-                'nilai' => $request->nilai,
-            ]);
-
-            return redirect()->route('admin.kelaskuliah.nilaimahasiswa', ['id' => $id, 'id_mahasiswa' => $id_mahasiswa])->with([
-                'success' => 'Data Nilai Berhasil Diupdate',
-                'data' => $nilai_subcpmk
-            ]);
-        } catch (\Exception $e) {
-            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.kelaskuliah.nilaimahasiswa.edit', ['id' => $id, 'id_mahasiswa' => $id_mahasiswa, 'id_subcpmk' => $id_subcpmk])->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
-        }
     }
 
     public function nilaiCPL(Request $request)
@@ -154,15 +113,15 @@ class NilaiController extends Controller
             ->selectRaw('SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal) as total_nilai, SUM(soal_sub_cpmk.bobot_soal) AS bobot_soal, sub_cpmk.kode_subcpmk, cpmk.kode_cpmk as kode_cpmk, cpl.kode_cpl as kode_cpl')
             // ->selectRaw('SUM(nilai_mahasiswa.nilai) AS nilai, SUM(soal_sub_cpmk.bobot_soal) AS bobot_soal, cpl.kode_cpl as kode_cpl')
             ->orderBy('cpl.id')
-            ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa_id)
-            ->where('nilai_mahasiswa.matakuliah_kelasid', $matakuliah_kelasid)
+            ->where('nilai_mahasiswa.mahasiswa_id', $request->mahasiswa_id)
+            ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
             ->get();
 
 
         $startNumber = [];
 
         if ($request->ajax()) {
-            return view('pages-admin.perkuliahan.partials.nilai_cpl', [
+            return view('pages-dosen.perkuliahan.partials.nilai_cpl', [
                 'data' => $data,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
@@ -185,8 +144,8 @@ class NilaiController extends Controller
             ->groupBy('soal_sub_cpmk.subcpmk_id')
             ->selectRaw('SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal) as total_nilai, soal_sub_cpmk.bobot_soal AS bobot_soal, sub_cpmk.kode_subcpmk, cpmk.kode_cpmk as kode_cpmk, cpl.kode_cpl as kode_cpl')
             ->orderBy('cpmk.id')
-            ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa_id)
-            ->where('nilai_mahasiswa.matakuliah_kelasid', $matakuliah_kelasid)
+            ->where('nilai_mahasiswa.mahasiswa_id', $request->mahasiswa_id)
+            ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
             ->get();
 
 
@@ -194,7 +153,7 @@ class NilaiController extends Controller
         $startNumber = [];
 
         if ($request->ajax()) {
-            return view('pages-admin.perkuliahan.partials.nilai_sub_cpmk', [
+            return view('pages-dosen.perkuliahan.partials.nilai_sub_cpmk', [
                 'data' => $data,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
@@ -215,15 +174,15 @@ class NilaiController extends Controller
             ->selectRaw('SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal) as total_nilai, SUM(soal_sub_cpmk.bobot_soal) AS bobot_soal, sub_cpmk.kode_subcpmk, cpmk.kode_cpmk as kode_cpmk, cpl.kode_cpl as kode_cpl')
             // ->selectRaw('SUM(nilai_mahasiswa.nilai) AS nilai, SUM(soal_sub_cpmk.bobot_soal) AS bobot_soal, cpmk.kode_cpmk as kode_cpmk, cpl.kode_cpl as kode_cpl')
             ->orderBy('cpmk.id')
-            ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa_id)
-            ->where('nilai_mahasiswa.matakuliah_kelasid', $matakuliah_kelasid)
+            ->where('nilai_mahasiswa.mahasiswa_id', $request->mahasiswa_id)
+            ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
             ->get();
 
 
         $startNumber = [];
 
         if ($request->ajax()) {
-            return view('pages-admin.perkuliahan.partials.nilai_cpmk', [
+            return view('pages-dosen.perkuliahan.partials.nilai_cpmk', [
                 'data' => $data,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
@@ -236,18 +195,70 @@ class NilaiController extends Controller
         $data = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
-            ->select('soal_sub_cpmk.*', 'soal.bentuk_soal as bentuk_soal', 'nilai_mahasiswa.nilai as nilai', 'nilai_mahasiswa.id as id_nilai', 'sub_cpmk.kode_subcpmk as kode_subcpmk')
+            ->select('soal_sub_cpmk.*', 'soal.bentuk_soal as bentuk_soal', 'nilai_mahasiswa.mahasiswa_id as mahasiswa_id', 'nilai_mahasiswa.matakuliah_kelasid as matakuliah_kelasid', 'nilai_mahasiswa.nilai as nilai', 'nilai_mahasiswa.id as id_nilai', 'sub_cpmk.kode_subcpmk as kode_subcpmk')
             ->where('nilai_mahasiswa.mahasiswa_id', $request->mahasiswa_id)
             ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
             ->get();
         $startNumber = [];
 
         if ($request->ajax()) {
-            return view('pages-admin.perkuliahan.partials.nilai_tugas', [
+            return view('pages-dosen.perkuliahan.partials.nilai_tugas', [
                 'data' => $data,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
         }
         return $data;
+    }
+
+    public function editNilaiTugas(Request $request)
+    {
+        // Retrieve the NilaiMahasiswa entry based on the provided ID
+        $data = NilaiMahasiswa::findOrFail($request->id_nilai);
+
+        // Update the nilai field with the value from the request
+        $data->nilai = $request->nilai;
+
+        // Save the changes to the database
+        $data->save();
+
+        // $this->updateNilaiAkhir($request->mahasiswa_id, $request->matakuliah_kelasid);
+        $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->where('nilai_mahasiswa.mahasiswa_id', $request->mahasiswa_id)
+            ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
+            ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+            ->first();
+
+        $data = NilaiAkhirMahasiswa::where('mahasiswa_id', $request->mahasiswa_id)
+            ->where('matakuliah_kelasid', $request->matakuliah_kelasid)->first();
+
+        $data->nilai_akhir = $update_nilai_akhir->nilai_akhir;
+        $data->save();
+
+
+        // Redirect the user to a new page with a success message
+        return redirect()->back()->with('success', 'Data Nilai Tugas Berhasil Diupdate');
+        // return redirect()->route('dosen.kelaskuliah.nilaimahasiswa', ['id' => $id, 'id_mahasiswa' => $id_mahasiswa])->with([
+        //     'success' => 'Data Nilai Berhasil Diupdate',
+        //     'data' => $nilai_subcpmk
+        // ]);
+    }
+
+    public function editNilaiAkhir(Request $request)
+    {
+        $data = NilaiAkhirMahasiswa::findOrFail($request->id);
+
+        $data->nilai_akhir = $request->nilai_akhir;
+        $data->save();
+
+        $nilai_tugas = NilaiMahasiswa::where('mahasiswa_id', $request->mahasiswa_id)->where('matakuliah_kelasid', $request->matakuliah_kelasid)->get();
+        foreach ($nilai_tugas as $data) {
+            // dd($data);
+            $data->nilai = $request->nilai_akhir;
+            $data->save();
+        }
+
+        return redirect()->back()->with('success', 'Data Nilai Akhir Berhasil Diupdate');
     }
 }

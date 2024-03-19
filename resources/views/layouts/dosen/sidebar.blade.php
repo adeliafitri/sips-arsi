@@ -47,7 +47,7 @@
             </li>
             @if (session()->has('dosen'))
             <li class="nav-item">
-                <a href="" class="nav-link {{ request()->routeIs('dosen.matakuliah') ? 'active' : '' }}">
+                <a href="{{ route('dosen.matakuliah') }}" class="nav-link {{ request()->routeIs('dosen.matakuliah') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>

@@ -153,45 +153,48 @@
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Yes, change it!"
-          }).then((result) => {
-            if (result.isConfirmed) {
+            }).then((result) => {
+              if (result.isConfirmed) {
+                  var isActiveCheckbox = document.getElementById('isActive-' + id);
+                  var isActiveValue = isActiveCheckbox.checked ? 1 : 0;
+
+                      $.ajax({
+                      url: "{{ url('admin/kelas-kuliah/update-koordinator') }}/" + id,
+                      type: 'POST',
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
+                      data: {
+                          koordinator: isActiveValue
+                      },
+                      success: function(data) {
+                          console.log('success');
+                          Swal.fire({
+                            title: "Updated!",
+                            text: "Koordinator has been changed.",
+                            icon: "success"
+                          }).then((result) => {
+                              // Check if the user clicked "OK"
+                              if (result.isConfirmed) {
+                                  // Redirect to the desired URL
+                                  window.location.reload();
+                              }
+                          });
+                      },
+                      error: function(error) {
+                          console.log(error);
+                      }
+                  });
+              }
+              else {
+                // If the user clicked "Cancel", revert the checkbox to its original position
                 var isActiveCheckbox = document.getElementById('isActive-' + id);
-                var isActiveValue = isActiveCheckbox.checked ? 1 : 0;
-
-                    $.ajax({
-                    url: "{{ url('admin/kelas-kuliah/update-koordinator') }}/" + id,
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        koordinator: isActiveValue
-                    },
-                    success: function(data) {
-                        console.log('success');
-                        Swal.fire({
-                          title: "Updated!",
-                          text: "Koordinator has been changed.",
-                          icon: "success"
-                        }).then((result) => {
-                            // Check if the user clicked "OK"
-                            if (result.isConfirmed) {
-                                // Redirect to the desired URL
-                                window.location.reload();
-                            }
-                        });
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
+                isActiveCheckbox.checked = !isActiveCheckbox.checked; // Toggle the checkbox state
             }
-          });
-
+            });
           }
 
           function deleteKelasKuliah(id){
-            console.log(id);
             Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -200,40 +203,39 @@
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Yes, delete it!"
-          }).then((result) => {
-            if (result.isConfirmed) {
-                    $.ajax({
-                    url: "{{ url('admin/kelas-kuliah') }}/" + id,
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            console.log(response.message);
+            }).then((result) => {
+              if (result.isConfirmed) {
+                      $.ajax({
+                      url: "{{ url('admin/kelas-kuliah') }}/" + id,
+                      type: 'DELETE',
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
+                      success: function(response) {
+                          if (response.status === 'success') {
+                              console.log(response.message);
 
-                            Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
-                            icon: "success"
-                            }).then((result) => {
-                                // Check if the user clicked "OK"
-                                if (result.isConfirmed) {
-                                    // Redirect to the desired URL
-                                    window.location.reload();
-                                };
-                                    // window.location.href = "{{ route('admin.kelas') }}";
-                            });
-                        } else {
-                            console.log(response.message);
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error during AJAX request:', error);
-                    }
-                });
-            }
-          });
+                              Swal.fire({
+                              title: "Deleted!",
+                              text: "Your file has been deleted.",
+                              icon: "success"
+                              }).then((result) => {
+                                  // Check if the user clicked "OK"
+                                  if (result.isConfirmed) {
+                                      // Redirect to the desired URL
+                                      window.location.reload();
+                                  };
+                              });
+                          } else {
+                              console.log(response.message);
+                          }
+                      },
+                      error: function(error) {
+                          console.error('Error during AJAX request:', error);
+                      }
+                  });
+              }
+            });
 
           }
         </script>

@@ -59,7 +59,7 @@
                       <th style="width: 10px">No</th>
                       <th> Tahun Ajaran </th>
                       <th> Semester </th>
-                      <th> Aktif </th>
+                      <th style="width: 100px;"> Aktif </th>
                       <th style="width: 150px;"> Action </th>
                     </tr>
                   </thead>
@@ -69,15 +69,14 @@
                         <td class=""> {{ $startNumber }} </td>
                         <td> {{ $datas->tahun_ajaran }} </td>
                         <td>{{ ucfirst($datas->semester) }}</td>
-                        {{-- <td> {{ $datas->is_active }} </td> --}}
                         <td>
-                          <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                            <label class="btn {{ $datas->is_active == '1' ? 'btn-primary' : 'btn-outline-primary' }}" onclick="changeIsActive({{ $datas->id }},'1')">
-                              Ya
-                            </label>
-                            <label class="btn {{ $datas->is_active == '0' ? 'btn-primary' : 'btn-outline-primary' }}" onclick="changeIsActive({{ $datas->id }},'0')">
-                              Tidak
-                            </label>
+                          <div class="row justify-content-center">
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="is-active" {{ $datas->is_active == '1' ? 'checked' : '' }} onclick="changeIsActive({{ $datas->id }})">
+                                    <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                                </div>
+                            </div>
                           </div>
                         </td>
                         <td class="d-flex">
@@ -120,6 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
         confirmButtonText: "Yes, change it!"
       }).then((result) => {
         if (result.isConfirmed) {
+
+          var isActiveCheckbox = document.getElementById('isActive-' + id);
+          var isActiveValue = isActiveCheckbox.checked ? 1 : 0;
+
                 $.ajax({
                 url: "{{ url('admin/semester/update-active') }}/" + id,
                 type: 'POST',
@@ -127,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: {
-                    is_active: value
+                    is_active: isActiveValue
                 },
                 success: function(data) {
                   Swal.fire({
@@ -146,8 +149,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log(error);
                 }
             });
-
-          
+        }
+        else {
+            // If the user clicked "Cancel", revert the checkbox to its original position
+            var isActiveCheckbox = document.getElementById('isActive-' + id);
+            isActiveCheckbox.checked = !isActiveCheckbox.checked; // Toggle the checkbox state
         }
       });
         

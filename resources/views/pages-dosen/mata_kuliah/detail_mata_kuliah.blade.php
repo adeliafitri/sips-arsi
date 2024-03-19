@@ -1,4 +1,4 @@
-@extends('layouts.admin.main')
+@extends('layouts.dosen.main')
 
 @section('content')
     <section class="content-header">
@@ -40,11 +40,6 @@
                             <h6> <span style="font-weight: bold" onclick="loadCPL(1);"> SKS : </span> {{ $data->sks }}</h6>
 
                         </div>
-                        <select class="form-control">
-                            <option selected="selected">orange</option>
-                            <option>white</option>
-                            <option>purple</option>
-                            </select>
 
 
                     </div>
@@ -106,7 +101,7 @@
 });
         function detailCpl(id){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/cpl') }}",
+                    url: "{{ url('dosen/mata-kuliah/detail/cpl') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -127,7 +122,7 @@
 
         function detailCpmk(id){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/cpmk') }}",
+                    url: "{{ url('dosen/mata-kuliah/detail/cpmk') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -148,7 +143,7 @@
 
         function detailSubCpmk(id){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/sub-cpmk') }}",
+                    url: "{{ url('dosen/mata-kuliah/detail/sub-cpmk') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -169,7 +164,7 @@
 
         function detailTugas(id){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/tugas') }}",
+                    url: "{{ url('dosen/mata-kuliah/detail/tugas') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
