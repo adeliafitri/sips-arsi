@@ -1,4 +1,4 @@
-@extends('layouts.admin.main')
+@extends('layouts.dosen.main')
 
 @section('content')
 
@@ -40,8 +40,18 @@
                   <div class="col-6">
                     <p><span class="text-bold">Nama :</span> {{ $data->nama }}</p>
                     <p><span class="text-bold">NIM :</span> {{ $data->nim }}</p>
-                    <p><span class="text-bold">Nilai Akhir :</span> 
-                      {{ $data->nilai_akhir }}
+                    <p class="d-flex"><span class="text-bold">Nilai Akhir :</span> 
+                      <span id="nilai-akhir"> {{ $data->nilai_akhir }}  
+                        <i class="nav-icon fas fa-edit" onclick="editNilaiAkhir()" style="cursor: pointer"></i>
+                      </span>
+                      <form action="{{ route('dosen.kelaskuliah.editnilaiakhir') }}" method="POST" class="d-flex">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $data->id }}">
+                        <input type="hidden" name="mahasiswa_id" value="{{ $data->mahasiswa_id }}">
+                        <input type="hidden" name="matakuliah_kelasid" value="{{ $data->matakuliah_kelasid }}">
+                        <input type="number" id="edit-nilai-akhir-form" class="form-control" name="nilai_akhir" value="{{ $data->nilai_akhir }}" style="width: 100px; display: none;">
+                        <button style="display: none;" type="submit" id="edit-nilai-akhir-button" class="ml-2 btn btn-primary"><i class="fas fa-check"></i></button>
+                      </form>
                     </p>
                     
                   </div>
@@ -109,10 +119,11 @@
 @endsection
 
 @section('script')
+
 <script>
   function nilaiCpl(matakuliah_kelasid, mahasiswa_id){
     $.ajax({
-            url: "{{ url('admin/kelas-kuliah/nilai/cpl') }}",
+            url: "{{ url('dosen/kelas-kuliah/nilai/cpl') }}",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -134,7 +145,7 @@
 
   function nilaiCpmk(matakuliah_kelasid, mahasiswa_id){
     $.ajax({
-            url: "{{ url('admin/kelas-kuliah/nilai/cpmk') }}",
+            url: "{{ url('dosen/kelas-kuliah/nilai/cpmk') }}",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -156,7 +167,7 @@
 
   function nilaiSubCpmk(matakuliah_kelasid, mahasiswa_id){
     $.ajax({
-            url: "{{ url('admin/kelas-kuliah/nilai/sub-cpmk') }}",
+            url: "{{ url('dosen/kelas-kuliah/nilai/sub-cpmk') }}",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -179,7 +190,7 @@
 
   function nilaiTugas(matakuliah_kelasid, mahasiswa_id){
     $.ajax({
-            url: "{{ url('admin/kelas-kuliah/nilai/tugas') }}",
+            url: "{{ url('dosen/kelas-kuliah/nilai/tugas') }}",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -200,9 +211,21 @@
   }
 
   $(document).ready(function() {
+    console.log('tes');
     nilaiCpl({{ $data->matakuliah_kelasid }}, {{ $data->mahasiswa_id }});
   });
 
+  function editNilaiTugas(id){
+        document.getElementById('nilai-tugas-' + id).style.display = 'none';
+        document.getElementById('edit-nilai-tugas-button-'+ id).style.display = 'block';
+        document.getElementById('edit-nilai-tugas-form-'+ id).style.display = 'block';
+  }
+
+  function editNilaiAkhir(){
+        document.getElementById('nilai-akhir').style.display = 'none';
+        document.getElementById('edit-nilai-akhir-button').style.display = 'block';
+        document.getElementById('edit-nilai-akhir-form').style.display = 'block';
+  }
 
 </script>
 @endsection

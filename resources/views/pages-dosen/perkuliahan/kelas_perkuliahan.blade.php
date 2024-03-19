@@ -60,8 +60,8 @@
                       <th style="width: 100px;">Semester</th>
                       <th>Mata Kuliah</th>
                       <th>Kelas</th>
-                      {{-- <th>Dosen</th> --}}
-                      {{-- <th style="width: 100px;">Koordinator</th> --}}
+                      <th>Dosen</th>
+                      <th style="width: 100px;">Koordinator</th>
                       <th style="width: 200px;">Jumlah Mahasiswa</th>
                       <th style="width: 150px;">Action</th>
                     </tr>
@@ -74,7 +74,7 @@
                         <td>{{ $datas->semester }}</td>
                         <td>{{ $datas->nama_matkul }}</td>
                         <td>{{ $datas->kelas }}</td>
-                        {{-- <td>{{ $datas->nama_dosen }}</td> --}}
+                        <td>{{ $datas->nama_dosen }}</td>
                         {{-- <td>
                             <div class="row justify-content-center">
                                 <form>
@@ -87,10 +87,33 @@
                                 </form>
                             </div>
                         </td> --}}
+                        <td>
+                          <div class="row justify-content-center">
+                              <form>
+                                  <div class="form-group">
+                                      {{-- <label for="toogleActive">Active</label> --}}
+                                      <div class="custom-control custom-switch">
+                                          <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="koordinator" {{ $datas->koordinator == 1 ? 'checked' : '' }} onclick="changeKoordinator({{ $datas->id }})">
+                                          <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                                      </div>
+                                  </div>
+                              </form>
+                          </div>
+                        </td>
                         <td>{{ $datas->jumlah_mahasiswa }}</td>
                         <td>
-                            <div class="d-flex">
+                            {{-- <div class="d-flex">
                                 <a href="" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                            </div> --}}
+                            <div class="d-flex">
+                                <a href="{{ route('dosen.kelaskuliah.show', $datas->id) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                                <a href="{{ route('dosen.kelaskuliah.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                <a class="btn btn-danger" onclick="deleteKelasKuliah({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                {{-- <form action="{{ route('admin.kelaskuliah.destroy', $datas->id) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                </form> --}}
                             </div>
                         </td>
                     </tr>
@@ -117,5 +140,53 @@
     </section>
     <!-- /.content -->
 @endsection
+
+<script>
+  function deleteKelasKuliah(id){
+    console.log(id);
+    Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+              $.ajax({
+              url: "{{ url('admin/kelas-kuliah') }}/" + id,
+              type: 'DELETE',
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              success: function(response) {
+                  if (response.status === 'success') {
+                      console.log(response.message);
+
+                      Swal.fire({
+                      title: "Deleted!",
+                      text: "Your file has been deleted.",
+                      icon: "success"
+                      }).then((result) => {
+                          // Check if the user clicked "OK"
+                          if (result.isConfirmed) {
+                              // Redirect to the desired URL
+                              window.location.reload();
+                          };
+                              // window.location.href = "{{ route('admin.kelas') }}";
+                      });
+                  } else {
+                      console.log(response.message);
+                  }
+              },
+              error: function(error) {
+                  console.error('Error during AJAX request:', error);
+              }
+          });
+      }
+    });
+  }
+</script>
 
 

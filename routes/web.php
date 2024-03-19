@@ -24,6 +24,10 @@ use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanControll
 
 use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
+use App\Http\Controllers\Dosen\NilaiController as DosenNilaiController;
+use App\Http\Controllers\Dosen\MataKuliahController as DosenMataKuliahController;
+
+
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
 use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
 use Illuminate\Support\Facades\View;
@@ -174,9 +178,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/nilai/sub-cpmk', [AdminNilaiController::class, 'nilaiSubCpmk'])->name('admin.kelaskuliah.nilaisubcpmk');
             Route::get('/nilai/cpmk', [AdminNilaiController::class, 'nilaiCpmk'])->name('admin.kelaskuliah.nilaicpmk');
             Route::get('/nilai/cpl', [AdminNilaiController::class, 'nilaiCpl'])->name('admin.kelaskuliah.nilaicpl');
-
-
-
+            Route::post('/nilai/edit-nilai-tugas', [AdminNilaiController::class, 'editNilaiTugas'])->name('admin.kelaskuliah.editnilaitugas');
+            Route::post('/nilai/edit-nilai-akhir', [AdminNilaiController::class, 'editNilaiAkhir'])->name('admin.kelaskuliah.editnilaiakhir');
 
             Route::get('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'edit'])->name('admin.kelaskuliah.nilaimahasiswa.edit');
             Route::put('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'update'])->name('admin.kelaskuliah.nilaimahasiswa.update');
@@ -207,7 +210,48 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('dosen/kelas-kuliah')->group(function () {
             Route::get('', [DosenPerkuliahanController::class, 'index'])->name('dosen.kelaskuliah');
-            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+            Route::get('create', [DosenPerkuliahanController::class, 'create'])->name('dosen.kelaskuliah.create');
+            Route::post('create', [DosenPerkuliahanController::class, 'store'])->name('dosen.kelaskuliah.store');
+            Route::get('/{id}', [DosenPerkuliahanController::class, 'show'])->name('dosen.kelaskuliah.show');
+            Route::get('edit/{id}', [DosenPerkuliahanController::class, 'edit'])->name('dosen.kelaskuliah.edit');
+            Route::put('edit/{id}', [DosenPerkuliahanController::class, 'update'])->name('dosen.kelaskuliah.update');
+            Route::delete('{id}', [DosenPerkuliahanController::class, 'destroy'])->name('dosen.kelaskuliah.destroy');
+            Route::get('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'createMahasiswa'])->name('dosen.kelaskuliah.createmahasiswa');
+            Route::post('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'storeMahasiswa'])->name('dosen.kelaskuliah.storemahasiswa');
+            Route::delete('{id}/{id_mahasiswa}', [DosenPerkuliahanController::class, 'destroyMahasiswa'])->name('dosen.kelaskuliah.destroymahasiswa');
+
+            Route::get('{id}/nilai/{id_mahasiswa}', [DosenNilaiController::class, 'show'])->name('dosen.kelaskuliah.nilaimahasiswa');
+            Route::get('/nilai/tugas', [DosenNilaiController::class, 'nilaiTugas'])->name('dosen.kelaskuliah.nilaitugas');
+            Route::get('/nilai/sub-cpmk', [DosenNilaiController::class, 'nilaiSubCpmk'])->name('dosen.kelaskuliah.nilaisubcpmk');
+            Route::get('/nilai/cpmk', [DosenNilaiController::class, 'nilaiCpmk'])->name('dosen.kelaskuliah.nilaicpmk');
+            Route::get('/nilai/cpl', [DosenNilaiController::class, 'nilaiCpl'])->name('dosen.kelaskuliah.nilaicpl');
+
+            Route::post('/nilai/edit-nilai-tugas', [DosenNilaiController::class, 'editNilaiTugas'])->name('dosen.kelaskuliah.editnilaitugas');
+            Route::post('/nilai/edit-nilai-akhir', [DosenNilaiController::class, 'editNilaiAkhir'])->name('dosen.kelaskuliah.editnilaiakhir');
+        });
+
+        Route::prefix('dosen/mata-kuliah')->group(function () {
+            Route::get('', [DosenMataKuliahController::class, 'index'])->name('dosen.matakuliah');
+            Route::get('create', [DosenMataKuliahController::class, 'create'])->name('dosen.matakuliah.create.matkul');
+            Route::post('create', [DosenMataKuliahController::class, 'store'])->name('dosen.matakuliah.store');
+            Route::get('/{id}', [DosenMataKuliahController::class, 'show'])->name('dosen.matakuliah.show');
+            Route::get('edit/{id}', [DosenMataKuliahController::class, 'edit'])->name('dosen.matakuliah.edit');
+            Route::put('edit/{id}', [DosenMataKuliahController::class, 'update'])->name('dosen.matakuliah.update');
+            Route::delete('{id}', [DosenMataKuliahController::class, 'destroy'])->name('dosen.matakuliah.destroy');
+            Route::get('detail/cpl', [DosenMataKuliahController::class, 'detailCpl']);
+            Route::get('detail/cpmk', [DosenMataKuliahController::class, 'detailCpmk']);
+            Route::get('detail/sub-cpmk', [DosenMataKuliahController::class, 'detailSubCpmk']);
+            Route::get('detail/tugas', [DosenMataKuliahController::class, 'detailTugas']);
+        });
+
+        Route::prefix('dosen/rps')->group(function () {
+            Route::get('{id}', [RpsController::class, 'index'])->name('dosen.rps');
+            Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('dosen.rps.storecpmk');
+            Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('dosen.rps.storesubcpmk');
+            Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
+            Route::get('{id}', [RpsController::class, 'create'])->name('dosen.rps.create');
+            Route::delete('deletecpmk/{id}', [RpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
+            // Route::get('create', [RpsController::class, 'create'])->name('dosen.matakuliah.add');
         });
     });
 
