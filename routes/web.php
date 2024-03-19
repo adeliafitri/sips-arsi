@@ -95,10 +95,18 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('{id}', [RpsController::class, 'index'])->name('admin.rps');
             Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
             Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
-            Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
+            Route::post('create/soal/{id}', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
             Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
             Route::delete('deletecpmk/{id}', [RpsController::class, 'destroyCpmk'])->name('admin.rps.destroycpmk');
+            Route::delete('deletecpmk/sub/{id}', [RpsController::class, 'destroySubCpmk'])->name('admin.rps.destroysubcpmk');
+            Route::delete('deletecpmk/sub/soal/{id}', [RpsController::class, 'destroySoal'])->name('admin.rps.destroysoal');
             // Route::get('create', [RpsController::class, 'create'])->name('admin.matakuliah.add');
+            Route::get('editcpmk/{id}', [RpsController::class, 'editCpmk'])->name('admin.rps.editcpmk');
+            Route::put('updatecpmk', [RpsController::class, 'updateCpmk'])->name('admin.rps.updatecpmk');
+            Route::get('editsubcpmk/{id}', [RpsController::class, 'editSubCpmk'])->name('admin.rps.editsubcpmk');
+            Route::put('updatesubcpmk', [RpsController::class, 'updateSubCpmk'])->name('admin.rps.updatesubcpmk');
+            Route::get('editsoalsubcpmk/{id}', [RpsController::class, 'editSoalSubCpmk'])->name('admin.rps.editsoalsubcpmk');
+            Route::put('updatesoalsubcpmk', [RpsController::class, 'updateSoalSubCpmk'])->name('admin.rps.updatesoalsubcpmk');
         });
 
         Route::prefix('admin/kelas')->group(function () {

@@ -43,15 +43,16 @@
                     @method('PUT')
                     <div class="form-group">
                     <label for="kode_matkul">Kode Mata Kuliah</label>
-                    <input type="text" class="form-control" id="kode_matkul" name="kode_matkul" placeholder="Kode Mata Kuliah" value="{{ $data->kode_matkul }}">
+                        <input type="text" class="form-control" id="kode_matkul" name="kode_matkul"
+                        placeholder="Kode Mata Kuliah" value="{{ old('kode_matkul') }}">
                     </div>
                     <div class="form-group">
                     <label for="nama_matkul">Nama Mata Kuliah</label>
-                    <input type="text" class="form-control" id="nama_matkul" name="nama_matkul" placeholder="Nama Mata Kuliah" value="{{ $data->nama_matkul }}">
+                        <input type="text" class="form-control" id="nama_matkul" name="nama_matkul" placeholder="Nama Mata Kuliah" value="{{ $data->nama_matkul }}">
                     </div>
                     <div class="form-group">
                     <label for="sks">SKS</label>
-                    <input type="number" class="form-control" id="sks" rows="3" name="sks" placeholder="SKS" value="{{ $data->sks }}">
+                        <input type="number" class="form-control" id="sks" rows="3" name="sks" placeholder="SKS" value="{{ $data->sks }}">
                     </div>
                 </div>
                  <!-- /.card-body -->
