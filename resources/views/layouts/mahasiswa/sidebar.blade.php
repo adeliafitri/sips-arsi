@@ -54,7 +54,11 @@
             </li>
             @endif
             <li class="nav-item">
-                <form action="{{ route('logout') }}" method="post">
+                <a href="#" onclick="logout()" class="nav-link">
+                    <i class="nav-icon fas fa-sign-out-alt text-start"></i>
+                    <p class="text-start">Logout</p>
+                </a>
+                {{-- <form action="{{ route('logout') }}" method="post">
                     @csrf
                     <button type="submit" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt text-start"></i>
@@ -62,7 +66,7 @@
                             Logout
                         </p>
                     </button>
-                </form>
+                </form> --}}
             </li>
             </ul>
         </nav>
@@ -70,3 +74,20 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+<script>
+    function logout() {
+        $.ajax({
+            url: "/logout",
+            type: "POST",
+            data: {_token: "{{ csrf_token() }}"},
+            success: function(response) {
+                // Tindakan sukses, misalnya refresh halaman atau redirect ke halaman login
+                window.location.href = "{{ route('login') }}";
+            },
+            error: function(xhr) {
+                // Tindakan jika terjadi kesalahan
+                console.log('Kesalahan: ' + xhr.responseText);
+            }
+        });
+    }
+</script>

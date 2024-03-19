@@ -1,5 +1,10 @@
 @extends('layouts.mahasiswa.main')
 
+<!-- Preloader -->
+<div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Arsitektur UIN Maulana Malik Ibrahim Malang" height="60" width="60">
+  </div>
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -51,7 +56,7 @@
         <div class="col-md-6">
             <div class="card card-info ml-2">
                 <div class="card-header">
-                  <h3 class="card-title">Penilaian Mahasiswa</h3>
+                  <h3 class="card-title">Capaian Pembelajaran Lulusan</h3>
 
                   <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -72,12 +77,12 @@
         <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Progress CPL Mahasiswa</h3>
+              <h3 class="card-title">Jumlah SKS</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
               <div class="mb-2">
-              <p class="mb-0">CPL 1</p>
+              {{-- <p class="mb-0">SKS</p> --}}
               <div class="progress">
                 <div class="progress-bar bg-info" role="progressbar" aria-valuenow="40" aria-valuemin="0"
                      aria-valuemax="100" style="width: 40%">
@@ -85,7 +90,7 @@
                 </div>
               </div>
               </div>
-              <div class="mb-2">
+              {{-- <div class="mb-2">
               <p class="mb-0">CPL 2</p>
               <div class="progress">
                 <div class="progress-bar bg-info" role="progressbar" aria-valuenow="20" aria-valuemin="0"
@@ -93,7 +98,7 @@
                   <span>20%</span>
                 </div>
               </div>
-              </div>
+              </div> --}}
               <!-- <div class="progress mb-3">
                 <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0"
                      aria-valuemax="100" style="width: 60%">
@@ -110,29 +115,6 @@
             <!-- /.card-body -->
           </div>
         </div>
-
-
-          {{-- <div class="col-md-6">
-          <div class="card card-info ml-2">
-            <div class="card-header">
-              <h3 class="card-title">Data SKS Mahasiswa</h3>
-
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
-                  <i class="fas fa-times"></i>
-                </button> -->
-              </div>
-            </div>
-            <div class="card-body">
-              <canvas id="myPieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-      </div> --}}
           </div>
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->

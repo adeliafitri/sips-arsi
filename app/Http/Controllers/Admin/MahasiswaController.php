@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\MahasiswaFormatExcel;
 use App\Http\Controllers\Controller;
+use App\Imports\MahasiswaImportExcel;
 use App\Models\Mahasiswa;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MahasiswaController extends Controller
 {
@@ -222,5 +225,24 @@ class MahasiswaController extends Controller
             return redirect()->route('admin.mahasiswa')
                 ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
+    }
+
+    public function downloadExcel()
+    {
+        return Excel::download(new MahasiswaFormatExcel(), 'mahasiswa-excel.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new MahasiswaImportExcel(), $file);
+
+        return redirect()->back()->with('success', 'Data imported successfully.');
     }
 }
