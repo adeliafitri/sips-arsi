@@ -38,7 +38,7 @@
                 <h3 class="card-title col align-self-center">Form Edit Data Dosen</h3>
               </div>
                 <div class="card-body">
-                <form action="{{ route('admin.dosen.update', $data->id) }}" method="post" enctype="multipart/form-data">
+                <form id="editDataForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="form-group">
@@ -73,7 +73,7 @@
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
                     <a href="{{ route('admin.dosen') }}" class="btn btn-default">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Save</button>
                 </div>
                 </form>
             </div>
@@ -85,4 +85,84 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+@endsection
+
+@section('script')
+    <script>
+        function editData(id){
+            console.log(id);
+            var form = $('#editDataForm');
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, change it!"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/dosen/edit') }}/" + id,
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Success!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.href = "{{ route('admin.dosen') }}";
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status == 422) {
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Validation Error",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        else{
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Error!",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+            });
+        }
+    </script>
 @endsection

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class MataKuliahController extends Controller
@@ -16,7 +18,14 @@ class MataKuliahController extends Controller
      */
     public function index(Request $request)
     {
-        $query = MataKuliah::query();
+        $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
+        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
+        ->select('mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator')
+        ->where('dosen.id_auth', Auth::user()->id)
+        ->distinct();
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -215,9 +224,11 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
-            ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk')->orderBy('sub_cpmk.id', 'asc');
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
 
         $data = $query->paginate(5);
 

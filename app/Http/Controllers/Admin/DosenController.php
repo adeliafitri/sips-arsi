@@ -64,7 +64,10 @@ class DosenController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -99,9 +102,11 @@ class DosenController extends Controller
                 'image' => $image
             ]);
 
-            return redirect()->route('admin.dosen')->with('success', 'Data Dosen Berhasil Ditambahkan');
+            // return redirect()->route('admin.dosen')->with('success', 'Data Dosen Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -143,7 +148,11 @@ class DosenController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+            // return redirect()->back()->withErrors($validate)->withInput();
         }
 
         try {
@@ -179,13 +188,15 @@ class DosenController extends Controller
                 'image' => $image ? $image : $dosen->image,
             ]);
 
-            return redirect()->route('admin.dosen')->with([
-                'success' => 'Data Berhasil diupdate',
-                'data' => $dosen
-            ]);
+            // return redirect()->route('admin.dosen')->with([
+            //     'success' => 'Data Berhasil diupdate',
+            //     'data' => $dosen
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $dosen]);
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.dosen.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            // return redirect()->route('admin.dosen.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -195,13 +206,13 @@ class DosenController extends Controller
     public function destroy($id)
     {
         try {
-            Dosen::where('id', $id)->delete();
-
-            return redirect()->route('admin.dosen')
-                ->with('success', 'Data berhasil dihapus');
+            $dosen = Dosen::where('id_auth', $id)->delete();
+            if ($dosen) {
+                User::where('id', $id)->delete();
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            }
         } catch (\Exception $e) {
-            return redirect()->route('admin.dosen')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
 
@@ -217,7 +228,6 @@ class DosenController extends Controller
         ]);
 
         $file = $request->file('file');
-
 
         Excel::import(new DosenImportExcel(), $file);
 

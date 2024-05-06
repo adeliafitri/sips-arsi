@@ -38,6 +38,8 @@
 <script src="{{ asset('plugins/select2/js/select2.full.min.js') }}"></script>
 <!-- bs-custom-file-input -->
 <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
+<!-- bs-stepper -->
+<script src="{{ asset('dist/js/bs-stepper.js') }}"></script>
 
 <script src="/js/app.js"></script>
 

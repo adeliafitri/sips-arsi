@@ -8,6 +8,11 @@ use App\Models\NilaiMahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\NilaiTugasFormatExcel;
+use App\Exports\NilaiAkhirFormatExcel;
+use App\Imports\NilaiAkhirImportExcel;
+use App\Imports\NilaiTugasImportExcel;
 
 class NilaiController extends Controller
 {
@@ -247,7 +252,7 @@ class NilaiController extends Controller
 
     public function editNilaiAkhir(Request $request)
     {
-        $data = NilaiAkhirMahasiswa::findOrFail($request->id);
+        $data = NilaiAkhirMahasiswa::findOrFail($request->id_nilai);
 
         $data->nilai_akhir = $request->nilai_akhir;
         $data->save();
@@ -261,4 +266,174 @@ class NilaiController extends Controller
 
         return redirect()->back()->with('success', 'Data Nilai Akhir Berhasil Diupdate');
     }
+
+    public function nilaiExcel($id) {
+        $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
+            ->where('matakuliah_kelas.id', $id)
+            ->orderby('soal_sub_cpmk.id', 'ASC')
+            // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
+            ->get();
+
+            $info_soal = [];
+            foreach ($nilai_mahasiswa as $tugas) {
+                $info_soal[] = [
+                    'waktu_pelaksanaan' => $tugas->waktu_pelaksanaan,
+                    'kode_subcpmk' => $tugas->subcpmk,
+                    'bobot_soal' => $tugas->bobot,
+                    'bentuk_soal' => $tugas->bentuk_soal // Misalnya nama_tugas adalah bentuk_soal
+                ];
+            }
+
+            $mahasiswa_data = [];
+            foreach ($nilai_mahasiswa as $mahasiswa) {
+                $nilai_per_tugas = [];
+                foreach ($mahasiswa->nilai as $nilai) {
+                    $nilai_per_tugas[$nilai->tugas_id] = $nilai->nilai;
+                }
+
+                $mahasiswa_data[] = [
+                    'nim' => $mahasiswa->nim,
+                    'nama' => $mahasiswa->nama,
+                    'nilai_per_tugas' => $nilai_per_tugas
+                ];
+            }
+
+            return view('pages-dosen.generate.excel.nilai-mahasiswa', compact('mahasiswa_data', 'info_soal'));
+    }
+
+    public function downloadExcelNilaiTugas($id)
+    {
+        return Excel::download(new NilaiTugasFormatExcel($id), 'nilai-tugas-excel.xlsx');
+    }
+
+    public function downloadExcelNilaiAkhir($id)
+    {
+        return Excel::download(new NilaiAkhirFormatExcel($id), 'nilai-akhir-excel.xlsx');
+    }
+
+    public function importExcelNilaiAkhir(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new NilaiAkhirImportExcel($id), $file);
+
+        return redirect()->back()->with('success', 'Data imported successfully.');
+    }
+
+    public function importExcelNilaiTugas(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new NilaiTugasImportExcel($id), $file);
+
+        return redirect()->back()->with('success', 'Data imported successfully.');
+    }
+
+    public function rataRataTugas(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $nilaiRataRata = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('soal.bentuk_soal, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->groupBy('soal.bentuk_soal')
+            ->get();
+
+            $labels = $nilaiRataRata->pluck('bentuk_soal')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataSubCPMK(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, sub_cpmk.kode_subcpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
+            ->groupBy('sub_cpmk.kode_subcpmk');
+
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_subcpmk')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataCPMK(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpmk.kode_cpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('cpmk.kode_cpmk', 'asc')
+            ->groupBy('cpmk.kode_cpmk');
+
+        // $sql = $query->toSql();
+        // dd($sql);
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_cpmk')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataCPL(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpl.kode_cpl')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('cpl.kode_cpl', 'asc')
+            ->groupBy('cpl.kode_cpl');
+
+        // $sql = $query->toSql();
+        // dd($sql);
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_cpl')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
 }
+

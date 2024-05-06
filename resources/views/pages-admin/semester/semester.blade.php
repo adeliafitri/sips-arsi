@@ -53,47 +53,49 @@
                     </div>
                 @endif
                 </div>
-                 <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th> Tahun Ajaran </th>
-                      <th> Semester </th>
-                      <th style="width: 100px;"> Aktif </th>
-                      <th style="width: 150px;"> Action </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $i => $datas )
-                      <tr>
-                        <td class=""> {{ $startNumber }} </td>
-                        <td> {{ $datas->tahun_ajaran }} </td>
-                        <td>{{ ucfirst($datas->semester) }}</td>
-                        <td>
-                          <div class="row justify-content-center">
-                            <div class="form-group">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="is-active" {{ $datas->is_active == '1' ? 'checked' : '' }} onclick="changeIsActive({{ $datas->id }})">
-                                    <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                 <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th> Tahun Ajaran </th>
+                            <th> Semester </th>
+                            <th style="width: 100px;"> Aktif </th>
+                            <th style="width: 150px;"> Action </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $i => $datas )
+                            <tr>
+                              <td class=""> {{ $startNumber++ }} </td>
+                              <td> {{ $datas->tahun_ajaran }} </td>
+                              <td>{{ ucfirst($datas->semester) }}</td>
+                              <td>
+                                <div class="row justify-content-center">
+                                  <div class="form-group">
+                                      <div class="custom-control custom-switch">
+                                          <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="is-active" {{ $datas->is_active == '1' ? 'checked' : '' }} onclick="changeIsActive({{ $datas->id }})">
+                                          <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
+                                      </div>
+                                  </div>
                                 </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td class="d-flex">
-                          <div>
+                              </td>
+                              <td class="d-flex">
+                                <div>
 
-                            <a href="{{ route('admin.semester.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                          </div>
-                          <form action="{{ route('admin.semester.destroy', $datas->id) }}" method="post" class="mt-1">
-                              @csrf
-                              @method('delete')
-                              <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                          </form> 
-                        </td>
-                      </tr>
-                    @endforeach
-                  </tbody>
-                 </table>
+                                  <a href="{{ route('admin.semester.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                </div>
+                                <form action="{{ route('admin.semester.destroy', $datas->id) }}" method="post" class="mt-1">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                </form>
+                              </td>
+                            </tr>
+                          @endforeach
+                        </tbody>
+                       </table>
+                 </div>
               </div>
             </div>
           </div>
@@ -101,7 +103,7 @@
       </div>
     </section>
 @endsection
-    
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
    //content goes here
@@ -156,6 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
             isActiveCheckbox.checked = !isActiveCheckbox.checked; // Toggle the checkbox state
         }
       });
-        
+
       }
     </script>

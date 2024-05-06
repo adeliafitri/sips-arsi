@@ -40,7 +40,7 @@
                         <a href="index.php?include=data-mahasiswa" class="btn btn-warning"><i class="nav-icon fas fa-arrow-left mr-2"></i> Kembali</a>
                     </div> -->
                 </div>
-                <form action="{{ route('admin.kelaskuliah.storemahasiswa', $kelas_kuliah->id) }}" method="post">
+                <form id="addDataForm">
                     @csrf
                     <div class="card-body">
                         <div class="form-group">
@@ -64,7 +64,7 @@
                     </div>
                     <div class="card-footer clearfix">
                         <a href="{{ route('admin.kelaskuliah.show', $kelas_kuliah->id) }}" class="btn btn-default">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-primary" onclick="addData({{ $kelas_kuliah->id }})">Save</button>
                     </div>
                 </form>
             </div>
@@ -76,4 +76,65 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+@endsection
+
+@section('script')
+<script>
+    function addData(id) {
+        var form = $('#addDataForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('admin/kelas-kuliah') }}/" + id + "/mahasiswa",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('admin.kelaskuliah.show', '') }}/" + id;
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+</script>
 @endsection

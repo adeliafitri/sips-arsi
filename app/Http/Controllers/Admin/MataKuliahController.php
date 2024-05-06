@@ -57,7 +57,10 @@ class MataKuliahController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -67,9 +70,11 @@ class MataKuliahController extends Controller
                 'sks' => $request->sks,
             ]);
 
-            return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -111,7 +116,10 @@ class MataKuliahController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -122,13 +130,15 @@ class MataKuliahController extends Controller
                 'sks' => $request->sks,
             ]);
 
-            return redirect()->route('admin.matakuliah')->with([
-                'success' => 'Data Berhasil Diupdate',
-                'data' => $mata_kuliah
-            ]);
+            // return redirect()->route('admin.matakuliah')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $mata_kuliah
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $mata_kuliah]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.matakuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.matakuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -139,12 +149,13 @@ class MataKuliahController extends Controller
     {
         try {
             MataKuliah::where('id', $id)->delete();
-
-            return redirect()->route('admin.matakuliah')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.matakuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 
@@ -194,7 +205,9 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk')->orderBy('cpmk.id');
+        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('cpmk.id');
 
         $data = $query->paginate(5);
 
@@ -215,9 +228,11 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
-            ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
-            ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk')->orderBy('sub_cpmk.id', 'asc');
+        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
 
         $data = $query->paginate(5);
 

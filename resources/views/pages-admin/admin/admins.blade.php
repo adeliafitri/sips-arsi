@@ -40,7 +40,7 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
+                <div>
                     <a href="{{ route('admin.admins.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
@@ -56,34 +56,36 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered ">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>Nama</th>
-                      <th>Email</th>
-                      <th>No Telp</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->nama }}</td>
-                        <td>{{ $datas->email }}</td>
-                        <td>{{ $datas->telp }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                                <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>No Telp</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->nama }}</td>
+                              <td>{{ $datas->email }}</td>
+                              <td>{{ $datas->telp }}</td>
+                              <td>
+                                  <div class="d-flex">
+                                      <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                      <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                      <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                  </div>
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 

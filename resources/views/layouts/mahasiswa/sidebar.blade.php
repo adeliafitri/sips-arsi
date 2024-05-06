@@ -46,10 +46,16 @@
                 </a>
             </li>
             @if (session()->has('mahasiswa'))
-            <li class="nav-item">
-                <a href="{{ route('mahasiswa.nilai') }}" class="nav-link {{ request()->routeIs('mahasiswa.nilai') ? 'active' : '' }}">
+            {{-- <li class="nav-item">
+                <a href="" class="nav-link {{ request()->routeIs('mahasiswa.rps') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
-                <p>Data Nilai</p>
+                <p>Data RPS</p>
+                </a>
+            </li> --}}
+            <li class="nav-item">
+                <a href="{{ route('mahasiswa.kelaskuliah') }}" class="nav-link {{ request()->routeIs('mahasiswa.kelaskuliah') ? 'active' : '' }}">
+                <i class="fas fa-book-reader nav-icon"></i>
+                <p>Data Kelas Perkuliahan</p>
                 </a>
             </li>
             @endif

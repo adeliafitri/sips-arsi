@@ -38,19 +38,11 @@
                             <h6> <span style="font-weight: bold"> Kode Mata Kuliah : </span>  {{ $data->kode_matkul }}</h6>
                             <h6> <span style="font-weight: bold"> Nama Mata Kuliah : </span> {{ $data->nama_matkul }}</h6>
                             <h6> <span style="font-weight: bold" onclick="loadCPL(1);"> SKS : </span> {{ $data->sks }}</h6>
-
                         </div>
-                        <select class="form-control">
-                            <option selected="selected">orange</option>
-                            <option>white</option>
-                            <option>purple</option>
-                            </select>
-
-
                     </div>
                     <!-- /.card -->
-                    <div class="card bg-section pb-1 bg-white" style="border-top-left-radius: 8px; border-top-right-radius: 8px">
-                        <ul class="nav nav-tabs justify-content-center" style="background-color: #007bff; border-top-left-radius: 8px; border-top-right-radius: 8px">
+                    {{-- <div class="card bg-section pb-1 bg-white" style="border-top-left-radius: 8px; border-top-right-radius: 8px">
+                        <ul class="nav nav-tabs justify-content-center" id="custom-tabs-one-tab" style="background-color: #007bff; border-top-left-radius: 8px; border-top-right-radius: 8px">
                             <li class="nav-item">
                                 <a class="nav-link active" role="tab" data-toggle="pill" href="#cpl-tab" aria-controls="cpl-tab" aria-selected="true" onclick="detailCpl({{ $data->id }});" ><h6  style="color: black; font-weight: bold">Data CPL</h6></a>
                             </li>
@@ -64,7 +56,7 @@
                                 <a class="nav-link" role="tab"  data-toggle="pill" href="#rps-tab" aria-controls="rps-tab" aria-selected="false" onclick="detailTugas({{ $data->id }});"><h6 style="color: black; font-weight: bold">Tugas</h6></a>
                             </li>
                         </ul>
-                        
+
 
                         <div class="tab-content bg-white px-3">
                             <div class="tab-pane show fade active justify-content-center" id="cpl-tab" role="tabpanel">
@@ -88,6 +80,49 @@
                             </div>
 
                         </div>
+                    </div> --}}
+
+                    <div class="card card-primary card-tabs">
+                        <div class="card-header p-0 pt-1">
+                          <ul class="nav nav-tabs justify-content-center" id="custom-tabs-one-tab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" role="tab" data-toggle="pill" href="#cpl-tab" aria-controls="cpl-tab" aria-selected="true" onclick="detailCpl({{ $data->id }});" ><h6  style="font-weight: bold">Data CPL</h6></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#cpmk-tab" aria-controls="cpmk-tab" aria-selected="false" onclick="detailCpmk({{ $data->id }});"><h6 style="font-weight: bold">Data CPMK</h6></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#subcpmk-tab" aria-controls="subcpmk-tab" aria-selected="false" onclick="detailSubCpmk({{ $data->id }});"><h6 style="font-weight: bold">Data Sub CPMK</h6></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#rps-tab" aria-controls="rps-tab" aria-selected="false" onclick="detailTugas({{ $data->id }});"><h6 style="font-weight: bold">Tugas</h6></a>
+                            </li>
+                          </ul>
+                        </div>
+                        <div class="card-body">
+                          <div class="tab-content" id="custom-tabs-one-tabContent">
+                            <div class="tab-pane show fade active justify-content-center" id="cpl-tab" role="tabpanel">
+                                <div id="cpl">
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade justify-content-center" id="cpmk-tab" role="tabpanel">
+                                <div id="cpmk">
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade justify-content-center" id="subcpmk-tab" role="tabpanel">
+                                <div id="sub-cpmk">
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade justify-content-center" id="rps-tab" role="tabpanel">
+                                <div id="tugas">
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- /.card -->
                     </div>
                 </div>
                 <!-- /.col -->
@@ -100,10 +135,6 @@
 
 @section('script')
     <script>
-
-        $(".js-example-tags").select2({
-  tags: true
-});
         function detailCpl(id){
             $.ajax({
                     url: "{{ url('admin/mata-kuliah/detail/cpl') }}",

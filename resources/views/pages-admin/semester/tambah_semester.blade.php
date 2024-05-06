@@ -36,7 +36,7 @@
                         <div class="card-header d-flex justify-content-end">
                             <h3 class="card-title col align-self-center">Form Tambah Data Semester</h3>
                         </div>
-                        <form action="{{ route('admin.semester.store') }}" method="post" enctype="multipart/form-data">
+                        <form id="addDataForm" enctype="multipart/form-data">
                             <div class="card-body">
                                 @CSRF
                                 <div class="form-group">
@@ -64,7 +64,7 @@
                             </div>
                             <div class="card-footer clearfix">
                                 <a href="{{ route('admin.semester') }}" class="btn btn-default">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="button" class="btn btn-primary" onclick="addData()">Save</button>
                             </div>
                         </form>
                     </div>
@@ -72,7 +72,65 @@
             </div>
         </div>
     </section>
+@endsection
 
-
-
+@section('script')
+  <script>
+    function addData() {
+        var form = $('#addDataForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('admin/semester/store') }}",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('admin.semester') }}";
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+  </script>
 @endsection

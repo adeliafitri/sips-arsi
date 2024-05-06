@@ -91,51 +91,52 @@
                                     {{ session('error') }}
                                 </div>
                             @endif
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10px">No</th>
-                                        <th>NIM</th>
-                                        <th>Nama</th>
-                                        {{-- <th>Email</th> --}}
-                                        <th>No Telp</th>
-                                        <th>Angkatan</th>
-                                        {{-- <th>Image</th> --}}
-                                        <th style="width: 150px">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        @foreach ($data as $key => $datas)
-                                            <td>{{ $startNumber++ }}</td>
-                                            <td>{{ $datas->nim }}</td>
-                                            <td>{{ $datas->nama }}</td>
-                                            {{-- <td>{{ $datas->email }}</td> --}}
-                                            <td>{{ $datas->telp }}</td>
-                                            <td>{{ $datas->angkatan }}</td>
-                                            {{-- <td>
-                            <div class="text-center">
-                                <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 10px">No</th>
+                                            <th>NIM</th>
+                                            <th>Nama</th>
+                                            {{-- <th>Email</th> --}}
+                                            <th>No Telp</th>
+                                            <th>Angkatan</th>
+                                            {{-- <th>Image</th> --}}
+                                            <th style="width: 150px">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            @foreach ($data as $key => $datas)
+                                                <td>{{ $startNumber++ }}</td>
+                                                <td>{{ $datas->nim }}</td>
+                                                <td>{{ $datas->nama }}</td>
+                                                {{-- <td>{{ $datas->email }}</td> --}}
+                                                <td>{{ $datas->telp }}</td>
+                                                <td>{{ $datas->angkatan }}</td>
+                                                {{-- <td>
+                                <div class="text-center">
+                                    <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">
+                                </div>
+                            </td> --}}
+                                                <td class="d-flex justify-content-center">
+                                                    {{-- <a href="{{ route('admin.mahasiswa.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
+                                                    <a href="{{ route('admin.mahasiswa.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
+                                                    <a class="btn btn-danger mt-1" onclick="deleteMahasiswa({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                                    {{-- <form action="{{ route('admin.mahasiswa.destroy', $datas->id_auth) }}"
+                                                        method="post" class="mt-1 ml-1"
+                                                        onsubmit="return confirm('Apakah anda yakin ingin menghapus data ini?')">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="btn btn-danger" type="submit"><i
+                                                                class="nav-icon fas fa-trash-alt"></i></button>
+                                                    </form> --}}
+                                                </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
-                        </td> --}}
-                                            <td class="d-flex justify-content-center">
-                                                {{-- <a href="{{ route('admin.mahasiswa.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
-                                                <a href="{{ route('admin.mahasiswa.edit', $datas->id) }}"
-                                                    class="btn btn-secondary mt-1 mr-1"><i
-                                                        class="nav-icon fas fa-edit"></i></a>
-                                                <form action="{{ route('admin.mahasiswa.destroy', $datas->id_auth) }}"
-                                                    method="post" class="mt-1 ml-1"
-                                                    onsubmit="return confirm('Apakah anda yakin ingin menghapus data ini?')">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button class="btn btn-danger" type="submit"><i
-                                                            class="nav-icon fas fa-trash-alt"></i></button>
-                                                </form>
-                                            </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
                         </div>
                         <!-- /.card-body -->
 
@@ -155,4 +156,58 @@
         </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+@endsection
+@section('script')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+       //content goes here
+    });
+
+          function deleteMahasiswa(id){
+            console.log(id);
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/mahasiswa') }}/" + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Deleted!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error during AJAX request:', error);
+                    }
+                });
+            }
+          });
+
+          }
+        </script>
 @endsection

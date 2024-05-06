@@ -58,7 +58,10 @@ class CplController extends Controller
         ]);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -68,9 +71,10 @@ class CplController extends Controller
                 'jenis_cpl' => $request->jenis_cpl,
             ]);
 
-            return redirect()->route('admin.cpl')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+            // return redirect()->route('admin.cpl')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
 
@@ -107,7 +111,10 @@ class CplController extends Controller
         ]);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -118,13 +125,15 @@ class CplController extends Controller
                 'jenis_cpl' => $request->jenis_cpl,
             ]);
 
-            return redirect()->route('admin.cpl')->with([
-                'success' => 'Data Berhasil Diupdate',
-                'data' => $cpl
-            ]);
+            // return redirect()->route('admin.cpl')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $cpl
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $cpl]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.cpl.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.cpl.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 

@@ -48,6 +48,7 @@ class RpsController extends Controller
             ->where('cpmk.matakuliah_id', $id)
             ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
             ->paginate(5);
+            // ->toSql();
             // dd($data_soalsubcpmk);
 
         $start_nosoalsubcpmk = ($data_soalsubcpmk->currentPage() - 1) * $data_soalsubcpmk->perPage() + 1;
@@ -232,13 +233,10 @@ class RpsController extends Controller
                 'deskripsi' => $request->deskripsi_subcpmk,
             ]);
 
-            return redirect()->route('admin.rps')->with([
-                'success' => 'Data updated successfully.',
-                'data' => $subcpmk
-            ]);
+           return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate','data' => $subcpmk]);
         } catch (\Exception $e) {
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
         }
     }
 
@@ -248,10 +246,10 @@ class RpsController extends Controller
             $soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
                 ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
                 ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
-                ->where('cpmk.matakuliah_id', $id)
-                ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                ->where('soal_sub_cpmk.id', $id)
+                ->select('sub_cpmk.id as subcpmk_id', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                 ->first();
-
+            // dd($soalsubcpmk);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $soalsubcpmk]);
         } catch (\Exception $e) {
@@ -262,26 +260,29 @@ class RpsController extends Controller
     public function updateSoalSubCpmk(Request $request)
     {
         try{
-            // $cpl = $request->cpl_id;
-            // $tanggalLahir = Carbon::createFromFormat('d/m/Y', $request->tanggal_lahir)->format('Y-m-d');
+            $bentukSoal = request()->input('bentuk_soal');
+            $existingUnit = Soal::where('bentuk_soal', $bentukSoal)->first();
+            if (!$existingUnit) {
+                $soal = new Soal();
+                $soal->bentuk_soal = $bentukSoal;
+                $soal->save();
+            } else {
+                $soal = $existingUnit;
+            }
 
-            // Update data produk berdasarkan ID
-            $soalsubcpmk = SubCpmk::where('id', $request->subcpmk_id)->first();
+            $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
             $soalsubcpmk->update([
                 'subcpmk_id' => $request->pilih_subcpmk,
-                'bentuk_soal' => $request->bentuk_soal,
+                'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
                 'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
             ]);
 
-            return redirect()->route('admin.rps')->with([
-                'success' => 'Data updated successfully.',
-                'data' => $soalsubcpmk
-            ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate','data' => $soalsubcpmk]);
         } catch (\Exception $e) {
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.rps')->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
         }
     }
 

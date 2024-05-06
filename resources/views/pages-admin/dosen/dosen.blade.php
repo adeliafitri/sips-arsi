@@ -91,38 +91,41 @@
                     </div>
                 @endif
                 </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>NIDN</th>
-                      <th>Nama</th>
-                      <th>Email</th>
-                      <th>No Telp</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->nidn }}</td>
-                        <td>{{ $datas->nama }}</td>
-                        <td>{{ $datas->email }}</td>
-                        <td>{{ $datas->telp }}</td>
-                        <td class="d-flex">
-                            {{-- <a href="{{ route('admin.dosen.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
-                            <a href="{{ route('admin.dosen.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-2"><i class="nav-icon fas fa-edit "></i></a>
-                            <form action="{{ route('admin.dosen.destroy', $datas->id) }}" method="post" class="mt-1">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt "></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>NIDN</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>No Telp</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->nidn }}</td>
+                              <td>{{ $datas->nama }}</td>
+                              <td>{{ $datas->email }}</td>
+                              <td>{{ $datas->telp }}</td>
+                              <td class="d-flex">
+                                  {{-- <a href="{{ route('admin.dosen.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
+                                  <a href="{{ route('admin.dosen.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-2"><i class="nav-icon fas fa-edit "></i></a>
+                                  <a class="btn btn-danger" onclick="deleteDosen({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                  {{-- <form action="{{ route('admin.dosen.destroy', $datas->id) }}" method="post" class="mt-1">
+                                      @csrf
+                                      @method('delete')
+                                      <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt "></i></button>
+                                  </form> --}}
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
@@ -143,4 +146,59 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+@endsection
+
+@section('script')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+       //content goes here
+    });
+
+          function deleteDosen(id){
+            console.log(id);
+            Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/dosen') }}/" + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Deleted!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error during AJAX request:', error);
+                    }
+                });
+            }
+          });
+
+          }
+        </script>
 @endsection

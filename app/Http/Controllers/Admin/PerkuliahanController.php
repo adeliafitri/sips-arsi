@@ -82,7 +82,10 @@ class PerkuliahanController extends Controller
         // dd($validate);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -100,9 +103,11 @@ class PerkuliahanController extends Controller
                 'koordinator' => $koordinatorValue,
             ]);
             // dd($request->semester);
-            return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -162,7 +167,8 @@ class PerkuliahanController extends Controller
                 'mata_kuliah.nama_matkul as nama_matkul',
                 'dosen.nama as nama_dosen'
             )
-            ->where('matakuliah_kelas.id', $id)->first();
+            ->where('matakuliah_kelas.id', $id)
+            ->first();
 
         $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
         // dd($jumlah_mahasiswa);
@@ -181,11 +187,12 @@ class PerkuliahanController extends Controller
             });
         }
         // $query->distinct();
-        $mahasiswa = $query->distinct()->paginate(5);
+        $mahasiswa = $query->orderBy('nim', 'asc')->distinct()->paginate(5);
 
         $startNumber = ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + 1;
 
         $keterangan = [];
+        $huruf = [];
 
         foreach ($mahasiswa as $mhs) {
             $nilai_akhir = $mhs->nilai_akhir;
@@ -195,6 +202,22 @@ class PerkuliahanController extends Controller
             } else {
                 $keterangan[$mhs->id] = "Tidak Lulus";
             }
+
+            if ($nilai_akhir >= 85) {
+                $huruf[$mhs->id] = "A";
+            }elseif ($nilai_akhir >= 76) {
+                $huruf[$mhs->id] = "B+";
+            }elseif ($nilai_akhir >= 71) {
+                $huruf[$mhs->id] = "B";
+            }elseif ($nilai_akhir >= 66) {
+                $huruf[$mhs->id] = "C+";
+            }elseif ($nilai_akhir >= 61) {
+                $huruf[$mhs->id] = "C";
+            }elseif ($nilai_akhir >= 51) {
+                $huruf[$mhs->id] = "D";
+            }else{
+                $huruf[$mhs->id] = "E";
+            }
         }
 
         // dd($keterangan);
@@ -203,6 +226,7 @@ class PerkuliahanController extends Controller
             'success' => 'Data Ditemukan',
             'data' => $kelas_kuliah,
             'jumlah_mahasiswa' => $jumlah_mahasiswa,
+            'huruf' => $huruf,
             'keterangan' => $keterangan,
             'mahasiswa' => $mahasiswa,
             'startNumber' => $startNumber,
@@ -228,7 +252,10 @@ class PerkuliahanController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -263,7 +290,8 @@ class PerkuliahanController extends Controller
                         'soal_id' => $data->soal_id,
                     ]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+                    return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+                    // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
                 }
             }
 
@@ -272,9 +300,11 @@ class PerkuliahanController extends Controller
                 'matakuliah_kelasid' => $id,
             ]);
 
-            return redirect()->route('admin.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+            // return redirect()->route('admin.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -322,7 +352,10 @@ class PerkuliahanController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -334,13 +367,15 @@ class PerkuliahanController extends Controller
                 'semester_id' => $request->semester,
             ]);
 
-            return redirect()->route('admin.kelaskuliah')->with([
-                'success' => 'Data Berhasil Diupdate',
-                'data' => $kelas_kuliah
-            ]);
+            // return redirect()->route('admin.kelaskuliah')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $kelas_kuliah
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $kelas_kuliah]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.kelaskuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.kelaskuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -372,11 +407,13 @@ class PerkuliahanController extends Controller
                 ->where('matakuliah_kelasid', $id)
                 ->delete();
 
-            return redirect()->route('admin.kelaskuliah')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.kelaskuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.kelaskuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
     public function downloadExcel()

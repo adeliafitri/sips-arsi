@@ -9,7 +9,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Data Mata Kuliah</h1>
+                    <h1>Data RPS {{ $matkul->nama_matkul }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -48,21 +48,21 @@
                                         <div class="step" data-target="#test-l-1">
                                             <button type="button" class="btn step-trigger">
                                                 <span class="bs-stepper-circle">1</span>
-                                                <span class="bs-stepper-label">First step</span>
+                                                <span class="bs-stepper-label">Data CPMK</span>
                                             </button>
                                         </div>
                                         <div class="line"></div>
                                         <div class="step" data-target="#test-l-2">
                                             <button type="button" class="btn step-trigger">
                                                 <span class="bs-stepper-circle">2</span>
-                                                <span class="bs-stepper-label">Second step</span>
+                                                <span class="bs-stepper-label">Data Sub CPMK</span>
                                             </button>
                                         </div>
                                         <div class="line"></div>
                                         <div class="step" data-target="#test-l-3">
                                             <button type="button" class="btn step-trigger">
                                                 <span class="bs-stepper-circle">3</span>
-                                                <span class="bs-stepper-label">Third step</span>
+                                                <span class="bs-stepper-label">Data Tugas</span>
                                             </button>
                                         </div>
                                     </div>
@@ -96,7 +96,7 @@
                                                     <input type="text" class="form-control" id="kode_cpmk" name="kode_cpmk" placeholder="Kode CPMK">
                                                 </div>
                                                 <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="deskripsi">Deskripsi</label>
+                                                    <label for="deskripsi">Deskripsi CPMK</label>
                                                     <textarea id="deskripsi_cpmk" name="deskripsi_cpmk" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
@@ -112,7 +112,7 @@
                                                         <th style="width: 10px">No</th>
                                                         <th>Kode CPL</th>
                                                         <th>Kode CPMK</th>
-                                                        <th>Deskripsi</th>
+                                                        <th>Deskripsi CPMK</th>
                                                         <th style="width: 150px;">Action</th>
                                                     </tr>
                                                 </thead>
@@ -125,7 +125,6 @@
                                                         <td>{{ $datas->deskripsi }}</td>
                                                         <td class="d-flex justify-content-center">
                                                             <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-
                                                             <button class="btn btn-secondary mt-1 mr-1 btn-edit-cpmk" onclick="editCpmk({{ $datas->id }})"><i class="nav-icon fas fa-edit"></i></button>
                                                             <a class="btn btn-danger mt-1" onclick="deleteCpmk({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
                                                         </td>
@@ -170,7 +169,7 @@
                                                         name="kode_subcpmk" placeholder="Kode Sub CPMK">
                                                 </div>
                                                 <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="deskripsi">Deskripsi</label>
+                                                    <label for="deskripsi">Deskripsi Sub CPMK</label>
                                                     <textarea id="deskripsi_subcpmk" name="deskripsi_subcpmk"
                                                         style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px"
                                                         required></textarea>
@@ -189,7 +188,7 @@
                                                         <th style="width: 10px">No</th>
                                                         <th>Kode CPMK</th>
                                                         <th>Kode Sub CPMK</th>
-                                                        <th>Deskripsi</th>
+                                                        <th>Deskripsi Sub CPMK</th>
                                                         <th style="width: 150px;">Action</th>
                                                     </tr>
                                                 </thead>
@@ -250,8 +249,9 @@
                                                 <div class="textinput" style="margin-bottom: 1rem">
                                                     <label for="bentuk_soal">Bentuk Soal</label>
                                                     <select class="form-control select2bs4" id="bentuk_soal" name="bentuk_soal" style="resize: none; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required>
+                                                        <option selected>-- Pilih Bentuk Soal --</option>
                                                         @foreach ($data_soal as $soalid => $soal)
-                                                            <option value="{{ $soalid }}">{{ $soal}}</option>
+                                                            <option value="{{ $soal }}">{{ $soal}}</option>
                                                         @endforeach
                                                     </select>
                                                     {{-- <textarea id="bentuk_soal" name="bentuk_soal" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea> --}}
@@ -260,7 +260,7 @@
                                                     <div class="col-lg-4">
                                                         <label for="bobot">Bobot</label>
                                                         <div class="input-group mb-3">
-                                                            <input id="bobot" type="number" class="form-control"
+                                                            <input id="bobot" type="number" step="0.01" class="form-control"
                                                                 placeholder="Bobot" aria-label="Bobot"
                                                                 aria-describedby="basic-addon2" name="bobot">
                                                             <div class="input-group-append">
@@ -271,7 +271,7 @@
                                                     <div class="col-lg-8">
                                                         <label for="waktu_pelaksanaan">Waktu Pelaksanaan</label>
                                                         <div class="input-group mb-3">
-                                                            <input id="waktu_pelaksanaan" type="number" class="form-control"
+                                                            <input id="waktu_pelaksanaan" type="text" class="form-control"
                                                                 aria-describedby="basic-addon2" name="waktu_pelaksanaan" required>
                                                         </div>
                                                     </div>
@@ -280,7 +280,7 @@
                                                     <button class="btn btn-primary" type="submit" id="tambah-soalsubcpmk"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="button" id="simpan-soalsubcpmk-edit" style="display: none" onclick="saveEditedSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
+                                                    <button class="btn btn-primary" type="button" id="simpan-soalsubcpmk-edit" style="display: none" onclick="saveEditedSoalSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
                                                 </div>
                                             </form>
                                             <table class="table table-bordered">
@@ -316,10 +316,15 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
+                                            <ul class="pagination pagination-sm mb-2 float-right">
+                                                <div class="float-right">
+                                                    {{ $data_soalsubcpmk->links('pagination::bootstrap-4') }}
+                                                </div>
+                                            </ul>
                                             <button class="btn btn-primary"
                                                 onclick="stepper1.previous()">Sebelumnya</button>
                                             <button type="button" class="btn btn-primary"
-                                                onclick="stepper1.next()">Simpan</button>
+                                                onclick="simpan()">Simpan</button>
                                         </div>
                                     </div>
                                 </div>
@@ -644,6 +649,7 @@
                                         success: function(response){
                                             // Handle success response
                                             console.log('Data berhasil diperbarui:', response);
+                                            window.location.reload();
                                             // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
                                         },
                                         error: function(xhr){
@@ -660,17 +666,17 @@
                                         type: 'GET',
                                         success: function(response){
                                             $('#pilih_subcpmk').val(response.data.subcpmk_id);
-                                            $('#bentuk_soal').val(response.data.kode_subcpmk);
+                                            $('#bentuk_soal').val(response.data.bentuk_soal).change();
                                             $('#bobot').val(response.data.bobot_soal);
                                             $('#waktu_pelaksanaan').val(response.data.waktu_pelaksanaan);
                                             // var form = document.getElementById('myFormCpmk');
                                             // var hiddenInputId = '<input type="hidden" name="cpmk_id" value="' + response.data.id+ '">';
 
                                             // form.append(hiddenInputId);
-                                            var form = document.getElementById('myFormSubCpmk');
+                                            var form = document.getElementById('myFormSoal');
                                             var hiddenInputId = document.createElement('input');
                                             hiddenInputId.type = 'hidden';
-                                            hiddenInputId.name = 'subcpmk_id';
+                                            hiddenInputId.name = 'soal_subcpmk_id';
                                             hiddenInputId.value = response.data.id;
 
                                             form.appendChild(hiddenInputId);
@@ -687,7 +693,7 @@
                                     function saveEditedSoalSubCpmk() {
                                     // Mendapatkan nilai input dari form atau elemen lainnya
                                     var form = $('#myFormSoal');
-
+                                        console.log(form);
                                     // Melakukan permintaan AJAX untuk menyimpan data yang diedit
                                     $.ajax({
                                         url: "{{ url('admin/rps/updatesoalsubcpmk') }}", // URL untuk menyimpan data yang diedit
@@ -695,11 +701,12 @@
                                         headers: {
                                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                                             },
-                                        contentType: 'application/json', // Tipe konten yang dikirimkan dalam permintaan
+                                        contentType: 'application/x-www-form-urlencoded',  // Tipe konten yang dikirimkan dalam permintaan
                                         data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
                                         success: function(response){
                                             // Handle success response
                                             console.log('Data berhasil diperbarui:', response);
+                                            window.location.reload();
                                             // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
                                         },
                                         error: function(xhr){
@@ -708,6 +715,33 @@
                                             // Misalnya, Anda dapat menampilkan pesan kesalahan kepada pengguna
                                         }
                                     });
+                                    }
+
+                                    function simpan(){
+                                        Swal.fire({
+                                            title: "Are you sure?",
+                                            // text: "You won't be able to revert this!",
+                                            icon: "warning",
+                                            showCancelButton: true,
+                                            confirmButtonColor: "#3085d6",
+                                            cancelButtonColor: "#d33",
+                                            confirmButtonText: "Ya, simpan"
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                Swal.fire({
+                                                    title: "Sukses!",
+                                                    text: "Data Berhasil Disimpan.",
+                                                    icon: "success"
+                                                }).then((result) => {
+                                                // Check if the user clicked "OK"
+                                                    if (result.isConfirmed) {
+                                                        // Redirect to the desired URL
+                                                        window.location.href = "{{ route('admin.matakuliah') }}";
+                                                    };
+                                                    // window.location.href = "{{ route('admin.kelas') }}";
+                                                });
+                                            }
+                                        });
                                     }
                         </script>
                     </div><!-- /.card -->

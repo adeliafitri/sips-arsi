@@ -26,8 +26,9 @@ use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanControll
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use App\Http\Controllers\Dosen\NilaiController as DosenNilaiController;
 use App\Http\Controllers\Dosen\MataKuliahController as DosenMataKuliahController;
+use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
 
-
+use App\Http\Controllers\Mahasiswa\MataKuliahController as MahasiswaMataKuliahController;
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
 use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
 use Illuminate\Support\Facades\View;
@@ -182,13 +183,18 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/nilai/sub-cpmk', [AdminNilaiController::class, 'nilaiSubCpmk'])->name('admin.kelaskuliah.nilaisubcpmk');
             Route::get('/nilai/cpmk', [AdminNilaiController::class, 'nilaiCpmk'])->name('admin.kelaskuliah.nilaicpmk');
             Route::get('/nilai/cpl', [AdminNilaiController::class, 'nilaiCpl'])->name('admin.kelaskuliah.nilaicpl');
-          
+            Route::get('/{id}/lihat-nilai', [AdminNilaiController::class, 'nilaiMahasiswa'])->name('admin.kelaskuliah.lihatnilai');
+
             Route::post('/nilai/edit-nilai-tugas', [AdminNilaiController::class, 'editNilaiTugas'])->name('admin.kelaskuliah.editnilaitugas');
             Route::post('/nilai/edit-nilai-akhir', [AdminNilaiController::class, 'editNilaiAkhir'])->name('admin.kelaskuliah.editnilaiakhir');
 
-
             Route::get('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'edit'])->name('admin.kelaskuliah.nilaimahasiswa.edit');
             Route::put('{id}/nilai/{id_mahasiswa}/edit/{id_subcpmk}', [AdminNilaiController::class, 'update'])->name('admin.kelaskuliah.nilaimahasiswa.update');
+
+            Route::get('nilai/chart-tugas', [AdminNilaiController::class, 'rataRataTugas'])->name('admin.kelaskuliah.rataratatugas');
+            Route::get('nilai/chart-sub-cpmk', [AdminNilaiController::class, 'rataRataSubCPMK'])->name('admin.kelaskuliah.rataratasubcpmk');
+            Route::get('nilai/chart-cpmk', [AdminNilaiController::class, 'rataRataCPMK'])->name('admin.kelaskuliah.rataratacpmk');
+            Route::get('nilai/chart-cpl', [AdminNilaiController::class, 'rataRataCPL'])->name('admin.kelaskuliah.rataratacpl');
         });
 
         Route::prefix('admin/semester')->group(function () {
@@ -197,7 +203,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('store', [SemesterController::class, 'store'])->name('admin.semester.store');
             Route::post('update-active/{id}', [SemesterController::class, 'updateIsActive'])->name('admin.semester.update-active');
             Route::get('edit/{id}', [SemesterController::class, 'edit'])->name('admin.semester.edit');
-            Route::post('edit/{id}', [SemesterController::class, 'update'])->name('admin.semester.update');
+            Route::put('edit/{id}', [SemesterController::class, 'update'])->name('admin.semester.update');
             Route::delete('{id}', [SemesterController::class, 'destroy'])->name('admin.semester.destroy');
         });
     });
@@ -234,6 +240,16 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::post('/nilai/edit-nilai-tugas', [DosenNilaiController::class, 'editNilaiTugas'])->name('dosen.kelaskuliah.editnilaitugas');
             Route::post('/nilai/edit-nilai-akhir', [DosenNilaiController::class, 'editNilaiAkhir'])->name('dosen.kelaskuliah.editnilaiakhir');
+            Route::get('/{id}/masukkan-nilai', [DosenPerkuliahanController::class, 'nilaiMahasiswa'])->name('dosen.kelaskuliah.masukkannilai');
+            Route::get('/{id}/masukkan-nilai/tugas/download-excel', [DosenNilaiController::class, 'downloadExcelNilaiTugas'])->name('dosen.download.nilaitugas');
+            Route::get('/{id}/masukkan-nilai/akhir/download-excel', [DosenNilaiController::class, 'downloadExcelNilaiAkhir'])->name('dosen.download.nilaiakhir');
+            Route::post('/{id}/masukkan-nilai/akhir/import-excel', [DosenNilaiController::class, 'importExcelNilaiAkhir'])->name('dosen.impor.nilaiakhir');
+            Route::post('/{id}/masukkan-nilai/tugas/import-excel', [DosenNilaiController::class, 'importExcelNilaiTugas'])->name('dosen.impor.nilaitugas');
+
+            Route::get('nilai/chart-tugas', [DosenNilaiController::class, 'rataRataTugas'])->name('dosen.kelaskuliah.rataratatugas');
+            Route::get('nilai/chart-sub-cpmk', [DosenNilaiController::class, 'rataRataSubCPMK'])->name('dosen.kelaskuliah.rataratasubcpmk');
+            Route::get('nilai/chart-cpmk', [DosenNilaiController::class, 'rataRataCPMK'])->name('dosen.kelaskuliah.rataratacpmk');
+            Route::get('nilai/chart-cpl', [DosenNilaiController::class, 'rataRataCPL'])->name('dosen.kelaskuliah.rataratacpl');
         });
 
         Route::prefix('dosen/mata-kuliah')->group(function () {
@@ -252,17 +268,24 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('dosen/rps')->group(function () {
             Route::get('{id}', [RpsController::class, 'index'])->name('dosen.rps');
-            Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('dosen.rps.storecpmk');
-            Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('dosen.rps.storesubcpmk');
-            Route::post('create/soal/', [RpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
-            Route::get('{id}', [RpsController::class, 'create'])->name('dosen.rps.create');
-            Route::delete('deletecpmk/{id}', [RpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
+            Route::post('create/cpmk/{id}', [DosenRpsController::class, 'storecpmk'])->name('dosen.rps.storecpmk');
+            Route::post('create/subcpmk/{id}', [DosenRpsController::class, 'storesubcpmk'])->name('dosen.rps.storesubcpmk');
+            Route::post('create/soal/', [DosenRpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
+            Route::get('{id}', [DosenRpsController::class, 'create'])->name('dosen.rps.create');
+            Route::delete('deletecpmk/{id}', [DosenRpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
             // Route::get('create', [RpsController::class, 'create'])->name('dosen.matakuliah.add');
+            Route::get('editcpmk/{id}', [DosenRpsController::class, 'editCpmk'])->name('dosen.rps.editcpmk');
+            Route::put('updatecpmk', [DosenRpsController::class, 'updateCpmk'])->name('dosen.rps.updatecpmk');
+            Route::get('editsubcpmk/{id}', [DosenRpsController::class, 'editSubCpmk'])->name('dosen.rps.editsubcpmk');
+            Route::put('updatesubcpmk', [DosenRpsController::class, 'updateSubCpmk'])->name('dosen.rps.updatesubcpmk');
+            Route::get('editsoalsubcpmk/{id}', [DosenRpsController::class, 'editSoalSubCpmk'])->name('dosen.rps.editsoalsubcpmk');
+            Route::put('updatesoalsubcpmk', [DosenRpsController::class, 'updateSoalSubCpmk'])->name('dosen.rps.updatesoalsubcpmk');
         });
     });
 
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
+        Route::get('/mahasiswa/dashboard/chart-cpl', [MahasiswaController::class, 'chartDashboard'])->name('mahasiswa.dashboard.chartcpl');
 
         Route::prefix('mahasiswa/user')->group(function () {
             Route::get('/{id}', [MahasiswaProfileController::class, 'show'])->name('mahasiswa.user');
@@ -272,10 +295,29 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('profile/changePass', [MahasiswaProfileController::class, 'changePassword'])->name('mahasiswa.changePass');
         });
 
-        Route::prefix('mahasiswa/nilai')->group(function () {
-            Route::get('', [MahasiswaNilaiController::class, 'index'])->name('mahasiswa.nilai');
-            Route::get('detail', [MahasiswaNilaiController::class, 'show'])->name('mahasiswa.detailNilai');
-            // Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
+        Route::prefix('mahasiswa/mata-kuliah')->group(function () {
+            Route::get('', [MahasiswaMataKuliahController::class, 'index'])->name('mahasiswa.matakuliah');
+            Route::get('create', [MahasiswaMataKuliahController::class, 'create'])->name('mahasiswa.matakuliah.create.matkul');
+            Route::post('create', [MahasiswaMataKuliahController::class, 'store'])->name('mahasiswa.matakuliah.store');
+            Route::get('/{id}', [MahasiswaMataKuliahController::class, 'show'])->name('mahasiswa.matakuliah.show');
+            Route::get('edit/{id}', [MahasiswaMataKuliahController::class, 'edit'])->name('mahasiswa.matakuliah.edit');
+            Route::put('edit/{id}', [MahasiswaMataKuliahController::class, 'update'])->name('mahasiswa.matakuliah.update');
+            Route::delete('{id}', [MahasiswaMataKuliahController::class, 'destroy'])->name('mahasiswa.matakuliah.destroy');
+            Route::get('detail/cpl', [MahasiswaMataKuliahController::class, 'detailCpl']);
+            Route::get('detail/cpmk', [MahasiswaMataKuliahController::class, 'detailCpmk']);
+            Route::get('detail/sub-cpmk', [MahasiswaMataKuliahController::class, 'detailSubCpmk']);
+            Route::get('detail/tugas', [MahasiswaMataKuliahController::class, 'detailTugas']);
+        });
+
+        Route::prefix('mahasiswa/kelas-kuliah')->group(function () {
+            Route::get('', [MahasiswaNilaiController::class, 'index'])->name('mahasiswa.kelaskuliah');
+            Route::get('{id}/nilai', [MahasiswaNilaiController::class, 'show'])->name('mahasiswa.kelaskuliah.nilaimahasiswa');
+            Route::get('/nilai/tugas', [MahasiswaNilaiController::class, 'nilaiTugas'])->name('mahasiswa.kelaskuliah.nilaitugas');
+            Route::get('/nilai/sub-cpmk', [MahasiswaNilaiController::class, 'nilaiSubCpmk'])->name('mahasiswa.kelaskuliah.nilaisubcpmk');
+            Route::get('/nilai/cpmk', [MahasiswaNilaiController::class, 'nilaiCpmk'])->name('mahasiswa.kelaskuliah.nilaicpmk');
+            Route::get('/nilai/cpl', [MahasiswaNilaiController::class, 'nilaiCpl'])->name('mahasiswa.kelaskuliah.nilaicpl');
+            Route::get('/nilai/chart-cpl', [MahasiswaNilaiController::class, 'chartCpl'])->name('mahasiswa.kelaskuliah.chartcpl');
+            Route::get('/nilai/chart-cpmk', [MahasiswaNilaiController::class, 'chartCpmk'])->name('mahasiswa.kelaskuliah.chartcpmk');
         });
     });
 });

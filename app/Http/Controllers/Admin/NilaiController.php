@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\KelasKuliah;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Models\NilaiMahasiswa;
 use Illuminate\Http\Request;
@@ -143,8 +144,8 @@ class NilaiController extends Controller
 
     public function nilaiCPL(Request $request)
     {
-        $mahasiswa_id = 1;
-        $matakuliah_kelasid = 1;
+        $mahasiswa_id = $request->mahasiswa_id;
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
         $data = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
@@ -204,8 +205,8 @@ class NilaiController extends Controller
 
     public function nilaiCpmk(Request $request)
     {
-        $mahasiswa_id = 1;
-        $matakuliah_kelasid = 1;
+        $mahasiswa_id = $request->mahasiswa_id;
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
         $data = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
@@ -249,5 +250,157 @@ class NilaiController extends Controller
             ])->with('success', 'Data Mata Kuliah Ditemukan');
         }
         return $data;
+    }
+
+    public function nilaiMahasiswa($id) {
+        $kelasMatkul = KelasKuliah::join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+        ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
+        ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'matakuliah_kelas.id as id_kelas')
+        ->where('matakuliah_kelas.id', $id)
+        ->first();
+
+        $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
+            ->where('matakuliah_kelas.id', $id)
+            ->orderby('soal_sub_cpmk.id', 'ASC')
+            // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
+            ->get();
+
+        $mahasiswa_data = [];
+        $info_soal = [];
+        $nomor = 1;
+        // $nilaiMhs = [];
+
+        foreach ($nilai_mahasiswa as $nilai) {
+            $soal_id = $nilai->id;
+            $mahasiswa_id = $nilai->nim;
+            // $nilai_id = $nilai->id_nilai;
+
+            if (!isset($info_soal[$soal_id])) {
+                $info_soal[$soal_id] = [
+                    'waktu_pelaksanaan' => $nilai->waktu_pelaksanaan,
+                    'kode_subcpmk' => $nilai->kode_subcpmk,
+                    'bobot_soal' => $nilai->bobot_soal,
+                    'bentuk_soal' => $nilai->bentuk_soal,
+                ];
+            }
+
+            if (!isset($mahasiswa_data[$mahasiswa_id])) {
+                $mahasiswa_data[$mahasiswa_id] = [
+                    'kelas_id' => $nilai->id_kelas,
+                    'id_mhs' => $nilai->id_mhs,
+                    'nim' => $nilai->nim,
+                    'nama' => $nilai->nama,
+                    'id_nilai' => [],
+                    'nilai' => [],
+                    'nomor' => $nomor
+                ];
+                $nomor++;
+            }
+
+            $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
+            $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
+        }
+
+        // $startNumber = ($mahasiswa_data->currentPage() - 1) * $mahasiswa_data->perPage() + 1;
+        // Sekarang $mahasiswa_data berisi data nilai untuk setiap mahasiswa dengan struktur yang diinginkan
+        // dd(array_values($mahasiswa_data), array_values($info_soal));
+
+        return view('pages-admin.perkuliahan.nilai_mahasiswa', ['data' => $kelasMatkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'id_kelas' => $id]);
+    }
+
+    public function rataRataTugas(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $nilaiRataRata = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('soal.bentuk_soal, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->groupBy('soal.bentuk_soal')
+            ->get();
+
+            $labels = $nilaiRataRata->pluck('bentuk_soal')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataSubCPMK(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, sub_cpmk.kode_subcpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
+            ->groupBy('sub_cpmk.kode_subcpmk');
+
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_subcpmk')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataCPMK(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpmk.kode_cpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('cpmk.kode_cpmk', 'asc')
+            ->groupBy('cpmk.kode_cpmk');
+
+        // $sql = $query->toSql();
+        // dd($sql);
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_cpmk')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
+    }
+
+    public function rataRataCPL(Request $request){
+        $matakuliah_kelasid = $request->matakuliah_kelasid;
+        $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpl.kode_cpl')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $matakuliah_kelasid)
+            ->orderBy('cpl.kode_cpl', 'asc')
+            ->groupBy('cpl.kode_cpl');
+
+        // $sql = $query->toSql();
+        // dd($sql);
+        $nilaiRataRata = $query->get();
+
+            $labels = $nilaiRataRata->pluck('kode_cpl')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            return response()->json([
+                'labels' => $labels,
+                'values' => $values,
+            ]);
     }
 }

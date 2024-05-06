@@ -53,7 +53,11 @@ class KelasController extends Controller
         ]);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+            // return redirect()->back()->withErrors($validate)->withInput();
         }
 
         try {
@@ -61,9 +65,11 @@ class KelasController extends Controller
                 'nama_kelas' => $request->nama_kelas,
             ]);
 
-            return redirect()->route('admin.kelas')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.kelas')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -98,7 +104,10 @@ class KelasController extends Controller
         ]);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -107,13 +116,15 @@ class KelasController extends Controller
                 'nama_kelas' => $request->nama_kelas,
             ]);
 
-            return redirect()->route('admin.kelas')->with([
-                'success' => 'Data Berhasil Diupdate',
-                'data' => $kelas
-            ]);
+            // return redirect()->route('admin.kelas')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $kelas
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $kelas]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.kelas.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.kelas.edit', $id)->with('error', 'Data gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 

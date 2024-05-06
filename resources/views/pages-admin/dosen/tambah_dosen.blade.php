@@ -38,7 +38,7 @@
               <h3 class="card-title col align-self-center">Form Tambah Data Dosen</h3>
             </div>
               <div class="card-body">
-              <form action="{{ route('admin.dosen.store') }}" method="post" enctype="multipart/form-data">
+              <form id="addDataForm" enctype="multipart/form-data">
                 @CSRF
                   <div class="form-group">
                     <label for="nidn">NIDN</label>
@@ -63,7 +63,7 @@
                           <label class="custom-file-label" for="image">Choose file</label>
                       </div>
                   </div> --}}
-                  
+
                   {{-- <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" name="password" placeholder="Password">
@@ -72,7 +72,7 @@
                <!-- /.card-body -->
               <div class="card-footer clearfix">
                   <a href="{{ route('admin.dosen') }}" class="btn btn-default">Cancel</a>
-                  <button type="submit" class="btn btn-primary">Save</button>
+                  <button type="button" class="btn btn-primary" onclick="addData()">Save</button>
               </div>
               </form>
           </div>
@@ -84,4 +84,65 @@
     </div><!-- /.container-fluid -->
   </section>
   <!-- /.content -->
+@endsection
+
+@section('script')
+  <script>
+    function addData() {
+        var form = $('#addDataForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('admin/dosen/create') }}",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('admin.dosen') }}";
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+  </script>
 @endsection
