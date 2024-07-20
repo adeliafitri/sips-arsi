@@ -2,7 +2,7 @@
     <!-- Brand Logo -->
     <a href="./pages/dashboard.php" class="brand-link">
         <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Prodi Arsitektur UIN Malang" class="brand-image elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-dark">Prodi Arsitektur</span>
+        <span class="brand-text font-weight-dark text-xs text-uppercase">Prodi S1 Teknik Arsitektur</span>
     </a>
 
     @php
@@ -46,10 +46,16 @@
                 </a>
             </li>
             @if (session()->has('mahasiswa'))
-            <li class="nav-item">
-                <a href="{{ route('mahasiswa.nilai') }}" class="nav-link {{ request()->routeIs('mahasiswa.nilai') ? 'active' : '' }}">
+            {{-- <li class="nav-item">
+                <a href="" class="nav-link {{ request()->routeIs('mahasiswa.rps') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
-                <p>Data Nilai</p>
+                <p>Data RPS</p>
+                </a>
+            </li> --}}
+            <li class="nav-item">
+                <a href="{{ route('mahasiswa.kelaskuliah') }}" class="nav-link {{ request()->routeIs('mahasiswa.kelaskuliah') ? 'active' : '' }}">
+                <i class="fas fa-book-reader nav-icon"></i>
+                <p>Data Kelas Perkuliahan</p>
                 </a>
             </li>
             @endif
@@ -76,17 +82,30 @@
 </aside>
 <script>
     function logout() {
-        $.ajax({
-            url: "/logout",
-            type: "POST",
-            data: {_token: "{{ csrf_token() }}"},
-            success: function(response) {
-                // Tindakan sukses, misalnya refresh halaman atau redirect ke halaman login
-                window.location.href = "{{ route('login') }}";
-            },
-            error: function(xhr) {
-                // Tindakan jika terjadi kesalahan
-                console.log('Kesalahan: ' + xhr.responseText);
+        Swal.fire({
+            title: "Logout",
+            text: "Apakah anda yakin ingin keluar dari aplikasi?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, keluar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/logout",
+                    type: "POST",
+                    data: {_token: "{{ csrf_token() }}"},
+                    success: function(response) {
+                        // Tindakan sukses, misalnya refresh halaman atau redirect ke halaman login
+                        window.location.href = "{{ route('login') }}";
+                    },
+                    error: function(xhr) {
+                        // Tindakan jika terjadi kesalahan
+                        console.log('Kesalahan: ' + xhr.responseText);
+                    }
+                });
             }
         });
     }

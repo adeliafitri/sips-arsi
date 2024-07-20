@@ -37,7 +37,10 @@ class SemesterController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -47,9 +50,11 @@ class SemesterController extends Controller
                 'is_active' => '0'
             ]);
 
-            return redirect()->route('admin.semester')->with('success', 'Data Semester Berhasil Ditambahkan');
+            // return redirect()->route('admin.semester')->with('success', 'Data Semester Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -57,11 +62,20 @@ class SemesterController extends Controller
     {
         try {
 
-            $semester = Semester::where('id', $id)->first();
+            // $semester = Semester::where('id', $id)->first();
+            $semesterToActivate = Semester::findOrFail($id);
 
-            $semester->update([
-                'is_active' => $request->is_active
-            ]);
+            $currentActiveSemester = Semester::where('is_active', "1")->first();
+            // dd($currentActiveSemester);
+
+            if ($currentActiveSemester) {
+                $currentActiveSemester->update(['is_active' => "0"]);
+            }
+
+            $semesterToActivate->update(['is_active' => $request->is_active]);
+            // $semester->update([
+            //     'is_active' => $request->is_active
+            // ]);
 
             return redirect()->route('admin.semester')->with('success', 'Data Berhasil diupdate');
         } catch (\Exception $e) {
@@ -88,7 +102,10 @@ class SemesterController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -99,9 +116,11 @@ class SemesterController extends Controller
                 'semester' => $request->semester
             ]);
 
-            return redirect()->route('admin.semester')->with('success', 'Data Semester Berhasil Diubah');
+            // return redirect()->route('admin.semester')->with('success', 'Data Semester Berhasil Diubah');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $semester]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Diubah: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Diubah: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -109,12 +128,13 @@ class SemesterController extends Controller
     {
         try {
             Semester::where('id', $id)->delete();
-
-            return redirect()->route('admin.semester')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.semester')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.semester')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.semester')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 }

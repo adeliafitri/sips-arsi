@@ -43,9 +43,9 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <a href="{{ route('dosen.matakuliah.create.matkul') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
-                </div>
+                </div> --}}
               </div>
               <div class="card-body">
               <div class="col-sm-12 mt-3">
@@ -59,40 +59,35 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>Kode Mata Kuliah</th>
-                      <th>Nama Mata Kuliah</th>
-                      <th>SKS</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->kode_matkul }}</td>
-                        <td>{{ $datas->nama_matkul }}</td>
-                        <td>{{ $datas->sks }}</td>
-
-                           
-
-                        <td class="d-flex justify-content-center">
-                            <a href="{{ route('dosen.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
-                             <a href="{{ route('dosen.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
-                            <a href="{{ route('dosen.matakuliah.edit', $datas->id) }}" class="btn btn-secondary ml-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
-                            <form action="{{ route('dosen.matakuliah.destroy', $datas->id) }}" method="post">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>Kode Mata Kuliah</th>
+                            <th>Nama Mata Kuliah</th>
+                            <th>SKS</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->kode_matkul }}</td>
+                              <td>{{ $datas->nama_matkul }}</td>
+                              <td>{{ $datas->sks }}</td>
+                              <td class="d-flex justify-content-center">
+                                  @if ($datas->koordinator == 1)
+                                  <a href="{{ route('dosen.rps.create', $datas->id_matkul) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
+                                  @endif
+                                   <a href="{{ route('dosen.matakuliah.show', $datas->id_matkul) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
@@ -120,7 +115,7 @@
               console.log('ted');
           }
 
-    
+
   </script>
 @endsection
 

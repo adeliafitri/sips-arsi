@@ -25,7 +25,11 @@ class AuthController extends Controller
         ]);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+            // return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $credentials = [
@@ -42,9 +46,10 @@ class AuthController extends Controller
                      // Simpan data dosen dalam session
                     if ($dosen) {
                         session(['dosen' => $dosen]);
-                        return redirect()->route('dosen.dashboard')->with($token);
+                        return response()->json(['status' => 'success', 'data' => $token, 'route' => route('dosen.dashboard')]);
+                        // return redirect()->route('dosen.dashboard')->with($token);
                     }else {
-                        return redirect()->back()->withErrors(['error' => 'dosen data not found']);
+                        return response()->json(['status' => 'error', 'message' => 'Data dosen tidak ditemukan']);
                     }
                     // return redirect()->route('dosen.dashboard');
                 } elseif ($user->role === 'mahasiswa') {
@@ -52,9 +57,11 @@ class AuthController extends Controller
                      // Simpan data mahasiswa dalam session
                     if ($mahasiswa) {
                         session(['mahasiswa' => $mahasiswa]);
-                        return redirect()->route('mahasiswa.dashboard')->with($token);
+                        return response()->json(['status' => 'success', 'data' => $token, 'route' => route('mahasiswa.dashboard')]);
+                        // return redirect()->route('mahasiswa.dashboard')->with($token);
                     }else {
-                        return redirect()->back()->withErrors(['error' => 'mahasiswa data not found']);
+                        // return redirect()->back()->withErrors(['error' => 'mahasiswa data not found']);
+                        return response()->json(['status' => 'error', 'message' => 'Data mahasiswa tidak ditemukan']);
                     }
                     // return redirect()->route('mahasiswa.dashboard');
                 } elseif ($user->role === 'admin') {
@@ -62,16 +69,18 @@ class AuthController extends Controller
                      // Simpan data admin dalam session
                     if ($admin) {
                         session(['admin' => $admin]);
-                        return redirect()->route('admin.dashboard')->with($token);
+                        return response()->json(['status' => 'success', 'data' => $token, 'route' => route('admin.dashboard')]);
+                        // return redirect()->route('admin.dashboard')->with($token);
                     }else {
-                        return redirect()->back()->withErrors(['error' => 'Admin data not found']);
+                        return response()->json(['status' => 'error', 'message' => 'Data admin tidak ditemukan']);
+                        // return redirect()->back()->withErrors(['error' => 'Admin data not found']);
                     }
                 }else {
                     abort(403, 'Unauthorized');
                 }
         }
 
-        return response()->json(['error' => 'Unauthorized   '], 401);
+        return response()->json(['status' => 'error', 'message' => 'Username atau password salah'], 401);
     }
 
     public function logout(Request $request) {

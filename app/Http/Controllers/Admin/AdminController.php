@@ -59,7 +59,10 @@ class AdminController extends Controller
         ]);
         // dd($validate);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -79,9 +82,11 @@ class AdminController extends Controller
                 'id_auth' => $id_auth
             ]);
 
-            return redirect()->route('admin.admins')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.admins')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -107,11 +112,18 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validate = Validator::make($request->all(), [
             'nama' => 'required|string',
-            'telp' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'required|email',
+            'telp' => 'required',
         ]);
+        // dd($validate);
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
 
         try {
             // Update data produk berdasarkan ID
@@ -122,12 +134,14 @@ class AdminController extends Controller
                 'email' => $request->email,
             ]);
 
-            return redirect()->route('admin.admins')->with([
-                'success' => 'User updated successfully.',
-                'data' => $admin
-            ]);
+            // return redirect()->route('admin.admins')->with([
+            //     'success' => 'User updated successfully.',
+            //     'data' => $admin
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $admin]);
         } catch (\Exception $e) {
-            return redirect()->route('admin.admins.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.admins.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
         }
     }
 

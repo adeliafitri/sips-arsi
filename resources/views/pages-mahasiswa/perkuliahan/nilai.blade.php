@@ -6,12 +6,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Data Nilai</h1>
+            <h1 class="m-0">Data Kelas Perkuliahan</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
-              <li class="breadcrumb-item active">Data Nilai</li>
+              <li class="breadcrumb-item active">Data Kelas Perkuliahan</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -26,8 +26,8 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
-                  <form action="{{ route('mahasiswa.nilai') }}" method="GET">
+                <div class="col-lg-10">
+                  <form action="{{ route('mahasiswa.kelaskuliah') }}" method="GET">
                     <div class="input-group col-sm-4 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
@@ -38,17 +38,17 @@
                     </div>
                   </form>
                 </div>
-                <div class="">
-                    <form action="mahasiswa.nilai" method="GET">
-                        <div class="col-2">
-                            <form action="mahasiswa.nilai" method="GET">
+                {{-- <div class=""> --}}
+                    {{-- <form action="mahasiswa.nilai" method="GET"> --}}
+                        <div class="col-lg-2">
+                            <form action="{{ route('mahasiswa.kelaskuliah') }}" method="GET">
                                 <div class="btn-group">
-                                    <button type="submit" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="submit" class="btn btn-secondary text-capitalize dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                        {{ $title }}
                                     </button>
                                     <div class="dropdown-menu">
                                         @foreach ($semester as $key => $smt)
-                                            <button class="dropdown-item" type="button" onclick="document.getElementById('tahun_ajaran').value = '{{ $smt->id }}'; this.form.submit();" {{ $smt->is_active == '1' ? 'disabled' : '' }}>{{ $smt->tahun_ajaran . ' ' . $smt->semester }}</button>
+                                            <button class="dropdown-item" type="button" onclick="document.getElementById('tahun_ajaran').value = '{{ $smt->id }}'; this.form.submit();"> <p style="text-transform: uppercase;">{{ $smt->tahun_ajaran . ' ' . $smt->semester }}</p></button>
                                         @endforeach
                                     </div>
                                 </div>
@@ -60,8 +60,8 @@
                                 <option value="{{ $smt->id }}" {{ $smt->is_active == '1' ? 'selected' : '' }}>{{ $smt->tahun_ajaran ." ". $smt->semester }}</option>
                             @endforeach
                         </select> --}}
-                    </form>
-                </div>
+                    {{-- </form> --}}
+                {{-- </div> --}}
                 <div></div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
               </div>
@@ -82,7 +82,7 @@
                     <tr>
                       <th style="width: 10px">No</th>
                       <th>Mata Kuliah</th>
-                      <th>Status</th>
+                      {{-- <th>Status</th> --}}
                       <th>Kelas</th>
                       <th>Dosen</th>
                       <th style="width: 200px;">Nilai Akhir</th>
@@ -94,7 +94,7 @@
                     <tr>
                         <td>{{ $startNumber++ }}</td>
                         <td>{{ $datas->nama_matkul }}</td>
-                        <td>{{ $datas->status }}</td>
+                        {{-- <td>{{ $datas->status }}</td> --}}
                         <td>{{ $datas->kelas }}</td>
                         <td>{{ $datas->nama_dosen }}</td>
                         {{-- <td>{{ $datas->nama_dosen }}</td> --}}
@@ -113,7 +113,7 @@
                         <td>{{ $datas->nilai_akhir }}</td>
                         <td>
                             <div class="d-flex">
-                                <a href="{{ route('mahasiswa.detailNilai') }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                                <a href="{{ route('mahasiswa.kelaskuliah.nilaimahasiswa', $datas->id_kelas) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
                             </div>
                         </td>
                     </tr>

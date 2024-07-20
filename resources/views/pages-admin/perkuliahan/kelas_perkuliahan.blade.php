@@ -26,9 +26,9 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-8">
+                <div class="col-10">
                   <form action="{{ route('admin.kelaskuliah') }}" method="GET">
-                    <div class="input-group col-sm-6 mr-3">
+                    <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -38,92 +38,90 @@
                     </div>
                   </form>
                 </div>
-                <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="dropdown col-sm-2">
-                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-file-excel mr-2"></i> Excel
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Export</a>
-                      <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Import</a>
-                    </div>
-                </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <a href="{{ route('admin.kelaskuliah.create') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
-                </div>
+                </div> --}}
               </div>
               <div class="card-body">
-              <div class="col-sm-12 mt-3">
-                @if (session('success'))
-                    <div class="alert alert-success bg-success" role="alert">
-                        {{ session('success') }}
-                    </div>
-                @elseif (session('error'))
-                    <div class="alert alert-danger bg-danger" role="alert">
-                        {{ session('error') }}
-                    </div>
-                @endif
-              </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th style="width: 150px;">Tahun Ajaran</th>
-                      <th style="width: 100px;">Semester</th>
-                      <th>Mata Kuliah</th>
-                      <th>Kelas</th>
-                      <th>Dosen</th>
-                      <th style="width: 100px;">Koordinator</th>
-                      <th style="width: 100px;">Jumlah Mahasiswa</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->tahun_ajaran }}</td>
-                        <td>{{ $datas->semester }}</td>
-                        <td>{{ $datas->nama_matkul }}</td>
-                        <td>{{ $datas->kelas }}</td>
-                        <td>{{ $datas->nama_dosen }}</td>
-                        <td>
-                            <div class="row justify-content-center">
-                                <form>
-                                    <div class="form-group">
-                                        {{-- <label for="toogleActive">Active</label> --}}
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="isActive-{{ $datas->id}}" name="koordinator" {{ $datas->koordinator == 1 ? 'checked' : '' }} onclick="changeKoordinator({{ $datas->id }})">
-                                            <label class="custom-control-label" for="isActive-{{ $datas->id}}"></label>
-                                        </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th style="width: 150px;">Tahun Ajaran</th>
+                            <th style="width: 100px;">Semester</th>
+                            <th>Mata Kuliah</th>
+                            <th>Kelas</th>
+                            <th>Dosen</th>
+                            <th style="width: 100px;">Koordinator</th>
+                            <th style="width: 100px;">Jumlah Mahasiswa</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($data as $key => $datas)
+                        @php
+                            $rowCount = count($datas['info_kelas']);
+                            $rowIndex = 0;
+                        @endphp
+                        @foreach ($datas['info_kelas'] as $info)
+                          <tr>
+                            @if ($rowIndex == 0)
+                                <td rowspan="{{ $rowCount }}">{{ $startNumber++ }}</td>
+                                <td rowspan="{{ $rowCount }}">{{ $datas['tahun_ajaran'] }}</td>
+                                <td rowspan="{{ $rowCount }}" class="text-capitalize">{{ $datas['semester'] }}</td>
+                                <td rowspan="{{ $rowCount }}">{{ $datas['nama_matkul'] }}
+                                    <div class="mt-2">
+                                        <a href="{{ route('admin.kelaskuliah.create', [
+                                                'tahun_ajaran' => $datas['tahun_ajaran'],
+                                                'semester' => $datas['semester'],
+                                                'nama_matkul' => $datas['nama_matkul'],
+                                                'id_smt' => $datas['id_smt'],
+                                                'id_matkul' => $datas['id_matkul']
+                                        ]) }}" class="btn-sm btn-primary">
+                                            <i class="nav-icon fas fa-plus mr-2"></i> Tambah Kelas
+                                        </a>
                                     </div>
-                                </form>
-                            </div>
-                        </td>
-                        <td>{{ $datas->jumlah_mahasiswa }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <a href="{{ route('admin.kelaskuliah.show', $datas->id) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
-                                <a href="{{ route('admin.kelaskuliah.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                <a class="btn btn-danger" onclick="deleteKelasKuliah({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                                {{-- <form action="{{ route('admin.kelaskuliah.destroy', $datas->id) }}" method="post">
-                                    @csrf
-                                    @method('delete')
-                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                </form> --}}
-                            </div>
-                        </td>
-                    </tr>
-                  @endforeach
-                  </tbody>
-                </table>
+                                </td>
+                            @endif
+                            <td>{{ $info['nama_kelas'] }}</td>
+                            <td>{{ $info['nama_dosen'] }}</td>
+                            <td>
+                                <div class="row justify-content-center">
+                                    <form>
+                                        <div class="form-group">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" id="isActive-{{ $info['id_kelas'] }}" name="koordinator" {{ $info['koordinator'] == 1 ? 'checked' : '' }} onclick="changeKoordinator({{ $info['id_kelas'] }})">
+                                                <label class="custom-control-label" for="isActive-{{ $info['id_kelas'] }}"></label>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>{{ $info['jumlah_mahasiswa'] }}</td>
+                            <td>
+                                <div class="d-flex">
+                                    <a href="{{ route('admin.kelaskuliah.show', $info['id_kelas']) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                                    <a href="{{ route('admin.kelaskuliah.edit', $info['id_kelas']) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
+                                    <a class="btn btn-danger" onclick="deleteKelasKuliah({{ $info['id_kelas'] }})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                </div>
+                            </td>
+                          </tr>
+                          @php
+                                                $rowIndex++;
+                                            @endphp
+                                        @endforeach
+                        @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
               <div class="card-footer clearfix">
                 <ul class="pagination pagination-sm m-0 float-right">
                     <div class="float-right">
-                        {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }}
+                        {{-- {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }} --}}
                     </div>
                 </ul>
               </div>
@@ -146,13 +144,14 @@
           function changeKoordinator(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Koordinator",
+            text: "Apakah anda yakin ingin mengaktifkan koordinator?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
+            confirmButtonText: "Ya, aktifkan"
             }).then((result) => {
               if (result.isConfirmed) {
                   var isActiveCheckbox = document.getElementById('isActive-' + id);
@@ -170,8 +169,8 @@
                       success: function(data) {
                           console.log('success');
                           Swal.fire({
-                            title: "Updated!",
-                            text: "Koordinator has been changed.",
+                            title: "Sukses!",
+                            text: "Koordinator berhasil diaktifkan",
                             icon: "success"
                           }).then((result) => {
                               // Check if the user clicked "OK"
@@ -196,13 +195,13 @@
 
           function deleteKelasKuliah(id){
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
             }).then((result) => {
               if (result.isConfirmed) {
                       $.ajax({
@@ -216,8 +215,8 @@
                               console.log(response.message);
 
                               Swal.fire({
-                              title: "Deleted!",
-                              text: "Your file has been deleted.",
+                              title: "Sukses!",
+                              text: "Data berhasil dihapus",
                               icon: "success"
                               }).then((result) => {
                                   // Check if the user clicked "OK"

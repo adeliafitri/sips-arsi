@@ -7,8 +7,6 @@
             <th>Kode Sub CPMK</th>
             <th>Bobot Soal</th>
             <th>Nilai</th>
-
-
         </tr>
     </thead>
     <tbody>

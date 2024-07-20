@@ -38,19 +38,30 @@
           </div>
         </div>
         <div class="card-body">
-            <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
-            <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
-            <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
-            <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
+            <div class="row d-flex">
+                <div class="col-10">
+                    <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
+                    <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
+                    <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
+                    <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
+                </div>
+                <div class="col-sm-2">
+                    {{-- <a href="" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a> --}}
+                </div>
+            </div>
         </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
+        <div class="callout callout-info">
+            {{-- <h5>I am an info callout!</h5> --}}
+            <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+        </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-8">
+                <div class="col-md-7">
                   <form action="{{ route('admin.kelaskuliah.show', $data->id) }}" method="GET">
-                    <div class="input-group col-sm-6 mr-3">
+                    <div class="input-group col-md-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -61,15 +72,23 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="dropdown col-sm-2">
-                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-file-excel mr-2"></i> Excel
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="{{ route('admin.kelaskuliah.mahasiswa.download-excel') }}"><i class="fas fa-upload mr-2"></i> Export</a>
-                      <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-download mr-2"></i> Import</a>
+                <div class="col-md-2">
+                    <a href="{{ route('admin.kelaskuliah.lihatnilai', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-pen mr-2"></i> Lihat Nilai</a>
+                </div>
+                <div>
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                             Tambah Data Mahasiswa
+                        </button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('admin.kelaskuliah.mahasiswa.download-excel') }}"><i class="fas fa-download mr-2"></i> Unduh Format Excel</a>
+                          <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
+                          <div class="dropdown-divider"></div>
+                          <a href="{{ route('admin.kelaskuliah.createmahasiswa', $data->id) }}" class="dropdown-item"><i class="fas fa-plus mr-2"></i>Tambah Data Manual</a>
+                        </div>
                     </div>
                 </div>
+
                 {{-- modal import --}}
                 <div class="modal fade" id="importExcelModal" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -81,21 +100,21 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('admin.kelaskuliah.mahasiswa.import-excel', $data->id) }}" method="post" enctype="multipart/form-data">
+                                <form id="formImport" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <label for="excelFile">Choose Excel File</label>
                                         <input type="file" class="form-control-file" id="excelFile" name="file" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                    <button type="button" class="btn btn-primary" onclick="addFile({{ $data->id }})">Upload</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <a href="{{ route('admin.kelaskuliah.createmahasiswa', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
-                </div>
+                </div> --}}
               </div>
               <div class="card-body">
               <div class="col-sm-12 mt-3">
@@ -109,39 +128,44 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>NIM</th>
-                      <th>Nama Mahasiswa</th>
-                      <th>Nilai Akhir</th>
-                      <th>Keterangan</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  @foreach ($mahasiswa as $key => $mahasiswas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $mahasiswas->nim }}</td>
-                        <td>{{ $mahasiswas->nama }}</td>
-                        <td>{{ $mahasiswas->nilai_akhir }}</td>
-                        <td>{{ $keterangan[$mahasiswas->id] }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
-                                <form action="{{ route('admin.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
-                                    @csrf
-                                    @method('delete')
-                                    <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>NIM</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Nilai Akhir</th>
+                            <th>Huruf</th>
+                            <th>Keterangan</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($mahasiswa as $key => $mahasiswas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $mahasiswas->nim }}</td>
+                              <td>{{ $mahasiswas->nama }}</td>
+                              <td>{{ $mahasiswas->nilai_akhir }}</td>
+                              <td>{{ $huruf[$mahasiswas->id] }}</td>
+                              <td>{{ $keterangan[$mahasiswas->id] }}</td>
+                              <td>
+                                  <div class="d-flex">
+                                      {{-- <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a> --}}
+                                      <a class="btn btn-danger" onclick="deleteDataMahasiswa({{$data->id}}, {{ $mahasiswas->id }})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                      {{-- <form action="{{ route('admin.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
+                                          @csrf
+                                          @method('delete')
+                                          <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                      </form> --}}
+                                  </div>
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
@@ -154,6 +178,93 @@
               </div>
             </div>
             <!-- /.card -->
+
+            <div class="row d-flex">
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                          <h3 class="card-title">Nilai Tugas Di Kelas</h3>
+                          <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                            <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                              <i class="fas fa-times"></i>
+                            </button> -->
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="radarTugas" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                      </div>
+                      <!-- /.card -->
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                          <h3 class="card-title">Penguasaan Sub-CPMK Di Kelas</h3>
+
+                          <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                            <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                              <i class="fas fa-times"></i>
+                            </button> -->
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="radarSubCPMK" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                      </div>
+                      <!-- /.card -->
+                </div>
+            </div>
+            <div class="row d-flex">
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                          <h3 class="card-title">Penguasaan CPMK Di Kelas</h3>
+                          <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                            <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                              <i class="fas fa-times"></i>
+                            </button> -->
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="radarCPMK" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                      </div>
+                      <!-- /.card -->
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-info">
+                        <div class="card-header">
+                          <h3 class="card-title">Penguasaan CPL Di Kelas</h3>
+
+                          <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                              <i class="fas fa-minus"></i>
+                            </button>
+                            <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+                              <i class="fas fa-times"></i>
+                            </button> -->
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="radarCPL" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                      </div>
+                      <!-- /.card -->
+                </div>
+            </div>
           </div>
           <!-- /.col -->
         </div>
@@ -163,4 +274,268 @@
     <!-- /.content -->
 @endsection
 
+@section('script')
+    <script>
+        function deleteDataMahasiswa(id, id_mhs){
+            Swal.fire({
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus mahasiswa dari kelas?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, hapus"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                      $.ajax({
+                      url: "{{ url('admin/kelas-kuliah') }}/" + id + "/" + id_mhs,
+                      type: 'DELETE',
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
+                      success: function(response) {
+                          if (response.status === 'success') {
+                              console.log(response.message);
 
+                              Swal.fire({
+                              title: "Deleted!",
+                              text: response.message,
+                              icon: "success"
+                              }).then((result) => {
+                                  // Check if the user clicked "OK"
+                                  if (result.isConfirmed) {
+                                      // Redirect to the desired URL
+                                      window.location.reload();
+                                  };
+                              });
+                          } else {
+                              console.log(response.message);
+                          }
+                      },
+                      error: function(error) {
+                          console.error('Error during AJAX request:', error);
+                      }
+                  });
+              }
+            });
+          }
+
+          $(document).ready(function() {
+        // Fetch data from the controller
+        $.ajax({
+            url: "{{ url('admin/kelas-kuliah/nilai/chart-tugas') }}",
+            type: 'GET',
+            data: {
+                matakuliah_kelasid: {{ $data->id }},
+            },
+            success: function(response) {
+                var ctx = document.getElementById('radarTugas').getContext('2d');
+                var myRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: response.labels,
+                        datasets: [{
+                            label: 'Nilai rata-rata tugas',
+                            data: response.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            },
+        });
+    });
+
+    $(document).ready(function() {
+        // Fetch data from the controller
+        $.ajax({
+            url: "{{ url('admin/kelas-kuliah/nilai/chart-sub-cpmk') }}",
+            type: 'GET',
+            data: {
+                matakuliah_kelasid: {{ $data->id }},
+            },
+            success: function(response) {
+                var ctx = document.getElementById('radarSubCPMK').getContext('2d');
+                var myRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: response.labels,
+                        datasets: [{
+                            label: 'Nilai rata-rata Sub-CPMK',
+                            data: response.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            },
+        });
+    });
+
+    $(document).ready(function() {
+        // Fetch data from the controller
+        $.ajax({
+            url: "{{ url('admin/kelas-kuliah/nilai/chart-cpmk') }}",
+            type: 'GET',
+            data: {
+                matakuliah_kelasid: {{ $data->id }},
+            },
+            success: function(response) {
+                var ctx = document.getElementById('radarCPMK').getContext('2d');
+                var myRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: response.labels,
+                        datasets: [{
+                            label: 'Nilai rata-rata CPMK',
+                            data: response.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            },
+        });
+    });
+
+    $(document).ready(function() {
+        // Fetch data from the controller
+        $.ajax({
+            url: "{{ url('admin/kelas-kuliah/nilai/chart-cpl') }}",
+            type: 'GET',
+            data: {
+                matakuliah_kelasid: {{ $data->id }},
+            },
+            success: function(response) {
+                var ctx = document.getElementById('radarCPL').getContext('2d');
+                var myRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: response.labels,
+                        datasets: [{
+                            label: 'Nilai rata-rata CPL',
+                            data: response.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100,
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            },
+        });
+    });
+        function addFile(id) {
+            // var form = $('#formImport');
+            var form = $('#formImport')[0]; // Get the form element
+            var formData = new FormData(form); // Create a FormData object
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('admin/kelas-kuliah') }}/" + id + "/mahasiswa/import-excel",
+                // data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status == "success") {
+                        Swal.fire({
+                        title: "Sukses!",
+                        text: response.message,
+                        icon: "success"
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.href = "{{ route('admin.kelaskuliah.show', '') }}/" + id;
+                        };
+                    });
+                    }
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status == 422) {
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Validation Error",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    else{
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Error!",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    // Handle error here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
+@endsection
