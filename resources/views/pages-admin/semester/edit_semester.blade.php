@@ -36,7 +36,7 @@
                         <div class="card-header d-flex justify-content-end">
                             <h3 class="card-title col align-self-center">Form Edit Data Semester</h3>
                         </div>
-                        <form action="{{ route('admin.semester.update', $data->id) }}" method="post" enctype="multipart/form-data">
+                        <form id="editDataForm">
                             <div class="card-body">
                                 @CSRF
                                 <div class="form-group">
@@ -63,8 +63,8 @@
                                 </div>
                             </div>
                             <div class="card-footer clearfix">
-                                <a href="{{ route('admin.semester') }}" class="btn btn-default">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a href="{{ route('admin.semester') }}" class="btn btn-default">Batal</a>
+                                <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Simpan</button>
                             </div>
                         </form>
                     </div>
@@ -72,7 +72,85 @@
             </div>
         </div>
     </section>
+@endsection
 
+@section('script')
+    <script>
+        function editData(id){
+            console.log(id);
+            var form = $('#editDataForm');
+            Swal.fire({
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, edit"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/semester/edit') }}/" + id,
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
 
-
+                            Swal.fire({
+                            title: "Sukses!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.href = "{{ route('admin.semester') }}";
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status == 422) {
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Validation Error",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        else{
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Error!",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+            });
+        }
+    </script>
 @endsection

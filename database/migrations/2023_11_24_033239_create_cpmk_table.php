@@ -17,7 +17,7 @@ class CreateCpmkTable extends Migration
 
         Schema::create('cpmk', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('matakuliah_id')->constrained('mata_kuliah');
+            $table->foreignId('rps_id')->constrained('rps');
             $table->foreignId('cpl_id')->constrained('cpl');
             $table->string('kode_cpmk')->references('id')->on('cpmk')->onDelete('no action');
             $table->text('deskripsi')->nullable();

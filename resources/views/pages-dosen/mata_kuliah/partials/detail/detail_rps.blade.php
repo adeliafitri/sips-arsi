@@ -21,3 +21,9 @@
         @endforeach
     </tbody>
 </table>
+
+<ul class="pagination pagination-sm mb-2 float-right">
+    <div class="float-right">
+        {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }}
+    </div>
+</ul>

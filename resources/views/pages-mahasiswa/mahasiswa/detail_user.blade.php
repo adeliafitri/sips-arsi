@@ -7,12 +7,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Profile User</h1>
+            <h1 class="m-0">Profil User</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
-              <li class="breadcrumb-item active">Profile User</li>
+              <li class="breadcrumb-item active">Profil User</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -36,7 +36,7 @@
                         {{-- <p class="text-muted text-sm"><b>About: </b> Web Designer / UX / Graphic Artist / Coffee Lover </p> --}}
                         <ul class="ml-4 mb-0 fa-ul text-muted">
                           <li ><span class="fa-li"><i class="fas fa-lg fa-envelope"></i></span> NIM: {{ $data->nim }}</li>
-                          <li ><span class="fa-li"><i class="fas fa-lg fa-phone"></i></span> Phone #: {{ $data->telp }}</li>
+                          <li ><span class="fa-li"><i class="fas fa-lg fa-phone"></i></span> No Telepon: {{ $data->telp }}</li>
                         </ul>
                       </div>
                       <div class="col-5 text-right">
@@ -55,7 +55,7 @@
                   <div class="card-footer">
                     <div class="text-right">
                       <a href="{{ route('mahasiswa.user.edit', ['id' => $data->id_auth]) }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-edit"></i> Edit Profile
+                        <i class="fas fa-edit"></i> Edit Profil
                       </a>
                     </div>
                   </div>

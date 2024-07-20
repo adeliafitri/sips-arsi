@@ -55,33 +55,35 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>Nama Kelas</th>
-                      <th style="width: 350px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->nama_kelas }}</td>
-                        <td class="d-flex justify-content-center">
-                            <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                            <a href="{{ route('admin.kelas.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
-                            <a class="btn btn-danger mt-1" onclick="deleteKelas({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                            {{-- <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                            </form> --}}
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>Nama Kelas</th>
+                            <th style="width: 350px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->nama_kelas }}</td>
+                              <td class="d-flex justify-content-center">
+                                  <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                  <a href="{{ route('admin.kelas.edit', $datas->id) }}" class="btn btn-secondary mt-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
+                                  <a class="btn btn-danger mt-1" onclick="deleteKelas({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                  {{-- <form action="{{ route('admin.kelas.destroy', $datas->id) }}" method="post" class="mt-1">
+                                      @csrf
+                                      @method('delete')
+                                      <button class="btn btn-danger ml-1" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
+                                  </form> --}}
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
@@ -111,13 +113,14 @@
           function deleteKelas(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -129,10 +132,9 @@
                     success: function(response) {
                         if (response.status === 'success') {
                             console.log(response.message);
-
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"

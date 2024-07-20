@@ -41,7 +41,7 @@
               </div> -->
             </div>
               <div class="card-body">
-              <form action="{{ route('admin.admins.store') }}" method="post" enctype="multipart/form-data">
+              <form id="addDataForm">
                 @csrf
                 <div class="form-group">
                   <label for="nama">Nama</label>
@@ -67,8 +67,8 @@
               </div>
                <!-- /.card-body -->
               <div class="card-footer clearfix">
-                  <a href="{{ route('admin.admins') }}" class="btn btn-default">Cancel</a>
-                  <button type="submit" class="btn btn-primary">Save</button>
+                  <a href="{{ route('admin.admins') }}" class="btn btn-default">Batal</a>
+                  <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
               </div>
               </form>
           </div>
@@ -80,4 +80,65 @@
     </div><!-- /.container-fluid -->
   </section>
   <!-- /.content -->
+@endsection
+
+@section('script')
+  <script>
+    function addData() {
+        var form = $('#addDataForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('admin/data-admin/create') }}",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Sukses!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('admin.admins') }}";
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+  </script>
 @endsection
