@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('mata_kuliah', function (Blueprint $table) {
-            $table->integer('semester')->after('sks');
+        Schema::create('rps', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('matakuliah_id')->constrained('mata_kuliah');
+            $table->integer('semester');
+            $table->year('tahun_rps');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('mata_kuliah', function (Blueprint $table) {
-            $table->dropColumn('semester');
-        });
+        Schema::dropIfExists('rps');
     }
 };
