@@ -28,7 +28,7 @@
               <div class="card-header d-flex col-sm-12 justify-content-between">
                 <div class="col-10">
                   <form action="" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -37,6 +37,9 @@
                       </div>
                     </div>
                   </form>
+                </div>
+                <div class="">
+                    <a href="{{ route('admin.kelaskuliah.generatepdf', $data->id_kelas) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-download mr-2"></i> Download Nilai</a>
                 </div>
               </div>
               <div class="card-body">
@@ -62,7 +65,7 @@
                             {{-- @foreach ($data['waktu_pelaksanaan'] as $waktu) --}}
                                 <th style="width: 180px;" class="p-1">{{$data['waktu_pelaksanaan']}}</th>
                             {{-- @endforeach --}}
-                        @endforeach
+                            @endforeach
                           </tr>
                           <tr>
                               @foreach ($info_soal as $data)
@@ -116,7 +119,7 @@
                           {{-- @endforeach --}}
                         @endforeach
                         </tbody>
-                      </table>
+                    </table>
                 </div>
               </div>
               <!-- /.card-body -->

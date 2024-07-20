@@ -27,20 +27,23 @@ class RpsController extends Controller
         $data_cpmk =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->where('matakuliah_id', '=', $id)
         ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
-        ->paginate(5);
+        ->orderBy('cpmk.id', 'desc')
+        ->paginate(10);
         $start_nocpmk = ($data_cpmk->currentPage() - 1) * $data_cpmk->perPage() + 1;
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         $data_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
             ->where('cpmk.matakuliah_id', $id)
             ->select('cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
-            ->paginate(5);
+            ->orderBy('sub_cpmk.id', 'desc')
+            ->paginate(10);
         $start_nosubcpmk = ($data_subcpmk->currentPage() - 1) * $data_subcpmk->perPage() + 1;
         $data_soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->where('cpmk.matakuliah_id', $id)
             ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
-            ->paginate(20);
+            ->orderBy('soal_sub_cpmk.id', 'desc')
+            ->paginate(10);
             // dd($data_soalsubcpmk);
 
         $start_nosoalsubcpmk = ($data_soalsubcpmk->currentPage() - 1) * $data_soalsubcpmk->perPage() + 1;
@@ -58,15 +61,18 @@ class RpsController extends Controller
 
     public function storecpmk(Request $request, $id)
     {
-        // $validate = Validator::make($request->all(), [
-        //     'kode_matkul' => 'required|unique:mata_kuliah,kode_matkul',
-        //     'nama_matkul' => 'required|string',
-        //     'sks' => 'required|numeric',
-        // ]);
+        $validate = Validator::make($request->all(), [
+            'cpl_id' => 'required|exists:cpl,id',
+            'kode_cpmk' => 'required|string',
+            'deskripsi_cpmk' => 'required|string',
+        ]);
 
-        // if($validate->fails()){
-        //     return redirect()->back()->withErrors($validate)->withInput();
-        // }
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
 
         try {
             $id_matkul = $id;
@@ -77,34 +83,63 @@ class RpsController extends Controller
                 'deskripsi' => $request->deskripsi_cpmk,
             ]);
 
-
-
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
             // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
-            return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
     public function storesubcpmk(Request $request, $id) {
 
         try {
+            $validate = Validator::make($request->all(), [
+                'pilih_cpmk' => 'required|exists:cpmk,id',
+                'kode_subcpmk' => 'required|string',
+                'deskripsi_subcpmk' => 'required|string',
+            ]);
+
+            if($validate->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validate->errors()->first(),
+                ], 422);
+            }
+
             SubCpmk::create([
                 'cpmk_id' => $request->pilih_cpmk,
                 'kode_subcpmk' => $request->kode_subcpmk,
                 'deskripsi' => $request->deskripsi_subcpmk,
             ]);
 
-            // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
-            return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+            // return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
             // return redirect()->route('admin.rps.storecpmk')->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
 
     }
 
     public function storesoal(Request $request, $id) {
+        $validate = Validator::make($request->all(), [
+            'pilih_subcpmk' => 'required|exists:sub_cpmk,id',
+            'bobot' => 'required',
+            'waktu_pelaksanaan_start' => 'required|numeric|min:1|max:16',
+            'waktu_pelaksanaan_end' => 'required|numeric|min:1|max:16',
+            'bentuk_soal' => 'required',
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
+
         try {
             $bentukSoal = request()->input('bentuk_soal');
             $existingUnit = Soal::where('bentuk_soal', $bentukSoal)->first();
@@ -115,22 +150,29 @@ class RpsController extends Controller
             } else {
                 $soal = $existingUnit;
             }
+
+            if ($request->waktu_pelaksanaan_start == $request->waktu_pelaksanaan_end) {
+                $minggu = "Minggu " . $request->waktu_pelaksanaan_start;
+            } else {
+                $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
+            }
             // dd($bentukSoal);
             // Membuat dan menyimpan data ke dalam tabel SoalSubCpmk
             // $soalSubCpmkData = $request->except('soal_id');
             SoalSubCpmk::create([
                 'subcpmk_id' => $request->pilih_subcpmk,
                 'bobot_soal' => $request->bobot,
-                'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
+                'waktu_pelaksanaan' => $minggu,
                 'soal_id' => $soal->id
             ]);
 
-
             // Kembalikan respons dengan berhasil
-            return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+            // return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             // Tangani kesalahan jika terjadi
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -249,8 +291,18 @@ class RpsController extends Controller
                 ->select('sub_cpmk.id as subcpmk_id', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                 ->first();
             // dd($soalsubcpmk);
+            $minggu = $soalsubcpmk->waktu_pelaksanaan;
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $soalsubcpmk]);
+            // Menggunakan regex untuk menemukan angka
+            preg_match_all('/\d+/', $minggu, $matches);
+
+            $angka = collect($matches[0]);
+
+            $waktu_pelaksanaan_start = $angka->first();
+            $waktu_pelaksanaan_end = $angka->last();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $soalsubcpmk, 'minggu_mulai' => $waktu_pelaksanaan_start,
+                'minggu_akhir' => $waktu_pelaksanaan_end,]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
@@ -269,13 +321,19 @@ class RpsController extends Controller
                 $soal = $existingUnit;
             }
 
+            if ($request->waktu_pelaksanaan_start == $request->waktu_pelaksanaan_end) {
+                $minggu = "Minggu " . $request->waktu_pelaksanaan_start;
+            } else {
+                $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
+            }
+
             $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
             $soalsubcpmk->update([
                 'subcpmk_id' => $request->pilih_subcpmk,
                 'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
-                'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
+                'waktu_pelaksanaan' =>  $minggu,
             ]);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate','data' => $soalsubcpmk]);

@@ -255,6 +255,6 @@ class MahasiswaController extends Controller
 
         Excel::import(new MahasiswaImportExcel(), $file);
 
-        return redirect()->back()->with('success', 'Data imported successfully.');
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
     }
 }

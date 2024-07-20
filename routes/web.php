@@ -31,6 +31,7 @@ use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
 use App\Http\Controllers\Mahasiswa\MataKuliahController as MahasiswaMataKuliahController;
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
 use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
+use App\Models\Dosen;
 use Illuminate\Support\Facades\View;
 // use App\Http\Controllers\DashboardController;
 // use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
@@ -110,6 +111,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('updatesubcpmk', [RpsController::class, 'updateSubCpmk'])->name('admin.rps.updatesubcpmk');
             Route::get('editsoalsubcpmk/{id}', [RpsController::class, 'editSoalSubCpmk'])->name('admin.rps.editsoalsubcpmk');
             Route::put('updatesoalsubcpmk', [RpsController::class, 'updateSoalSubCpmk'])->name('admin.rps.updatesoalsubcpmk');
+
+            Route::get('listsubcpmk/{id}', [RpsController::class, 'listSubCpmk'])->name('admin.rps.listsubcpmk');
+            Route::get('listcpmk/{id}', [RpsController::class, 'listCpmk'])->name('admin.rps.listcpmk');
+            Route::get('listtugas/{id}', [RpsController::class, 'listTugas'])->name('admin.rps.listtugas');
         });
 
         Route::prefix('admin/kelas')->group(function () {
@@ -184,6 +189,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/nilai/cpmk', [AdminNilaiController::class, 'nilaiCpmk'])->name('admin.kelaskuliah.nilaicpmk');
             Route::get('/nilai/cpl', [AdminNilaiController::class, 'nilaiCpl'])->name('admin.kelaskuliah.nilaicpl');
             Route::get('/{id}/lihat-nilai', [AdminNilaiController::class, 'nilaiMahasiswa'])->name('admin.kelaskuliah.lihatnilai');
+            Route::get('{id}/lihat-nilai/pdf', [AdminNilaiController::class, 'generatePdf'])->name('admin.kelaskuliah.generatepdf');
 
             Route::post('/nilai/edit-nilai-tugas', [AdminNilaiController::class, 'editNilaiTugas'])->name('admin.kelaskuliah.editnilaitugas');
             Route::post('/nilai/edit-nilai-akhir', [AdminNilaiController::class, 'editNilaiAkhir'])->name('admin.kelaskuliah.editnilaiakhir');
@@ -231,6 +237,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'createMahasiswa'])->name('dosen.kelaskuliah.createmahasiswa');
             Route::post('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'storeMahasiswa'])->name('dosen.kelaskuliah.storemahasiswa');
             Route::delete('{id}/{id_mahasiswa}', [DosenPerkuliahanController::class, 'destroyMahasiswa'])->name('dosen.kelaskuliah.destroymahasiswa');
+            Route::get('mahasiswa/download-excel', [DosenPerkuliahanController::class, 'downloadExcel'])->name('dosen.kelaskuliah.mahasiswa.download-excel');
+            Route::post('/{id}/mahasiswa/import-excel', [DosenPerkuliahanController::class, 'importExcel'])->name('dosen.kelaskuliah.mahasiswa.import-excel');
 
             Route::get('{id}/nilai/{id_mahasiswa}', [DosenNilaiController::class, 'show'])->name('dosen.kelaskuliah.nilaimahasiswa');
             Route::get('/nilai/tugas', [DosenNilaiController::class, 'nilaiTugas'])->name('dosen.kelaskuliah.nilaitugas');
@@ -240,7 +248,8 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::post('/nilai/edit-nilai-tugas', [DosenNilaiController::class, 'editNilaiTugas'])->name('dosen.kelaskuliah.editnilaitugas');
             Route::post('/nilai/edit-nilai-akhir', [DosenNilaiController::class, 'editNilaiAkhir'])->name('dosen.kelaskuliah.editnilaiakhir');
-            Route::get('/{id}/masukkan-nilai', [DosenPerkuliahanController::class, 'nilaiMahasiswa'])->name('dosen.kelaskuliah.masukkannilai');
+            Route::get('/{id}/lihat-nilai', [DosenPerkuliahanController::class, 'nilaiMahasiswa'])->name('dosen.kelaskuliah.masukkannilai');
+            Route::get('{id}/lihat-nilai/pdf', [DosenNilaiController::class, 'generatePdf'])->name('dosen.kelaskuliah.generatepdf');
             Route::get('/{id}/masukkan-nilai/tugas/download-excel', [DosenNilaiController::class, 'downloadExcelNilaiTugas'])->name('dosen.download.nilaitugas');
             Route::get('/{id}/masukkan-nilai/akhir/download-excel', [DosenNilaiController::class, 'downloadExcelNilaiAkhir'])->name('dosen.download.nilaiakhir');
             Route::post('/{id}/masukkan-nilai/akhir/import-excel', [DosenNilaiController::class, 'importExcelNilaiAkhir'])->name('dosen.impor.nilaiakhir');
@@ -270,7 +279,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('{id}', [RpsController::class, 'index'])->name('dosen.rps');
             Route::post('create/cpmk/{id}', [DosenRpsController::class, 'storecpmk'])->name('dosen.rps.storecpmk');
             Route::post('create/subcpmk/{id}', [DosenRpsController::class, 'storesubcpmk'])->name('dosen.rps.storesubcpmk');
-            Route::post('create/soal/', [DosenRpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
+            Route::post('create/soal/{id}', [DosenRpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
             Route::get('{id}', [DosenRpsController::class, 'create'])->name('dosen.rps.create');
             Route::delete('deletecpmk/{id}', [DosenRpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
             // Route::get('create', [RpsController::class, 'create'])->name('dosen.matakuliah.add');
@@ -300,6 +309,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('create', [MahasiswaMataKuliahController::class, 'create'])->name('mahasiswa.matakuliah.create.matkul');
             Route::post('create', [MahasiswaMataKuliahController::class, 'store'])->name('mahasiswa.matakuliah.store');
             Route::get('/{id}', [MahasiswaMataKuliahController::class, 'show'])->name('mahasiswa.matakuliah.show');
+            Route::get('{id}/pdf', [MahasiswaMataKuliahController::class, 'generatePdf'])->name('mahasiswa.matakuliah.generatepdf');
             Route::get('edit/{id}', [MahasiswaMataKuliahController::class, 'edit'])->name('mahasiswa.matakuliah.edit');
             Route::put('edit/{id}', [MahasiswaMataKuliahController::class, 'update'])->name('mahasiswa.matakuliah.update');
             Route::delete('{id}', [MahasiswaMataKuliahController::class, 'destroy'])->name('mahasiswa.matakuliah.destroy');
@@ -312,7 +322,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::prefix('mahasiswa/kelas-kuliah')->group(function () {
             Route::get('', [MahasiswaNilaiController::class, 'index'])->name('mahasiswa.kelaskuliah');
             Route::get('{id}/nilai', [MahasiswaNilaiController::class, 'show'])->name('mahasiswa.kelaskuliah.nilaimahasiswa');
-            Route::get('/nilai/tugas', [MahasiswaNilaiController::class, 'nilaiTugas'])->name('mahasiswa.kelaskuliah.nilaitugas');
+            Route::get('/nilai/tugas', [MahasiswaNilaiController::class, 'nilaiTugas'])->name('mahasiswa.matakuliah.nilaitugas');
             Route::get('/nilai/sub-cpmk', [MahasiswaNilaiController::class, 'nilaiSubCpmk'])->name('mahasiswa.kelaskuliah.nilaisubcpmk');
             Route::get('/nilai/cpmk', [MahasiswaNilaiController::class, 'nilaiCpmk'])->name('mahasiswa.kelaskuliah.nilaicpmk');
             Route::get('/nilai/cpl', [MahasiswaNilaiController::class, 'nilaiCpl'])->name('mahasiswa.kelaskuliah.nilaicpl');

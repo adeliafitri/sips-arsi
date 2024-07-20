@@ -13,6 +13,9 @@ use App\Exports\NilaiTugasFormatExcel;
 use App\Exports\NilaiAkhirFormatExcel;
 use App\Imports\NilaiAkhirImportExcel;
 use App\Imports\NilaiTugasImportExcel;
+use App\Models\KelasKuliah;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class NilaiController extends Controller
 {
@@ -434,6 +437,85 @@ class NilaiController extends Controller
                 'labels' => $labels,
                 'values' => $values,
             ]);
+    }
+
+    public function generatePdf($id)
+    {
+        // Ambil data mata kuliah dari database
+        $kelas_matkul = KelasKuliah::join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+        ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
+        ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'dosen.nama as nama_dosen', 'matakuliah_kelas.id as id_kelas')
+        ->where('matakuliah_kelas.id', $id)
+        ->first();
+
+        $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
+            ->where('matakuliah_kelas.id', $id)
+            ->orderby('soal_sub_cpmk.id', 'ASC')
+            // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
+            ->get();
+
+            $mahasiswa_data = [];
+            $info_soal = [];
+            $nomor = 1;
+            // $nilaiMhs = [];
+
+            foreach ($nilai_mahasiswa as $nilai) {
+                $soal_id = $nilai->id;
+                $mahasiswa_id = $nilai->nim;
+                // $nilai_id = $nilai->id_nilai;
+
+                if (!isset($info_soal[$soal_id])) {
+                    $info_soal[$soal_id] = [
+                        'waktu_pelaksanaan' => $nilai->waktu_pelaksanaan,
+                        'kode_subcpmk' => $nilai->kode_subcpmk,
+                        'bobot_soal' => $nilai->bobot_soal,
+                        'bentuk_soal' => $nilai->bentuk_soal,
+                    ];
+                }
+
+                if (!isset($mahasiswa_data[$mahasiswa_id])) {
+                    $mahasiswa_data[$mahasiswa_id] = [
+                        'kelas_id' => $nilai->id_kelas,
+                        'id_mhs' => $nilai->id_mhs,
+                        'nim' => $nilai->nim,
+                        'nama' => $nilai->nama,
+                        'id_nilai' => [],
+                        'nilai' => [],
+                        'nomor' => $nomor
+                    ];
+                    $nomor++;
+                }
+
+                $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
+                $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
+            }
+
+        $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
+        // Mulai membuat laporan PDF
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml(view('pages-admin.perkuliahan.nilai_pdf', ['kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'jml_mhs' => $jumlah_mahasiswa]));
+
+        // Atur opsi PDF
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf->setPaper('A4', 'landscape');
+
+        // Render PDF
+        $dompdf->setOptions($options);
+        $dompdf->render();
+
+        // Menghasilkan nama file unik untuk laporan
+        $filename = 'Penilaian_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+
+        // Mengirimkan laporan PDF sebagai respons
+        return $dompdf->stream($filename);
     }
 }
 

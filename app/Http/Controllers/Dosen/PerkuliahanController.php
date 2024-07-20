@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dosen;
 
+use App\Exports\DaftarMahasiswaFormatExcel;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
@@ -13,8 +14,10 @@ use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
+use App\Imports\DaftarMahasiswaImportExcel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PerkuliahanController extends Controller
 {
@@ -281,7 +284,10 @@ class PerkuliahanController extends Controller
         ]);
 
         if ($validate->fails()) {
-            return redirect()->back()->withErrors($validate)->withInput();
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -290,7 +296,8 @@ class PerkuliahanController extends Controller
             // $result = DB::select($get_matkul);
 
             if (empty($matkul_id)) {
-                return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
+                return response()->json(['status' => 'error', 'message' => 'Invalid matakuliah_kelas ID']);
+                // return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
             }
 
             // $id_matkul = $result[0]->matakuliah_i                                                                                                                                                                     d;
@@ -316,7 +323,8 @@ class PerkuliahanController extends Controller
                         'soal_id' => $data->soal_id,
                     ]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+                    return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+                    // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
                 }
             }
 
@@ -325,9 +333,11 @@ class PerkuliahanController extends Controller
                 'matakuliah_kelasid' => $id,
             ]);
 
-            return redirect()->route('dosen.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('dosen.kelaskuliah.show', $id)->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -342,30 +352,42 @@ class PerkuliahanController extends Controller
                 ->where('matakuliah_kelasid', $id)
                 ->delete();
 
-            return redirect()->route('dosen.kelaskuliah')
-                ->with('success', 'Data berhasil dihapus');
+            // return redirect()->route('dosen.kelaskuliah')
+            //     ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
-            return redirect()->route('dosen.kelaskuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('dosen.kelaskuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 
-    public function nilaiMahasiswa($id) {
+    public function nilaiMahasiswa(Request $request, $id) {
         $kelasMatkul = KelasKuliah::join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
         ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
         ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'matakuliah_kelas.id as id_kelas')
         ->where('matakuliah_kelas.id', $id)
         ->first();
 
-        $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+        $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
             ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
-            ->where('matakuliah_kelas.id', $id)
-            ->orderby('soal_sub_cpmk.id', 'ASC')
+            ->where('matakuliah_kelas.id', $id);
+
+            // Cek apakah ada parameter pencarian
+            if ($request->has('search')) {
+                $searchTerm = $request->input('search');
+                $query->where(function ($query) use ($searchTerm) {
+                    $query->where('mahasiswa.nim', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('mahasiswa.nama', 'like', '%' . $searchTerm . '%');
+                });
+            }
+
+            $nilai_mahasiswa = $query->orderby('soal_sub_cpmk.id', 'ASC')
+            ->orderBy('mahasiswa.nim', 'ASC')
             // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
             ->get();
 
@@ -409,5 +431,26 @@ class PerkuliahanController extends Controller
         // dd(array_values($mahasiswa_data), array_values($info_soal));
 
         return view('pages-dosen.perkuliahan.nilai_mahasiswa', ['data' => $kelasMatkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'id_kelas' => $id]);
+    }
+
+    public function downloadExcel()
+    {
+        return Excel::download(new DaftarMahasiswaFormatExcel(), 'daftar-mahasiswa-excel.xlsx');
+    }
+
+    public function importExcel(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new DaftarMahasiswaImportExcel($id), $file);
+
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
+
+        // return redirect()->back()->with('success', 'Data imported successfully.');
     }
 }

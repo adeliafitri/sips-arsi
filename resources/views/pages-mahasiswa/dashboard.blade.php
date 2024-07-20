@@ -52,26 +52,28 @@
             </div>
             </div>
             <!-- ./col -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                    <h3 class="card-title">Jumlah SKS</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                    <div class="mb-2">
-                    {{-- <p class="mb-0">SKS</p> --}}
+
+            <div class="col-md-6 col-sm-6 col-12">
+                <div class="info-box bg-success">
+                  <span class="info-box-icon"><i class="far fa-thumbs-up"></i></span>
+
+                  <div class="info-box-content">
+                    <span class="info-box-text">Jumlah SKS</span>
+                    {{-- <span class="info-box-number">41,410</span> --}}
+
                     <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ $total_sks_lulus }}" aria-valuemin="0"
-                            aria-valuemax="{{ $total_sks }}" style="width: {{ ($total_sks_lulus / $total_sks) * 100 }}%;">
-                        <span>{{ $total_sks_lulus }} dari {{ $total_sks }}</span>
-                        </div>
+                      <div class="progress-bar" aria-valuenow="{{ $total_sks_lulus }}" aria-valuemin="0"
+                      aria-valuemax="{{ $total_sks }}" style="width: {{ ($total_sks_lulus / $total_sks) * 100 }}%;"></div>
                     </div>
-                    </div>
-                    </div>
-                    <!-- /.card-body -->
+                    <span class="progress-description">
+                        {{ $total_sks_lulus }} dari {{ $total_sks }}
+                    </span>
+                  </div>
+                  <!-- /.info-box-content -->
                 </div>
-            </div>
+                <!-- /.info-box -->
+              </div>
+              <!-- /.col -->
             <!-- RADAR CHART -->
             <div class="col-md-6">
                 <div class="card card-info">
@@ -99,12 +101,12 @@
                     <div class="card-body">
                     @foreach ($data as $datas)
                     <div class="row mb-2">
-                        <div class="ml-1">
+                        <div class="col-md-2">
                             <h6>{{ $datas['kode_cpl'] }}</h6>
                         </div>
-                        <div class="col-md-11">
+                        <div class="col-md-10">
                             <div class="progress">
-                                <div class="progress-bar bg-info" role="progressbar" aria-valuenow="{{ $datas['persentase'] }}" aria-valuemin="0"
+                                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ $datas['persentase'] }}" aria-valuemin="0"
                                     aria-valuemax="100" style="width: {{ $datas['persentase'] }}%">
                                 <span>{{ $datas['persentase'] }}%</span>
                                 </div>

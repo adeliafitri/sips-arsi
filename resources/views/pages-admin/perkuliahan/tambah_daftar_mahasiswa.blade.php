@@ -63,8 +63,8 @@
                     </div>
                     </div>
                     <div class="card-footer clearfix">
-                        <a href="{{ route('admin.kelaskuliah.show', $kelas_kuliah->id) }}" class="btn btn-default">Cancel</a>
-                        <button type="button" class="btn btn-primary" onclick="addData({{ $kelas_kuliah->id }})">Save</button>
+                        <a href="{{ route('admin.kelaskuliah.show', $kelas_kuliah->id) }}" class="btn btn-default">Batal</a>
+                        <button type="button" class="btn btn-primary" onclick="addData({{ $kelas_kuliah->id }})">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -89,7 +89,7 @@
             success: function(response) {
                 if (response.status == "success") {
                     Swal.fire({
-                    title: "Success!",
+                    title: "Sukses!",
                     text: response.message,
                     icon: "success"
                 }).then((result) => {

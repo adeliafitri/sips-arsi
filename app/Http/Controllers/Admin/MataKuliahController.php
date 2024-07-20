@@ -54,6 +54,8 @@ class MataKuliahController extends Controller
             'kode_matkul' => 'required|unique:mata_kuliah,kode_matkul',
             'nama_matkul' => 'required|string',
             'sks' => 'required|numeric',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
         ]);
 
         if ($validate->fails()) {
@@ -68,6 +70,8 @@ class MataKuliahController extends Controller
                 'kode_matkul' => $request->kode_matkul,
                 'nama_matkul' => $request->nama_matkul,
                 'sks' => $request->sks,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
             ]);
 
             // return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
@@ -113,6 +117,8 @@ class MataKuliahController extends Controller
             'kode_matkul' => 'required',
             'nama_matkul' => 'required|string',
             'sks' => 'required|numeric',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
         ]);
 
         if ($validate->fails()) {
@@ -128,6 +134,8 @@ class MataKuliahController extends Controller
                 'kode_matkul' => $request->kode_matkul,
                 'nama_matkul' => $request->nama_matkul,
                 'sks' => $request->sks,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
             ]);
 
             // return redirect()->route('admin.matakuliah')->with([
@@ -165,7 +173,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(10);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -186,7 +194,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(10);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -209,7 +217,7 @@ class MataKuliahController extends Controller
         ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('cpmk.id');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(10);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -234,7 +242,7 @@ class MataKuliahController extends Controller
         ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(10);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 

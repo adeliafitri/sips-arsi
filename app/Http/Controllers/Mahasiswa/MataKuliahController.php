@@ -11,6 +11,8 @@ use App\Models\NilaiAkhirMahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class MataKuliahController extends Controller
 {
@@ -67,7 +69,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -88,7 +90,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -109,7 +111,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk')->orderBy('cpmk.id');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -133,7 +135,7 @@ class MataKuliahController extends Controller
             ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -146,5 +148,38 @@ class MataKuliahController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function generatePdf($id)
+    {
+        // Ambil data mata kuliah dari database
+        $mata_kuliah = MataKuliah::find($id);
+
+        $rps = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->where('matakuliah_id', $id)
+        ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+        ->orderBy('soal_sub_cpmk.waktu_pelaksanaan', 'asc')
+        ->get();
+
+        // Mulai membuat laporan PDF
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml(view('pages-mahasiswa.mata_kuliah.rps_pdf', ['rps' => $rps, 'matkul' => $mata_kuliah]));
+
+        // Atur opsi PDF
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+
+        // Render PDF
+        $dompdf->setOptions($options);
+        $dompdf->render();
+
+        // Menghasilkan nama file unik untuk laporan
+        $filename = 'Portfolio_Penilaian_' . $mata_kuliah->nama_matkul . '.pdf';
+
+        // Mengirimkan laporan PDF sebagai respons
+        return $dompdf->stream($filename);
     }
 }

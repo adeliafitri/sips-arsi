@@ -46,18 +46,22 @@
                     <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
                 </div>
                 <div class="col-sm-2">
-                    <a href="" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                    {{-- <a href="" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a> --}}
                 </div>
             </div>
         </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
+        <div class="callout callout-info">
+            {{-- <h5>I am an info callout!</h5> --}}
+            <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+        </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-sm-7">
+                <div class="col-md-7">
                   <form action="{{ route('admin.kelaskuliah.show', $data->id) }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-md-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -68,10 +72,10 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
+                <div class="col-md-2">
                     <a href="{{ route('admin.kelaskuliah.lihatnilai', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-pen mr-2"></i> Lihat Nilai</a>
                 </div>
-                <div class="">
+                <div>
                     <div class="dropdown">
                         <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                              Tambah Data Mahasiswa
@@ -96,13 +100,13 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('admin.kelaskuliah.mahasiswa.import-excel', $data->id) }}" method="post" enctype="multipart/form-data">
+                                <form id="formImport" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <label for="excelFile">Choose Excel File</label>
                                         <input type="file" class="form-control-file" id="excelFile" name="file" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                    <button type="button" class="btn btn-primary" onclick="addFile({{ $data->id }})">Upload</button>
                                 </form>
                             </div>
                         </div>
@@ -148,7 +152,7 @@
                               <td>{{ $keterangan[$mahasiswas->id] }}</td>
                               <td>
                                   <div class="d-flex">
-                                      <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
+                                      {{-- <a href="{{ route('admin.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a> --}}
                                       <a class="btn btn-danger" onclick="deleteDataMahasiswa({{$data->id}}, {{ $mahasiswas->id }})"><i class="nav-icon fas fa-trash-alt"></i></a>
                                       {{-- <form action="{{ route('admin.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
                                           @csrf
@@ -274,13 +278,14 @@
     <script>
         function deleteDataMahasiswa(id, id_mhs){
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus mahasiswa dari kelas?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
             }).then((result) => {
               if (result.isConfirmed) {
                       $.ajax({
@@ -471,5 +476,66 @@
             },
         });
     });
+        function addFile(id) {
+            // var form = $('#formImport');
+            var form = $('#formImport')[0]; // Get the form element
+            var formData = new FormData(form); // Create a FormData object
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('admin/kelas-kuliah') }}/" + id + "/mahasiswa/import-excel",
+                // data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status == "success") {
+                        Swal.fire({
+                        title: "Sukses!",
+                        text: response.message,
+                        icon: "success"
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.href = "{{ route('admin.kelaskuliah.show', '') }}/" + id;
+                        };
+                    });
+                    }
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status == 422) {
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Validation Error",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    else{
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Error!",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    // Handle error here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
     </script>
 @endsection

@@ -39,7 +39,13 @@
 <!-- bs-custom-file-input -->
 <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 <!-- bs-stepper -->
-<script src="{{ asset('dist/js/bs-stepper.js') }}"></script>
+{{-- <script src="{{ asset('dist/js/bs-stepper.js') }}"></script> --}}
+<!-- BS-Stepper -->
+<script src="{{ asset('plugins/bs-stepper/js/bs-stepper.min.js') }}"></script>
+<!-- Bootstrap-slider -->
+<script src="{{ asset('plugins/bootstrap-slider/bootstrap-slider.min.js') }}"></script>
+<!-- noUiSlider JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
 
 <script src="/js/app.js"></script>
 
@@ -64,118 +70,6 @@
     $(function () {
         bsCustomFileInput.init();
     });
-
-    // Data yang akan ditampilkan di grafik radar
-    // var data = {
-    //     labels: ["CPMK1", "CPMK2", "CPMK3", "CPMK4", "CPMK5"],
-    //     datasets: [
-    //         {
-    //             label: "Data Nilai Tugas di Kelas",
-    //             backgroundColor: "rgba(60,141,188,0.2)",
-    //             borderColor: "rgba(60,141,188,1)",
-    //             pointBackgroundColor: "rgba(60,141,188,1)",
-    //             pointBorderColor: "#fff",
-    //             pointHoverBackgroundColor: "#fff",
-    //             pointHoverBorderColor: "rgba(60,141,188,1)",
-    //             data: [88.7, 85, 90, 81, 56]
-    //         },
-    //         // {
-    //         //     label: "Data Set 2",
-    //         //     backgroundColor: "rgba(210, 214, 222, 0.2)",
-    //         //     borderColor: "rgba(210, 214, 222, 1)",
-    //         //     pointBackgroundColor: "rgba(210, 214, 222, 1)",
-    //         //     pointBorderColor: "#fff",
-    //         //     pointHoverBackgroundColor: "#fff",
-    //         //     pointHoverBorderColor: "rgba(210, 214, 222, 1)",
-    //         //     data: [28, 48, 40, 19, 96]
-    //         // }
-    //     ]
-    // };
-
-    // var radarChartCanvas = $("#radarChart").get(0).getContext("2d");
-
-    // var radarChart = new Chart(radarChartCanvas, {
-    //     type: "radar",
-    //     data: data,
-    //     options: {
-    //         scale: {
-    //             ticks: {
-    //                 beginAtZero: true,
-    //                 min: 0,       // Nilai minimum sumbu Y
-    //                 max: 100,      // Nilai maksimum sumbu Y
-    //                 stepSize: 20
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var radarChartCanvasSub = $("#radarChartSub").get(0).getContext("2d");
-
-    // var radarChartSub = new Chart(radarChartCanvasSub, {
-    //     type: "radar",
-    //     data: data,
-    //     options: {
-    //         scale: {
-    //             ticks: {
-    //                 beginAtZero: true,
-    //                 min: 0,       // Nilai minimum sumbu Y
-    //                 max: 100,      // Nilai maksimum sumbu Y
-    //                 stepSize: 20
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var radarChartCanvasCPMK = $("#radarChartCPMK").get(0).getContext("2d");
-
-    // var radarChartCPMK = new Chart(radarChartCanvasCPMK, {
-    //     type: "radar",
-    //     data: data,
-    //     options: {
-    //         scale: {
-    //             ticks: {
-    //                 beginAtZero: true,
-    //                 min: 0,       // Nilai minimum sumbu Y
-    //                 max: 100,      // Nilai maksimum sumbu Y
-    //                 stepSize: 20
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var radarChartCanvasCPL = $("#radarChartCPL").get(0).getContext("2d");
-
-    // var radarChartCPL = new Chart(radarChartCanvasCPL, {
-    //     type: "radar",
-    //     data: data,
-    //     options: {
-    //         scale: {
-    //             ticks: {
-    //                 beginAtZero: true,
-    //                 min: 0,       // Nilai minimum sumbu Y
-    //                 max: 100,      // Nilai maksimum sumbu Y
-    //                 stepSize: 20
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var radarChartCanvasMahasiswa = $("#radarChartMahasiswa").get(0).getContext("2d");
-
-    // var radarChartCPL = new Chart(radarChartCanvasMahasiswa, {
-    //     type: "radar",
-    //     data: data,
-    //     options: {
-    //         scale: {
-    //             ticks: {
-    //                 beginAtZero: true,
-    //                 min: 0,       // Nilai minimum sumbu Y
-    //                 max: 100,      // Nilai maksimum sumbu Y
-    //                 stepSize: 20
-    //             }
-    //         }
-    //     }
-    // });
 
   });
 

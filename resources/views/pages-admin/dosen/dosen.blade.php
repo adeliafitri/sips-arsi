@@ -28,7 +28,7 @@
               <div class="card-header d-flex col-md-12 justify-content-between">
                 <div class="col-md-8">
                   <form action="{{ route('admin.dosen') }}" method="GET">
-                    <div class="input-group col-md-4">
+                    <div class="input-group col-md-6">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -38,9 +38,9 @@
                     </div>
                   </form>
                 </div>
-                <div class=" col-md-4 d-flex align-items-end justify-content-end">
+                <div class="col-md-4 d-flex align-items-end justify-content-end">
                   <div class="dropdown mr-4">
-                      <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                      <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                           <i class="fas fa-file-excel mr-2"></i> Excel
                       </button>
                       <div class="dropdown-menu">
@@ -61,13 +61,18 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('admin.dosen.import-excel') }}" method="post" enctype="multipart/form-data">
+                                <div class="callout callout-info">
+                                    {{-- <h5>I am an info callout!</h5> --}}
+                                    <p>Pastikan tidak ada NIDN dan Email yang sama</p>
+                                    <p>Pastikan kolom No Telepon pada file excel sudah diisi menggunakan petik satu seperti berikut '081234567891'</p>
+                                </div>
+                                <form id="formImport" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <label for="excelFile">Choose Excel File</label>
                                         <input type="file" class="form-control-file" id="excelFile" name="file" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                    <button type="button" class="btn btn-primary" onclick="addFile()">Upload</button>
                                 </form>
                             </div>
                         </div>
@@ -157,13 +162,14 @@
           function deleteDosen(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -177,7 +183,7 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
+                            title: "Sukses!",
                             text: response.message,
                             icon: "success"
                             }).then((result) => {
@@ -200,5 +206,66 @@
           });
 
           }
+          function addFile() {
+            // var form = $('#formImport');
+            var form = $('#formImport')[0]; // Get the form element
+            var formData = new FormData(form); // Create a FormData object
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('admin/dosen/import-excel') }}",
+                // data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status == "success") {
+                        Swal.fire({
+                        title: "Sukses!",
+                        text: response.message,
+                        icon: "success"
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.href = "{{ route('admin.dosen') }}";
+                        };
+                    });
+                    }
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status == 422) {
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Validation Error",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    else{
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Error!",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    // Handle error here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
         </script>
 @endsection

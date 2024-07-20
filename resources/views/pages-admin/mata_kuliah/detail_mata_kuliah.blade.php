@@ -135,7 +135,7 @@
 
 @section('script')
     <script>
-        function detailCpl(id){
+        function detailCpl(id, page = null){
             $.ajax({
                     url: "{{ url('admin/mata-kuliah/detail/cpl') }}",
                     type: 'GET',
@@ -143,6 +143,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
+                        page: page,
                         id: id
                     },
                     success: function(data) {
@@ -156,7 +157,11 @@
                 });
         }
 
-        function detailCpmk(id){
+        $(document).ready(function() {
+                detailCpl({{ $data->id }}, null);
+        });
+
+        function detailCpmk(id, page = null){
             $.ajax({
                     url: "{{ url('admin/mata-kuliah/detail/cpmk') }}",
                     type: 'GET',
@@ -164,6 +169,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
+                        page: page,
                         id: id
                     },
                     success: function(data) {
@@ -177,7 +183,7 @@
                 });
         }
 
-        function detailSubCpmk(id){
+        function detailSubCpmk(id, page = null){
             $.ajax({
                     url: "{{ url('admin/mata-kuliah/detail/sub-cpmk') }}",
                     type: 'GET',
@@ -185,6 +191,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
+                        page: page,
                         id: id
                     },
                     success: function(data) {
@@ -198,7 +205,7 @@
                 });
         }
 
-        function detailTugas(id){
+        function detailTugas(id, page = null){
             $.ajax({
                     url: "{{ url('admin/mata-kuliah/detail/tugas') }}",
                     type: 'GET',
@@ -206,6 +213,7 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
+                        page: page,
                         id: id
                     },
                     success: function(data) {
@@ -219,8 +227,28 @@
                 });
         }
 
-        $(document).ready(function() {
-                detailCpl({{ $data->id }});
+        $(document).on('click', '#tabel-datacpl .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            detailCpl({{ $data->id }}, page);
+        });
+
+        $(document).on('click', '#tabel-datacpmk .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            detailCpmk({{ $data->id }}, page);
+        });
+
+        $(document).on('click', '#tabel-datasubcpmk .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            detailSubCpmk({{ $data->id }}, page);
+        });
+
+        $(document).on('click', '#tabel-datatugas .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            detailTugas({{ $data->id }}, page);
         });
     </script>
 @endsection

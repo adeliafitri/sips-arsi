@@ -1,8 +1,8 @@
 @extends('layouts.dosen.main')
 
 @section('content')
-    <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css">
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script> --}}
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css"> --}}
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <section class="content-header">
@@ -80,7 +80,7 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <form action="{{ route('dosen.rps.storecpmk', $matkul->id) }}" method="post" enctype="multipart/form-data" id="myFormCpmk">
+                                            <form enctype="multipart/form-data" id="formCpmk">
                                                 @csrf
                                                 <div class="sortinput" style="margin-bottom: 1rem">
                                                     <label for="pilih_cpl">Pilih CPL</label>
@@ -100,7 +100,7 @@
                                                     <textarea id="deskripsi_cpmk" name="deskripsi_cpmk" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="submit" id="tambah-cpmk"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
+                                                    <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addCpmk({{ $matkul->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
                                                     <button class="btn btn-primary" type="button" id="simpan-cpmk-edit" style="display: none" onclick="saveEditedCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
@@ -148,11 +148,12 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <form action="{{ route('dosen.rps.storesubcpmk', $matkul->id) }}" method="post" enctype="multipart/form-data" id="myFormSubCpmk">
+                                            <form enctype="multipart/form-data" id="formSubCpmk">
                                                 @csrf
                                                 <div class="sortinput" style="margin-bottom: 1rem">
                                                     <label for="pilih_cpmk">Pilih CPMK</label>
-                                                    <select class="form-select w-100 mb-1"
+                                                    <input type="text">
+                                                    {{-- <select class="form-select w-100 mb-1"
                                                         style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;"
                                                         onfocus="this.style.borderColor = '#80bdff';"
                                                         onblur="this.style.borderColor = '#939ba2';"
@@ -161,7 +162,7 @@
                                                         @foreach ($kode_cpmk as $key => $data)
                                                             <option value="{{ $key }}">{{ $data }}</option>
                                                         @endforeach
-                                                    </select>
+                                                    </select> --}}
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="kode_subcpmk">Kode Sub CPMK</label>
@@ -175,7 +176,7 @@
                                                         required></textarea>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="submit" id="tambah-subcpmk"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
+                                                    <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addSubCpmk({{ $matkul->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
                                                     <button class="btn btn-primary" type="button" id="simpan-subcpmk-edit" style="display: none" onclick="saveEditedSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
@@ -230,7 +231,7 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <form action="{{ route('dosen.rps.storesoal', $matkul->id) }}" method="post" enctype="multipart/form-data" id="myFormSoal">
+                                            <form enctype="multipart/form-data" id="formSoal">
                                                 @csrf
                                                 <div class="sortinput" style="margin-bottom: 1rem">
                                                     <label for="pilih_subcpmk">Pilih Sub CPMK</label>
@@ -256,7 +257,7 @@
                                                     {{-- <textarea id="bentuk_soal" name="bentuk_soal" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea> --}}
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-lg-4">
+                                                    <div class="col-lg-6">
                                                         <label for="bobot">Bobot</label>
                                                         <div class="input-group mb-3">
                                                             <input id="bobot" type="number" step="0.01" class="form-control"
@@ -267,16 +268,22 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-8">
-                                                        <label for="waktu_pelaksanaan">Waktu Pelaksanaan</label>
-                                                        <div class="input-group mb-3">
-                                                            <input id="waktu_pelaksanaan" type="text" class="form-control"
-                                                                aria-describedby="basic-addon2" name="waktu_pelaksanaan" required>
-                                                        </div>
+                                                    <div class="col-lg-1"></div>
+                                                    <div class="col-lg-5">
+                                                        <label for="waktu_pelaksanaan">Waktu Pelaksanaan</label><br>
+                                                        {{-- <div id="slider"></div> --}}
+                                                        <input id="waktu_pelaksanaan" type="text" class="slider"  />
+                                                        {{-- <input id="waktu_pelaksanaan_edit" type="text" class="slider" style="display: none"/> --}}
+                                                        <p>Minggu
+                                                            <span class="range-value" id="rangeValue1">1</span> -
+                                                            <span class="range-value" id="rangeValue2">16</span>
+                                                        </p>
+                                                        <input type="hidden" id="waktu_pelaksanaan_start" name="waktu_pelaksanaan_start">
+                                                        <input type="hidden" id="waktu_pelaksanaan_end" name="waktu_pelaksanaan_end">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="submit" id="tambah-soalsubcpmk"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
+                                                    <button class="btn btn-primary" type="button" id="tambah-soalsubcpmk" onclick="addSoal({{ $matkul->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
                                                     <button class="btn btn-primary" type="button" id="simpan-soalsubcpmk-edit" style="display: none" onclick="saveEditedSoalSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
@@ -356,16 +363,206 @@
     //content goes here
     });
 
+    function initializeSlider(startValue, endValue) {
+        var slider = new Slider("#waktu_pelaksanaan", {
+            min: 1,
+            max: 16,
+            range: true,
+            value: [startValue, endValue],
+            tooltip_split: true
+        });
+
+        slider.on("slide", function(slideEvt) {
+            $("#rangeValue1").text(slideEvt[0]);
+            $("#rangeValue2").text(slideEvt[1]);
+            $("#waktu_pelaksanaan_start").val(slideEvt[0]);
+            $("#waktu_pelaksanaan_end").val(slideEvt[1]);
+        });
+    }
+    $(document).ready(function() {
+        initializeSlider(1, 16);
+    });
+
+    function addCpmk(id) {
+        var form = $('#formCpmk');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('dosen/rps/create/cpmk') }}/" + id,
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('dosen.rps.create', '') }}/" + id;
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+    function addSubCpmk(id) {
+        var form = $('#formSubCpmk');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('dosen/rps/create/subcpmk') }}/" + id,
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('dosen.rps.create', '') }}/" + id;
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+    function addSoal(id) {
+        var form = $('#formSoal');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('dosen/rps/create/soal') }}/" + id,
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Success!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('dosen.rps.create', '') }}/" + id;
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
         function deleteCpmk(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
         }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -379,8 +576,8 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"
@@ -419,13 +616,14 @@
         function deleteSubCpmk(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
         }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -439,8 +637,8 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"
@@ -477,13 +675,14 @@
         function deleteSoal(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
         }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -497,8 +696,8 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"
@@ -561,7 +760,7 @@
                         // var hiddenInputId = '<input type="hidden" name="cpmk_id" value="' + response.data.id+ '">';
 
                         // form.append(hiddenInputId);
-                        var form = document.getElementById('myFormCpmk');
+                        var form = document.getElementById('formCpmk');
                         var hiddenInputId = document.createElement('input');
                         hiddenInputId.type = 'hidden';
                         hiddenInputId.name = 'cpmk_id';
@@ -580,29 +779,79 @@
 
             function saveEditedCpmk() {
             // Mendapatkan nilai input dari form atau elemen lainnya
-            var form = $('#myFormCpmk');
+            var form = $('#formCpmk');
             // formData = form.serialize();
             // console.log(formData);
+            Swal.fire({
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, edit"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Melakukan permintaan AJAX untuk menyimpan data yang diedit
+                    $.ajax({
+                        url: "{{ url('dosen/rps/updatecpmk') }}", // URL untuk menyimpan data yang diedit
+                        type: 'PUT', // Metode HTTP untuk menyimpan data
+                        headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                        contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
+                        data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
+                        success: function(response){
+                            if (response.status === 'success') {
+                                console.log(response.message);
 
-            // Melakukan permintaan AJAX untuk menyimpan data yang diedit
-            $.ajax({
-                url: "{{ url('dosen/rps/updatecpmk') }}", // URL untuk menyimpan data yang diedit
-                type: 'PUT', // Metode HTTP untuk menyimpan data
-                headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
-                data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
-                success: function(response){
-                    // Handle success response
-                    console.log('Data berhasil diperbarui:', response);
-                    window.location.reload();
-                    // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
-                },
-                error: function(xhr){
-                    // Handle error response
-                    console.log('Terjadi kesalahan:', xhr.responseText);
-                    // Misalnya, Anda dapat menampilkan pesan kesalahan kepada pengguna
+                                Swal.fire({
+                                title: "Sukses!",
+                                text: response.message,
+                                icon: "success"
+                                }).then((result) => {
+                                    // Check if the user clicked "OK"
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    };
+                                        // window.location.href = "{{ route('admin.kelas') }}";
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status == 422) {
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Validation Error",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            else{
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Error!",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            // Handle error here
+                            console.error(xhr.responseText);
+                        }
+                    });
                 }
             });
             }
@@ -612,14 +861,15 @@
                 url: "{{ url('dosen/rps/editsubcpmk') }}/" + id,
                 type: 'GET',
                 success: function(response){
-                    $('#pilih_cpmk').val(response.data.cpmk_id);
+                    $('#hidden-id').val(response.data.cpmk_id);
+                    $('#cpmk-option').val()
                     $('#kode_subcpmk').val(response.data.kode_subcpmk);
                     $('#deskripsi_subcpmk').val(response.data.deskripsi);
                     // var form = document.getElementById('myFormCpmk');
                     // var hiddenInputId = '<input type="hidden" name="cpmk_id" value="' + response.data.id+ '">';
 
                     // form.append(hiddenInputId);
-                    var form = document.getElementById('myFormSubCpmk');
+                    var form = document.getElementById('formSubCpmk');
                     var hiddenInputId = document.createElement('input');
                     hiddenInputId.type = 'hidden';
                     hiddenInputId.name = 'subcpmk_id';
@@ -638,27 +888,78 @@
 
             function saveEditedSubCpmk() {
             // Mendapatkan nilai input dari form atau elemen lainnya
-            var form = $('#myFormSubCpmk');
+            var form = $('#formSubCpmk');
 
-            // Melakukan permintaan AJAX untuk menyimpan data yang diedit
-            $.ajax({
-                url: "{{ url('dosen/rps/updatesubcpmk') }}", // URL untuk menyimpan data yang diedit
-                type: 'PUT', // Metode HTTP untuk menyimpan data
-                headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
-                data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
-                success: function(response){
-                    // Handle success response
-                    console.log('Data berhasil diperbarui:', response);
-                    window.location.reload();
-                    // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
-                },
-                error: function(xhr){
-                    // Handle error response
-                    console.log('Terjadi kesalahan:', xhr.responseText);
-                    // Misalnya, Anda dapat menampilkan pesan kesalahan kepada pengguna
+            Swal.fire({
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, edit"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Melakukan permintaan AJAX untuk menyimpan data yang diedit
+                    $.ajax({
+                        url: "{{ url('dosen/rps/updatesubcpmk') }}", // URL untuk menyimpan data yang diedit
+                        type: 'PUT', // Metode HTTP untuk menyimpan data
+                        headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                        contentType: 'application/x-www-form-urlencoded', // Tipe konten yang dikirimkan dalam permintaan
+                        data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
+                        success: function(response){
+                            if (response.status === 'success') {
+                                console.log(response.message);
+
+                                Swal.fire({
+                                title: "Sukses!",
+                                text: response.message,
+                                icon: "success"
+                                }).then((result) => {
+                                    // Check if the user clicked "OK"
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    };
+                                        // window.location.href = "{{ route('admin.kelas') }}";
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status == 422) {
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Validation Error",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            else{
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Error!",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            // Handle error here
+                            console.error(xhr.responseText);
+                        }
+                    });
                 }
             });
             }
@@ -671,12 +972,23 @@
                     $('#pilih_subcpmk').val(response.data.subcpmk_id);
                     $('#bentuk_soal').val(response.data.bentuk_soal).change();
                     $('#bobot').val(response.data.bobot_soal);
-                    $('#waktu_pelaksanaan').val(response.data.waktu_pelaksanaan);
+                    // $('#waktu_pelaksanaan').val(response.data.waktu_pelaksanaan);
                     // var form = document.getElementById('myFormCpmk');
                     // var hiddenInputId = '<input type="hidden" name="cpmk_id" value="' + response.data.id+ '">';
 
+                    var startValue = parseInt(response.minggu_mulai);
+                    var endValue = parseInt(response.minggu_akhir);
+
+                    // initializeSlider(startValue, endValue);
+
+
+                    // Atur nilai input terkait
+                    $("#rangeValue1").text(startValue);
+                    $("#rangeValue2").text(endValue);
+                    $("#waktu_pelaksanaan_start").val(startValue);
+                    $("#waktu_pelaksanaan_end").val(endValue);
                     // form.append(hiddenInputId);
-                    var form = document.getElementById('myFormSoal');
+                    var form = document.getElementById('formSoal');
                     var hiddenInputId = document.createElement('input');
                     hiddenInputId.type = 'hidden';
                     hiddenInputId.name = 'soal_subcpmk_id';
@@ -695,34 +1007,85 @@
 
             function saveEditedSoalSubCpmk() {
             // Mendapatkan nilai input dari form atau elemen lainnya
-            var form = $('#myFormSoal');
+            var form = $('#formSoal');
                 console.log(form);
-            // Melakukan permintaan AJAX untuk menyimpan data yang diedit
-            $.ajax({
-                url: "{{ url('dosen/rps/updatesoalsubcpmk') }}", // URL untuk menyimpan data yang diedit
-                type: 'PUT', // Metode HTTP untuk menyimpan data
-                headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                contentType: 'application/x-www-form-urlencoded',  // Tipe konten yang dikirimkan dalam permintaan
-                data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
-                success: function(response){
-                    // Handle success response
-                    console.log('Data berhasil diperbarui:', response);
-                    window.location.reload();
-                    // Misalnya, Anda dapat menampilkan pesan sukses kepada pengguna
-                },
-                error: function(xhr){
-                    // Handle error response
-                    console.log('Terjadi kesalahan:', xhr.responseText);
-                    // Misalnya, Anda dapat menampilkan pesan kesalahan kepada pengguna
+            Swal.fire({
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, edit"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Melakukan permintaan AJAX untuk menyimpan data yang diedit
+                    $.ajax({
+                        url: "{{ url('dosen/rps/updatesoalsubcpmk') }}", // URL untuk menyimpan data yang diedit
+                        type: 'PUT', // Metode HTTP untuk menyimpan data
+                        headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                        contentType: 'application/x-www-form-urlencoded',  // Tipe konten yang dikirimkan dalam permintaan
+                        data: form.serialize(), // Mengonversi objek JavaScript menjadi JSON
+                        success: function(response){
+                            if (response.status === 'success') {
+                                console.log(response.message);
+
+                                Swal.fire({
+                                title: "Sukses!",
+                                text: response.message,
+                                icon: "success"
+                                }).then((result) => {
+                                    // Check if the user clicked "OK"
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    };
+                                        // window.location.href = "{{ route('admin.kelas') }}";
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status == 422) {
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Validation Error",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            else{
+                                var errorMessage = xhr.responseJSON.message;
+                                Swal.fire({
+                                icon: "error",
+                                title:"Error!",
+                                text: errorMessage,
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                            });
+                            }
+                            // Handle error here
+                            console.error(xhr.responseText);
+                        }
+                    });
                 }
             });
             }
 
             function simpan(){
                 Swal.fire({
-                    title: "Are you sure?",
+                    title: "Konfirmasi Simpan Data",
                     // text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,

@@ -12,8 +12,13 @@
           <a href="../index2.html" class="h1"><b>Admin</b>LTE</a>
         </div> -->
         <div class="card-body">
-            <div class="text-center mb-1">
-                <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" width="100px" alt="logo Prodi Arsitektur UIN Malang">
+            <div class="row justify-content-center">
+                <div class="col-md-3 mb-2">
+                    <img src="{{ asset('dist/img/logo_uin.png') }}" width="75px" alt="logo Prodi Arsitektur UIN Malang">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" width="100px" alt="logo Prodi Arsitektur UIN Malang">
+                </div>
             </div>
             <h3 class="text-center">OBE Teknik Arsitektur</h3>
             <p class="login-box-msg">Enter your details to get sign in to your account</p>
@@ -27,7 +32,7 @@
                 </ul>
             </div>
             @endif
-          <form action="{{ route('login') }}" method="post">
+          <form id="loginForm">
             @CSRF
             <div class="input-group mb-3">
               <input type="text" name="username" class="form-control" placeholder="Username">
@@ -45,10 +50,10 @@
                 </div>
               </div>
             </div>
-            <p class="text-end">
+            {{-- <p class="text-end">
                 <a href="forgot-password.html" class="text-dark">Forgot Password?</a>
-            </p>
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </p> --}}
+            <button type="button" class="btn btn-primary btn-block mt-3" onclick="login()">Sign In</button>
           </form>
 
           <!-- <div class="social-auth-links text-center mt-2 mb-3">
@@ -70,3 +75,70 @@
     {{-- @include('layouts.admin.script') --}}
     </body>
     </html>
+
+  <script>
+    function login() {
+        var form = $('#loginForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('login') }}",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    // Check if the user clicked "OK"
+                    // if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = response.route;
+                    // };
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else if(xhr.status == 401){
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+</script>

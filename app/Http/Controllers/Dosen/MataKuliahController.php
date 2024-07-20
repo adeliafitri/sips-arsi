@@ -163,7 +163,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -184,7 +184,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -205,7 +205,7 @@ class MataKuliahController extends Controller
 
         $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk')->orderBy('cpmk.id');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
@@ -230,7 +230,7 @@ class MataKuliahController extends Controller
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
 
-        $data = $query->paginate(5);
+        $data = $query->paginate(20);
 
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 

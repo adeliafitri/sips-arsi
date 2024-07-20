@@ -10,8 +10,8 @@
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="">nama matkul</a></li>
-              <li class="breadcrumb-item active">Data Kelas Perkuliahan</li>
+                <li class="breadcrumb-item"><a href="{{ route('dosen.kelaskuliah.show', $data->id_kelas) }}">{{ $data->nama_kelas }} - {{ $data->nama_matkul }}</a></li>
+              <li class="breadcrumb-item active">Nilai Mahasiswa</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -26,9 +26,9 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
+                <div class="col-8">
                   <form action="" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -37,6 +37,9 @@
                       </div>
                     </div>
                   </form>
+                </div>
+                <div class="col-2">
+                    <a href="{{ route('dosen.kelaskuliah.generatepdf', $data->id_kelas) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-download mr-2"></i> Download Nilai</a>
                 </div>
                 <div class="dropdown col-2">
                     <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">

@@ -29,7 +29,7 @@
               <div class="card-header d-flex col-sm-12 justify-content-between">
                 <div class="col-10">
                   <form action="{{ route('admin.admins') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -40,8 +40,8 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                <div class="col-2">
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -115,13 +115,14 @@
           function deleteAdmin(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -135,8 +136,8 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"

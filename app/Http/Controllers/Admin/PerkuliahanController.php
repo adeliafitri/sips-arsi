@@ -31,7 +31,7 @@ class PerkuliahanController extends Controller
             ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
             ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-            ->select('matakuliah_kelas.*', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
+            ->select('matakuliah_kelas.id','matakuliah_kelas.koordinator','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
             ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
 
         // Cek apakah ada parameter pencarian
@@ -46,26 +46,81 @@ class PerkuliahanController extends Controller
 
         $query->groupBy('matakuliah_kelas.id');
 
-        $kelas_kuliah = $query->paginate(5);
+        $kelas_kuliah = $query->paginate(20);
 
         $startNumber = ($kelas_kuliah->currentPage() - 1) * $kelas_kuliah->perPage() + 1;
 
+        $data = [];
+        foreach ($kelas_kuliah as $item) {
+            $tahun_ajaran = $item->tahun_ajaran;
+            $semester = $item->semester;
+            $nama_matkul = $item->nama_matkul;
+
+            if (!isset($data[$tahun_ajaran])) {
+                $data[$tahun_ajaran] = [];
+            }
+            if (!isset($data[$tahun_ajaran][$semester])) {
+                $data[$tahun_ajaran][$semester] = [];
+            }
+            if (!isset($data[$tahun_ajaran][$semester][$nama_matkul])) {
+                $data[$tahun_ajaran][$semester][$nama_matkul] = [
+                    'id_smt' => $item->id_smt,
+                    'id_matkul' => $item->id_matkul,
+                    'info_kelas' => []
+                ];
+            }
+
+            $data[$tahun_ajaran][$semester][$nama_matkul]['info_kelas'][] = [
+                'id_kelas' => $item->id,
+                'nama_kelas' => $item->kelas,
+                'jumlah_mahasiswa' => $item->jumlah_mahasiswa,
+                'nama_dosen' => $item->nama_dosen,
+                'koordinator' => $item->koordinator,
+            ];
+        }
+
+        // Flatten the data structure for easier use in the view
+        $flatData = [];
+        foreach ($data as $tahun_ajaran => $semesters) {
+            foreach ($semesters as $semester => $mata_kuliah) {
+                foreach ($mata_kuliah as $nama_matkul => $info) {
+                    $flatData[] = [
+                        'id_smt' => $info['id_smt'],
+                        'id_matkul' => $info['id_matkul'],
+                        'tahun_ajaran' => $tahun_ajaran,
+                        'semester' => $semester,
+                        'nama_matkul' => $nama_matkul,
+                        'info_kelas' => $info['info_kelas'],
+                    ];
+                }
+            }
+        }
+
         return view('pages-admin.perkuliahan.kelas_perkuliahan', [
-            'data' => $kelas_kuliah,
+            'data' => $flatData,
             'startNumber' => $startNumber,
         ])->with('success', 'Data CPMK Ditemukan');
+        // return view('pages-admin.perkuliahan.kelas_perkuliahan', [
+        //     'data' => $kelas_kuliah,
+        //     'startNumber' => $startNumber,
+        // ])->with('success', 'Data CPMK Ditemukan');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $kelas = Kelas::pluck('nama_kelas', 'id');
-        $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        // $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
         $dosen = Dosen::pluck('nama', 'id');
-        $semester = Semester::all();
-        return view('pages-admin.perkuliahan.tambah_kelas_perkuliahan', compact('kelas', 'mata_kuliah', 'dosen', 'semester'));
+        // $semester = Semester::all();
+        $idSemester = $request->query('id_smt');
+        $idMatkul = $request->query('id_matkul');
+        $tahunAjaran = $request->query('tahun_ajaran');
+        $semester = $request->query('semester');
+        $namaMatkul = $request->query('nama_matkul');
+        return view('pages-admin.perkuliahan.tambah_kelas_perkuliahan', compact('kelas', 'dosen','idSemester','idMatkul', 'tahunAjaran', 'semester', 'namaMatkul'));
     }
 
     /**
@@ -123,10 +178,17 @@ class PerkuliahanController extends Controller
             $kelas_kuliah->update([
                 'koordinator' => $request->koordinator
             ]);
+
+            KelasKuliah::where('matakuliah_id', $kelas_kuliah->matakuliah_id)
+                ->where('semester_id', $kelas_kuliah->semester_id)
+                ->update([
+                    'koordinator' => '0'
+                ]);
+
             // dd($query->toSql(), $query->getBindings());
 
             if ($oldKoordinatorValue != $request->koordinator) {
-                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->matakuliah_id, $request->koordinator);
+                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->matakuliah_id, $kelas_kuliah->semester_id, $request->koordinator);
             }
 
             return response()->json(['status' => 'success', 'message' => 'Data koordinator berhasil diupdate']);
@@ -135,11 +197,12 @@ class PerkuliahanController extends Controller
         }
     }
 
-    private function updateOtherData($dosenID, $matakuliahID, $newKoordinatorValue)
+    private function updateOtherData($dosenID, $matakuliahID, $tahunAjaran, $newKoordinatorValue)
     {
         try {
             KelasKuliah::where('dosen_id', $dosenID)
                 ->where('matakuliah_id', $matakuliahID)
+                ->where('semester_id', $tahunAjaran)
                 ->update([
                     'koordinator' => $newKoordinatorValue
                 ]);
@@ -432,7 +495,9 @@ class PerkuliahanController extends Controller
 
         Excel::import(new DaftarMahasiswaImportExcel($id), $file);
 
-        return redirect()->back()->with('success', 'Data imported successfully.');
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
+
+        // return redirect()->back()->with('success', 'Data imported successfully.');
     }
 }
 

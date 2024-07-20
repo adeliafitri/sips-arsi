@@ -72,8 +72,8 @@
                 </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
-                    <a href="{{ route('admin.dosen') }}" class="btn btn-default">Cancel</a>
-                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Save</button>
+                    <a href="{{ route('admin.dosen') }}" class="btn btn-default">Batal</a>
+                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Simpan</button>
                 </div>
                 </form>
             </div>
@@ -93,13 +93,14 @@
             console.log(id);
             var form = $('#editDataForm');
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
+            confirmButtonText: "Ya, edit"
             }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -115,7 +116,7 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Success!",
+                            title: "Sukses!",
                             text: response.message,
                             icon: "success"
                             }).then((result) => {

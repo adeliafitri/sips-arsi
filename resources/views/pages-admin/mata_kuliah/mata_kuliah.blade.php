@@ -32,7 +32,7 @@
               <div class="card-header d-flex col-sm-12 justify-content-between">
                 <div class="col-10">
                   <form action="{{ route('admin.matakuliah') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -43,8 +43,8 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
-                    <a href="{{ route('admin.matakuliah.create.matkul') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                <div class="col-2">
+                    <a href="{{ route('admin.matakuliah.create.matkul') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -67,6 +67,8 @@
                             <th>Kode Mata Kuliah</th>
                             <th>Nama Mata Kuliah</th>
                             <th>SKS</th>
+                            <th>Semester</th>
+                            <th>Tahun RPS</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
                         </thead>
@@ -77,6 +79,8 @@
                               <td>{{ $datas->kode_matkul }}</td>
                               <td>{{ $datas->nama_matkul }}</td>
                               <td>{{ $datas->sks }}</td>
+                              <td>{{ $datas->semester }}</td>
+                              <td>{{ $datas->tahun_rps }}</td>
                               <td class="d-flex justify-content-center">
                                   <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
                                    <a href="{{ route('admin.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
@@ -134,13 +138,14 @@
           function deleteMatkul(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -154,7 +159,7 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
+                            title: "Sukses!",
                             text: response.message,
                             icon: "success"
                             }).then((result) => {

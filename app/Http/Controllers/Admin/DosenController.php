@@ -231,6 +231,7 @@ class DosenController extends Controller
 
         Excel::import(new DosenImportExcel(), $file);
 
-        return redirect()->back()->with('success', 'Data imported successfully.');
+        // return redirect()->back()->with('success', 'Data imported successfully.');
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
     }
 }

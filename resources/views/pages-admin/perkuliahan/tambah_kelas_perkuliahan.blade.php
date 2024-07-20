@@ -23,17 +23,6 @@
       <div class="row">
         <div class="col-12">
           <div class="card">
-              <div class="col-12 justify-content-center">
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-              </div>
             <div class="card-header d-flex justify-content-end">
               <h3 class="card-title col align-self-center">Form Tambah Data Kelas Perkuliahan</h3>
               <!-- <div class="col-sm-2">
@@ -45,20 +34,20 @@
                 @csrf
                 <div class="form-group">
                   <label for="semester">Semester</label>
-                      <select class="form-control select2bs4" id="semester" name="semester">
-                      <option value="">- Pilih Semester -</option>
-                      @foreach ($semester as $key => $data)
-                            <option value="{{ $data->id }}">{{ $data->tahun_ajaran ." ". $data->semester }}</option>
-                        @endforeach
+                      <select class="form-control select2bs4" id="semester" name="semester" >
+                      {{-- <option value="">- Pilih Semester -</option> --}}
+                      {{-- @foreach ($semester as $key => $data) --}}
+                            <option value="{{ $idSemester }}">{{ $tahunAjaran ." ". $semester }}</option>
+                        {{-- @endforeach --}}
                       </select>
                 </div>
                 <div class="form-group">
                   <label for="mata_kuliah">Mata Kuliah</label>
-                      <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah">
-                      <option value="">- Pilih Mata Kuliah -</option>
-                      @foreach ($mata_kuliah as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
-                        @endforeach
+                      <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" >
+                      {{-- <option value="">- Pilih Mata Kuliah -</option> --}}
+                      {{-- @foreach ($mata_kuliah as $id => $name) --}}
+                            <option value="{{ $idMatkul }}">{{ $namaMatkul }}</option>
+                        {{-- @endforeach --}}
                       </select>
                 </div>
                 <div class="form-group">
@@ -81,8 +70,8 @@
                 </div>
                <!-- /.card-body -->
               <div class="card-footer clearfix">
-                  <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Cancel</a>
-                  <button type="button" class="btn btn-primary" onclick="addData()">Save</button>
+                  <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Batal</a>
+                  <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
               </div>
               </form>
           </div>
@@ -107,7 +96,7 @@
             success: function(response) {
                 if (response.status == "success") {
                     Swal.fire({
-                    title: "Success!",
+                    title: "Sukses!",
                     text: response.message,
                     icon: "success"
                 }).then((result) => {

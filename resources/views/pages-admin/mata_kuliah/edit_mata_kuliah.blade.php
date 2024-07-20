@@ -54,11 +54,21 @@
                     <label for="sks">SKS</label>
                         <input type="number" class="form-control" id="sks" rows="3" name="sks" placeholder="SKS" value="{{ $data->sks }}">
                     </div>
+                    <div class="form-group">
+                        <label for="semester">Semester</label>
+                        <input type="number" class="form-control" id="semester" name="semester"
+                            placeholder="Semester" value="{{ $data->semester }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="tahun_rps">Tahun RPS</label>
+                        <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
+                            placeholder="Tahun RPS" value="{{ $data->tahun_rps }}">
+                    </div>
                 </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
-                    <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Cancel</a>
-                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Save</button>
+                    <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Batal</a>
+                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Simpan</button>
                 </div>
                 </form>
             </div>
@@ -78,13 +88,14 @@
             console.log(id);
             var form = $('#editDataForm');
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
+            confirmButtonText: "Ya, edit"
             }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -100,7 +111,7 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Success!",
+                            title: "Sukses!",
                             text: response.message,
                             icon: "success"
                             }).then((result) => {

@@ -64,8 +64,17 @@
                                             <input type="number" class="form-control" id="sks" name="sks"
                                                 placeholder="SKS">
                                         </div>
-
-                                        <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Cancel</a>
+                                        <div class="form-group">
+                                            <label for="semester">Semester</label>
+                                            <input type="number" class="form-control" id="semester" name="semester"
+                                                placeholder="Semester">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="tahun_rps">Tahun RPS</label>
+                                            <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
+                                                placeholder="Tahun RPS">
+                                        </div>
+                                        <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Batal</a>
                                         <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
                                     </div>
                                 </form>
@@ -89,7 +98,7 @@
             success: function(response) {
                 if (response.status == "success") {
                     Swal.fire({
-                    title: "Success!",
+                    title: "Sukses!",
                     text: response.message,
                     icon: "success"
                 }).then((result) => {

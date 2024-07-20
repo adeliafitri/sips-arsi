@@ -40,19 +40,23 @@
         <div class="card-body">
             <div class="row d-flex">
                 <div class="col-sm-10">
-                    <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
                     <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
+                    <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
                     <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
                     <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <a href="" class="btn btn-sm btn-info w-100"><i class="nav-icon fas fa-upload mr-2"></i> Upload File</a>
-                </div>
+                </div> --}}
             </div>
         </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
+      <div class="callout callout-info">
+        {{-- <h5>I am an info callout!</h5> --}}
+        <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+    </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
                 <div class="col-sm-7">
@@ -69,17 +73,40 @@
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
                 <div class="col-sm-2">
-                    <a href="{{ route('dosen.kelaskuliah.masukkannilai', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-pen mr-2"></i> Masukkan Nilai</a>
+                    <a href="{{ route('dosen.kelaskuliah.masukkannilai', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-pen mr-2"></i> Lihat Nilai</a>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
                          Tambah Data Mahasiswa
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#"><i class="fas fa-download mr-2"></i> Unduh Format Excel</a>
-                      <a class="dropdown-item" href="#"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
+                      <a class="dropdown-item" href="{{ route('dosen.kelaskuliah.mahasiswa.download-excel') }}"><i class="fas fa-download mr-2"></i> Download Format</a>
+                      <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
                       <div class="dropdown-divider"></div>
                       <a href="{{ route('dosen.kelaskuliah.createmahasiswa', $data->id) }}" class="dropdown-item"><i class="fas fa-plus mr-2"></i>Tambah Data Manual</a>
+                    </div>
+                </div>
+                {{-- modal import --}}
+                <div class="modal fade" id="importExcelModal" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importExcelModalLabel">Import Excel</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="formImport" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="excelFile">Choose Excel File</label>
+                                        <input type="file" class="form-control-file" id="excelFile" name="file" required>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="addFile({{ $data->id }})">Upload</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {{-- <div class="col-sm-2">
@@ -135,12 +162,14 @@
                               <td>{{ $keterangan[$mahasiswas->id] }}</td>
                               <td>
                                   <div class="d-flex">
-                                      <a href="{{ route('dosen.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
-                                      <form action="{{ route('dosen.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
+                                      {{-- <a href="{{ route('dosen.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a> --}}
+                                      <a class="btn btn-danger" onclick="deleteDataMahasiswa({{$data->id}}, {{ $mahasiswas->id }})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                      {{-- <form action="{{ route('dosen.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
                                           @csrf
                                           @method('delete')
                                           <button class="btn btn-danger" type="submit"><i class="nav-icon fas fa-trash-alt"></i></button>
-                                      </form>
+                                      </form> --}}
+
                                   </div>
                               </td>
                           </tr>
@@ -265,6 +294,51 @@
         document.getElementById('edit-nilai-akhir-button-'+ id).style.display = 'block';
         document.getElementById('edit-nilai-akhir-form-'+ id).style.display = 'block';
     }
+
+    function deleteDataMahasiswa(id, id_mhs){
+            Swal.fire({
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus mahasiswa dari kelas?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, hapus"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                      $.ajax({
+                      url: "{{ url('dosen/kelas-kuliah') }}/" + id + "/" + id_mhs,
+                      type: 'DELETE',
+                      headers: {
+                          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                      },
+                      success: function(response) {
+                          if (response.status === 'success') {
+                              console.log(response.message);
+
+                              Swal.fire({
+                              title: "Sukses!",
+                              text: response.message,
+                              icon: "success"
+                              }).then((result) => {
+                                  // Check if the user clicked "OK"
+                                  if (result.isConfirmed) {
+                                      // Redirect to the desired URL
+                                      window.location.reload();
+                                  };
+                              });
+                          } else {
+                              console.log(response.message);
+                          }
+                      },
+                      error: function(error) {
+                          console.error('Error during AJAX request:', error);
+                      }
+                  });
+              }
+            });
+          }
 
     $(document).ready(function() {
         // Fetch data from the controller
@@ -421,6 +495,67 @@
             },
         });
     });
+        function addFile(id) {
+            // var form = $('#formImport');
+            var form = $('#formImport')[0]; // Get the form element
+            var formData = new FormData(form); // Create a FormData object
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('dosen/kelas-kuliah') }}/" + id + "/mahasiswa/import-excel",
+                // data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status == "success") {
+                        Swal.fire({
+                        title: "Sukses!",
+                        text: response.message,
+                        icon: "success"
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.href = "{{ route('dosen.kelaskuliah.show', '') }}/" + id;
+                        };
+                    });
+                    }
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status == 422) {
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Validation Error",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    else{
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Error!",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    // Handle error here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
 </script>
 @endsection
 

@@ -113,13 +113,14 @@
           function deleteKelas(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -131,10 +132,9 @@
                     success: function(response) {
                         if (response.status === 'success') {
                             console.log(response.message);
-
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"
