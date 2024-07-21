@@ -75,10 +75,11 @@
                               <td>{{ $datas->email }}</td>
                               <td>{{ $datas->telp }}</td>
                               <td>
-                                  <div class="d-flex">
+                                  <div class="d-flex justify-content-center">
                                       <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                                      <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                      <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                      <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-1" title="Edit Data"><i class="nav-icon fas fa-edit"></i></a>
+                                      <a  onclick="resetPassword({{ $datas->id }})" class="btn btn-warning mr-1" title="Reset Password"><i class="nav-icon fas fa-key" style="color: white"></i></a>
+                                      <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})" title="Hapus Data"><i class="nav-icon fas fa-trash-alt"></i></a>
                                   </div>
                               </td>
                           </tr>
@@ -159,4 +160,79 @@
           });
 
           }
+
+          function resetPassword(id){
+            console.log(id);
+            Swal.fire({
+            title: "Konfirmasi Reset Password",
+            text: "Apakah anda yakin ingin mereset password data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.admins.reset-password') }}",
+                    type: 'POST',
+                    headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.status == "success") {
+                            Swal.fire({
+                            title: "Sukses!",
+                            text: response.message,
+                            icon: "success"
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status == 422) {
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Validation Error",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        else{
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Error!",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+                }
+            });
+        }
         </script>

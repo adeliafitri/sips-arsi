@@ -234,4 +234,20 @@ class DosenController extends Controller
         // return redirect()->back()->with('success', 'Data imported successfully.');
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
     }
+
+    public function resetPassword(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $dosen = Dosen::findOrFail($id);
+            $auth = User::findOrFail($dosen->id_auth);
+            $auth->password = Hash::make('dosen1234');
+            $auth->save();
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil reset password']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal reset password: ' . $e->getMessage()], 500);
+        }
+    }
 }

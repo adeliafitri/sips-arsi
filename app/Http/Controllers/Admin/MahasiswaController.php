@@ -11,6 +11,7 @@ use App\Models\NilaiMahasiswa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +25,7 @@ class MahasiswaController extends Controller
     public function index(Request $request)
     {
         $query = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-        ->select('mahasiswa.*', 'auth.username as username');
+            ->select('mahasiswa.*', 'auth.username as username');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -66,7 +67,7 @@ class MahasiswaController extends Controller
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => $validate->errors()->first(),
@@ -123,9 +124,9 @@ class MahasiswaController extends Controller
     public function show($id)
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-                    ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('mahasiswa.id', $id)
+            ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
 
         return view('pages-admin.mahasiswa.detail_mahasiswa', [
             'success' => 'Data Ditemukan',
@@ -139,9 +140,9 @@ class MahasiswaController extends Controller
     public function edit($id)
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-                    ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('mahasiswa.id', $id)
+            ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
 
         return view('pages-admin.mahasiswa.edit_mahasiswa', [
             'success' => 'Data Ditemukan',
@@ -163,7 +164,7 @@ class MahasiswaController extends Controller
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => $validate->errors()->first(),
@@ -191,11 +192,11 @@ class MahasiswaController extends Controller
             $mahasiswa = Mahasiswa::where('id', $id)->first();
             $password = $request->password;
 
-            if($password){
+            if ($password) {
                 $user = User::Where('id_auth', $mahasiswa->id_auth)->first();
 
                 $user->update([
-                        'password' => $password ? Hash::make($password) : $user->password,
+                    'password' => $password ? Hash::make($password) : $user->password,
                 ]);
             }
 
@@ -256,5 +257,21 @@ class MahasiswaController extends Controller
         Excel::import(new MahasiswaImportExcel(), $file);
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $mahasiswa = Mahasiswa::findOrFail($id);
+            $auth = User::findOrFail($mahasiswa->id_auth);
+            $auth->password = Hash::make($mahasiswa->nim);
+            $auth->save();
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil reset password']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal reset password: ' . $e->getMessage()], 500);
+        }
     }
 }

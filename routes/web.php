@@ -1,42 +1,56 @@
 <?php
 
+use App\Models\Dosen;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RpsController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Dosen\DosenController;
+use App\Http\Controllers\Admin\ProfileController;
+// use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
 use App\Http\Controllers\Admin\JenisCplController;
 use App\Http\Controllers\Admin\SemesterController;
 use App\Http\Controllers\Admin\MataKuliahController;
-use App\Http\Controllers\Admin\RpsController;
-// use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
+
+// use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\CplController as AdminCplController;
+use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
 use App\Http\Controllers\Admin\CpmkController as AdminCpmkController;
 use App\Http\Controllers\Admin\DosenController as AdminDosenController;
 
-// use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
-use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
-use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
-use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
-
-use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
-use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use App\Http\Controllers\Dosen\NilaiController as DosenNilaiController;
-use App\Http\Controllers\Dosen\MataKuliahController as DosenMataKuliahController;
-use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
+use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
+use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
+use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 
-use App\Http\Controllers\Mahasiswa\MataKuliahController as MahasiswaMataKuliahController;
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
+use App\Http\Controllers\Dosen\MataKuliahController as DosenMataKuliahController;
+use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
+use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
 use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
-use App\Models\Dosen;
-use Illuminate\Support\Facades\View;
+use App\Http\Controllers\Mahasiswa\MataKuliahController as MahasiswaMataKuliahController;
 // use App\Http\Controllers\DashboardController;
 // use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 
 // Route::get('/', [DashboardController::class, 'index']);
+
+Route::get('/', function () {
+    $user = Auth::user();
+
+    if ($user->role == 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role == 'dosen') {
+        return redirect()->route('dosen.dashboard');
+    } else {
+        return redirect()->route('mahasiswa.dashboard');
+    }
+})->middleware('auth');
+
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'showFormLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -67,6 +81,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('{id}', [AdminMahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
             Route::get('excel/download', [AdminMahasiswaController::class, 'downloadExcel'])->name('admin.mahasiswa.download-excel');
             Route::post('excel/import', [AdminMahasiswaController::class, 'importExcel'])->name('admin.mahasiswa.import-excel');
+            Route::post('reset-password', [AdminMahasiswaController::class, 'resetPassword'])->name('admin.mahasiswa.reset-password');
         });
 
         Route::prefix('admin/dosen')->group(function () {
@@ -79,6 +94,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('{id}', [AdminDosenController::class, 'destroy'])->name('admin.dosen.destroy');
             Route::get('download-excel', [AdminDosenController::class, 'downloadExcel'])->name('admin.dosen.download-excel');
             Route::post('import-excel', [AdminDosenController::class, 'importExcel'])->name('admin.dosen.import-excel');
+            Route::post('reset-password', [AdminDosenController::class, 'resetPassword'])->name('admin.dosen.reset-password');
         });
 
         Route::prefix('admin/mata-kuliah')->group(function () {
@@ -146,6 +162,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminController::class, 'edit'])->name('admin.admins.edit');
             Route::put('edit/{id}', [AdminController::class, 'update'])->name('admin.admins.update');
             Route::delete('{id}', [AdminController::class, 'destroy'])->name('admin.admins.destroy');
+            Route::post('reset-password', [AdminController::class, 'resetPassword'])->name('admin.admins.reset-password');
         });
 
         Route::prefix('admin/cpmk')->group(function () {
