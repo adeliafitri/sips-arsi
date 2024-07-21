@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\Rps;
 use App\Models\Soal;
 use App\Models\SoalSubCpmk;
 use App\Models\SubCpmk;
@@ -15,48 +16,64 @@ use Illuminate\Support\Facades\Validator;
 class RpsController extends Controller
 {
 
+    // public function create($id)
+    // {
+    //     $matkul= MataKuliah::find($id);
+    //     $cpl= Cpl::pluck('kode_cpl', 'id');
+    //     $kode_cpmk = Cpmk::where('matakuliah_id', '=', $id)->pluck('kode_cpmk', 'id');
+    //     $kode_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+    //         ->where('cpmk.matakuliah_id', $id)
+    //         ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
+    //         // dd ($kode_subcpmk);
+    //     $data_cpmk =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+    //     ->where('matakuliah_id', '=', $id)
+    //     ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
+    //     ->orderBy('cpmk.id', 'desc')
+    //     ->paginate(10);
+    //     $start_nocpmk = ($data_cpmk->currentPage() - 1) * $data_cpmk->perPage() + 1;
+    //     // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
+    //     $data_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+    //         ->where('cpmk.matakuliah_id', $id)
+    //         ->select('cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
+    //         ->orderBy('sub_cpmk.id', 'desc')
+    //         ->paginate(10);
+    //     $start_nosubcpmk = ($data_subcpmk->currentPage() - 1) * $data_subcpmk->perPage() + 1;
+    //     $data_soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+    //         ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+    //         ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+    //         ->where('cpmk.matakuliah_id', $id)
+    //         ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
+    //         ->orderBy('soal_sub_cpmk.id', 'desc')
+    //         ->paginate(10);
+    //         // dd($data_soalsubcpmk);
+
+    //     $start_nosoalsubcpmk = ($data_soalsubcpmk->currentPage() - 1) * $data_soalsubcpmk->perPage() + 1;
+    //     // dd($data_cpmk);
+    //     $data_soal = Soal::pluck('bentuk_soal', 'id');
+
+    //         // Mendapatkan langkah saat ini dari sesi, jika tidak ada maka default ke langkah pertama
+    // $currentStep = session('currentStep', 0);
+
+    // // Menyimpan langkah saat ini ke sesi
+    // session(['currentStep' => $currentStep]);
+
+    //     return view('pages-dosen.mata_kuliah.tambah_rps', compact('currentStep','cpl','matkul','kode_cpmk','kode_subcpmk', 'data_cpmk', 'start_nocpmk', 'data_subcpmk', 'start_nosubcpmk', 'data_soalsubcpmk', 'start_nosoalsubcpmk', 'data_soal'));
+    // }
     public function create($id)
     {
-        $matkul= MataKuliah::find($id);
+        $rps= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->first();
         $cpl= Cpl::pluck('kode_cpl', 'id');
-        $kode_cpmk = Cpmk::where('matakuliah_id', '=', $id)->pluck('kode_cpmk', 'id');
+        $kode_cpmk = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');
         $kode_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
-            ->where('cpmk.matakuliah_id', $id)
+            ->where('cpmk.rps_id', $id)
             ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
             // dd ($kode_subcpmk);
-        $data_cpmk =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
-        ->where('matakuliah_id', '=', $id)
-        ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
-        ->orderBy('cpmk.id', 'desc')
-        ->paginate(10);
-        $start_nocpmk = ($data_cpmk->currentPage() - 1) * $data_cpmk->perPage() + 1;
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
-        $data_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
-            ->where('cpmk.matakuliah_id', $id)
-            ->select('cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
-            ->orderBy('sub_cpmk.id', 'desc')
-            ->paginate(10);
-        $start_nosubcpmk = ($data_subcpmk->currentPage() - 1) * $data_subcpmk->perPage() + 1;
-        $data_soalsubcpmk = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
-            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
-            ->where('cpmk.matakuliah_id', $id)
-            ->select('soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
-            ->orderBy('soal_sub_cpmk.id', 'desc')
-            ->paginate(10);
-            // dd($data_soalsubcpmk);
-
-        $start_nosoalsubcpmk = ($data_soalsubcpmk->currentPage() - 1) * $data_soalsubcpmk->perPage() + 1;
         // dd($data_cpmk);
         $data_soal = Soal::pluck('bentuk_soal', 'id');
-
-            // Mendapatkan langkah saat ini dari sesi, jika tidak ada maka default ke langkah pertama
-    $currentStep = session('currentStep', 0);
-
-    // Menyimpan langkah saat ini ke sesi
-    session(['currentStep' => $currentStep]);
-
-        return view('pages-dosen.mata_kuliah.tambah_rps', compact('currentStep','cpl','matkul','kode_cpmk','kode_subcpmk', 'data_cpmk', 'start_nocpmk', 'data_subcpmk', 'start_nosubcpmk', 'data_soalsubcpmk', 'start_nosoalsubcpmk', 'data_soal'));
+        return view('pages-dosen.mata_kuliah.tambah_rps', compact('cpl','rps','kode_cpmk','kode_subcpmk', 'data_soal'));
     }
 
     public function storecpmk(Request $request, $id)
@@ -75,48 +92,46 @@ class RpsController extends Controller
         }
 
         try {
-            $id_matkul = $id;
+            $id_rps = $id;
             Cpmk::create([
-                'matakuliah_id' => $id_matkul,
+                'rps_id' => $id_rps,
                 'cpl_id' => $request->cpl_id,
                 'kode_cpmk' => $request->kode_cpmk,
                 'deskripsi' => $request->deskripsi_cpmk,
             ]);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
             // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
             // return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
-            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
     public function storesubcpmk(Request $request, $id) {
+        $validate = Validator::make($request->all(), [
+            'pilih_cpmk' => 'required|exists:cpmk,id',
+            'kode_subcpmk' => 'required|string',
+            'deskripsi_subcpmk' => 'required|string',
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
 
         try {
-            $validate = Validator::make($request->all(), [
-                'pilih_cpmk' => 'required|exists:cpmk,id',
-                'kode_subcpmk' => 'required|string',
-                'deskripsi_subcpmk' => 'required|string',
-            ]);
-
-            if($validate->fails()){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => $validate->errors()->first(),
-                ], 422);
-            }
-
             SubCpmk::create([
                 'cpmk_id' => $request->pilih_cpmk,
                 'kode_subcpmk' => $request->kode_subcpmk,
                 'deskripsi' => $request->deskripsi_subcpmk,
             ]);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+            // return response()->json(['success' => true, 'message' => 'Data berhasil ditambahkan']);
             // return redirect()->route('admin.rps.create', $id)->with('success', 'Data Berhasil Ditambahkan');
-            // return redirect()->route('admin.rps.storecpmk')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
             // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
@@ -124,12 +139,53 @@ class RpsController extends Controller
 
     }
 
+    public function listSubCpmk($id) {
+        $data['data_subcpmk'] = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->where('cpmk.rps_id', $id)
+            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
+            ->paginate(20);
+        $data['start_nosubcpmk'] = ($data['data_subcpmk']->currentPage() - 1) * $data['data_subcpmk']->perPage() + 1;
+
+
+        return view('pages-dosen.mata_kuliah.partials.tabel_rps.tabel_subcpmk', $data);
+    }
+
+    public function listCpmk($id) {
+        $data['data_cpmk'] =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('rps_id', '=', $id)
+        ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
+        ->paginate(20);
+        $data['start_nocpmk'] = ($data['data_cpmk']->currentPage() - 1) * $data['data_cpmk']->perPage() + 1;
+
+        return view('pages-dosen.mata_kuliah.partials.tabel_rps.tabel_cpmk', $data);
+    }
+
+    public function listTugas($id) {
+        $data['data_soalsubcpmk'] = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->where('cpmk.rps_id', $id)
+            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
+            ->paginate(20);
+            // ->toSql();
+            // dd($data_soalsubcpmk);
+
+        $data['start_nosoalsubcpmk'] = ($data['data_soalsubcpmk']->currentPage() - 1) * $data['data_soalsubcpmk']->perPage() + 1;
+
+        return view('pages-dosen.mata_kuliah.partials.tabel_rps.tabel_tugas', $data);
+    }
+
     public function storesoal(Request $request, $id) {
         $validate = Validator::make($request->all(), [
-            'pilih_subcpmk' => 'required|exists:sub_cpmk,id',
+            // 'pilih_subcpmk' => 'required|exists:sub_cpmk,id',
+            'pilih_subcpmk' => 'required|array',
+            'pilih_subcpmk.*' => 'required|exists:sub_cpmk,id',
             'bobot' => 'required',
             'waktu_pelaksanaan_start' => 'required|numeric|min:1|max:16',
             'waktu_pelaksanaan_end' => 'required|numeric|min:1|max:16',
+            // 'waktu_pelaksanaan' => 'required',
             'bentuk_soal' => 'required',
         ]);
 
@@ -159,12 +215,14 @@ class RpsController extends Controller
             // dd($bentukSoal);
             // Membuat dan menyimpan data ke dalam tabel SoalSubCpmk
             // $soalSubCpmkData = $request->except('soal_id');
-            SoalSubCpmk::create([
-                'subcpmk_id' => $request->pilih_subcpmk,
-                'bobot_soal' => $request->bobot,
-                'waktu_pelaksanaan' => $minggu,
-                'soal_id' => $soal->id
-            ]);
+            foreach ($request->pilih_subcpmk as $subcpmkid) {
+                SoalSubCpmk::create([
+                    'subcpmk_id' => $subcpmkid,
+                    'bobot_soal' => $request->bobot,
+                    'waktu_pelaksanaan' => $minggu,
+                    'soal_id' => $soal->id
+                ]);
+            }
 
             // Kembalikan respons dengan berhasil
             return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
@@ -219,7 +277,7 @@ class RpsController extends Controller
         try{
             $cpmk = Cpmk::join('cpl', 'cpmk.cpl_id', '=', 'cpl.id')
                     ->where('cpmk.id', $id)
-                    ->select('cpmk.*', 'cpl.id as cpl_id') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                    ->select('cpmk.*', 'cpl.id as cpl_id', 'cpl.kode_cpl') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                     ->first();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus','data' => $cpmk]);
@@ -327,10 +385,12 @@ class RpsController extends Controller
                 $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
             }
 
+            $subcpmkId = is_array($request->pilih_subcpmk) ? $request->pilih_subcpmk[0] : $request->pilih_subcpmk;
+
             $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
             $soalsubcpmk->update([
-                'subcpmk_id' => $request->pilih_subcpmk,
+                'subcpmk_id' => $subcpmkId,
                 'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
                 'waktu_pelaksanaan' =>  $minggu,

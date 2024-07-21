@@ -23,7 +23,8 @@ class NilaiTugasFormatExcel implements FromView, ShouldAutoSize
 
         $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')

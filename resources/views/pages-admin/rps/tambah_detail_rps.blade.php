@@ -9,7 +9,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Data RPS {{ $matkul->nama_matkul }}</h1>
+                    <h1>Data RPS {{ $rps->nama_matkul }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -69,32 +69,50 @@
 
                                     <div class="bs-stepper-content">
                                         <div id="test-l-1" class="content" role="tabpanel" aria-labelledby="stepper1trigger1">
-                                            <form enctype="multipart/form-data" id="formCpmk">
-                                                @csrf
-                                                <div class="sortinput" style="margin-bottom: 1rem">
-                                                    <label for="pilih_cpl">Pilih CPL</label>
-                                                    <select class="form-select w-100 mb-1" style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;" onfocus="this.style.borderColor = '#80bdff';" onblur="this.style.borderColor = '#939ba2';" aria-label="Default select example" id="cpl_id" name="cpl_id">
-                                                        <option selected>-- Pilih CPL --</option>
-                                                        @foreach ($cpl as $id => $name)
-                                                            <option value="{{ $id }}">{{ $name }}</option>
-                                                        @endforeach
-                                                    </select>
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    @foreach ($cpl as $id => $name)
+                                                    <div class="col-md-12 mb-3 d-flex">
+                                                        <div class="col-md-2 align-self-center">
+                                                            <h6>{{ $name }}</h6>
+                                                        </div>
+                                                        <div class="col-md-8">
+                                                            <button class="btn btn-sm btn-primary" type="button" onclick="inputCpl({{ $id }}, '{{ $name }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Sub-CPMK</button>
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="kode_cpmk">Kode CPMK</label>
-                                                    <input type="text" class="form-control" id="kode_cpmk" name="kode_cpmk" placeholder="Kode CPMK">
+                                                <div class="col-md-7">
+                                                    <form enctype="multipart/form-data" id="formCpmk">
+                                                        @csrf
+                                                        <div class="sortinput" style="margin-bottom: 1rem">
+                                                            <label for="cpl_id">Kode CPL</label>
+                                                            <input type="hidden" name="cpl_id" id="hidden-id">
+                                                            <input type="text" id="cpl-option" class="form-control" placeholder="Kode CPL" value="" disabled>
+                                                            {{-- <select class="form-select w-100 mb-1" style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;" onfocus="this.style.borderColor = '#80bdff';" onblur="this.style.borderColor = '#939ba2';" aria-label="Default select example" id="cpl_id" name="cpl_id">
+                                                                <option selected>-- Pilih CPL --</option>
+                                                                @foreach ($cpl as $id => $name)
+                                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                                @endforeach
+                                                            </select> --}}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="kode_cpmk">Kode CPMK</label>
+                                                            <input type="text" class="form-control" id="kode_cpmk" name="kode_cpmk" placeholder="Kode CPMK">
+                                                        </div>
+                                                        <div class="textinput" style="margin-bottom: 1rem">
+                                                            <label for="deskripsi">Deskripsi CPMK</label>
+                                                            <textarea id="deskripsi_cpmk" name="deskripsi_cpmk" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea>
+                                                        </div>
+                                                        <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
+                                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addCpmk({{ $rps->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
+                                                        </div>
+                                                        <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
+                                                            <button class="btn btn-primary" type="button" id="simpan-cpmk-edit" style="display: none" onclick="saveEditedCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                                <div class="textinput" style="margin-bottom: 1rem">
-                                                    <label for="deskripsi">Deskripsi CPMK</label>
-                                                    <textarea id="deskripsi_cpmk" name="deskripsi_cpmk" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea>
-                                                </div>
-                                                <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addCpmk({{ $matkul->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
-                                                </div>
-                                                <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="button" id="simpan-cpmk-edit" style="display: none" onclick="saveEditedCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
-                                                </div>
-                                            </form>
+                                            </div>
                                             <div id="tabel-cpmk"></div>
                                             <button type="button" class="btn btn-primary"
                                                 onclick="stepper1.next()">Selanjutnya</button>
@@ -119,8 +137,8 @@
                                                     <form enctype="multipart/form-data" id="formSubCpmk">
                                                         @csrf
                                                         <div class="form-group" style="margin-bottom: 1rem">
-                                                            <label for="pilih_cpmk">CPMK</label>
-                                                            <input type="hidden" name="pilih_cpmk" id="hidden-id">
+                                                            <label for="pilih_cpmk">Kode CPMK</label>
+                                                            <input type="hidden" name="pilih_cpmk" id="cpmk-id">
                                                             <input type="text" id="cpmk-option" class="form-control" placeholder="CPMK" value="" disabled>
                                                             {{-- <select class="form-select w-100 mb-1"
                                                                 style="height: 38px; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px; transition: 0.3s ease;"
@@ -147,7 +165,7 @@
                                                         </div>
                                                         {{-- <div class="row justify-content-end"> --}}
                                                             <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                                <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addSubCpmk({{ $matkul->id }})">Tambah</button>
+                                                                <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addSubCpmk({{ $rps->id }})">Tambah</button>
                                                             </div>
                                                             <div class="col-md-3" style="margin-bottom: 1rem">
                                                                 <button class="btn btn-primary" type="button" id="simpan-subcpmk-edit" style="display: none" onclick="saveEditedSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
@@ -238,7 +256,7 @@
                                                     </div> --}}
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                    <button class="btn btn-primary" type="button" id="tambah-soalsubcpmk" onclick="addSoal({{ $matkul->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
+                                                    <button class="btn btn-primary" type="button" id="tambah-soalsubcpmk" onclick="addSoal({{ $rps->id }})"><i class="nav-icon fas fa-plus mr-2"></i>Tambah Data</button>
                                                 </div>
                                                 <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
                                                     <button class="btn btn-primary" type="button" id="simpan-soalsubcpmk-edit" style="display: none" onclick="saveEditedSoalSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
@@ -300,7 +318,12 @@
         initializeSlider(1, 16);
         // slider.setValue()
     });
-
+    function inputCpl(id, kode) {
+        var hiddenElement = document.getElementById('hidden-id');
+        var optionElement = document.getElementById('cpl-option');
+        hiddenElement.value = id;
+        optionElement.value = kode;
+    }
     function addCpmk(id) {
         var form = $('#formCpmk');
         $.ajax({
@@ -317,7 +340,9 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.href = "{{ route('admin.rps.create', '') }}/" + id;
+                        form[0].reset();
+                        getListCpmk();
+                        // window.location.href = "{{ route('admin.rps.create', '') }}/" + id;
                     };
                 });
                 }
@@ -334,7 +359,7 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.reload();
+                        // window.location.reload();
                     };
                 });
                 }
@@ -348,7 +373,7 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.reload();
+                        // window.location.reload();
                     };
                 });
                 }
@@ -433,7 +458,9 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.href = "{{ route('admin.rps.create', '') }}/" + id;
+                        form[0].reset();
+                        getListTugas();
+                        // window.location.href = "{{ route('admin.rps.create', '') }}/" + id;
                     };
                 });
                 }
@@ -450,7 +477,7 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.reload();
+                        // window.location.reload();
                     };
                 });
                 }
@@ -464,7 +491,7 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.reload();
+                        // window.location.reload();
                     };
                 });
                 }
@@ -503,7 +530,8 @@
                                 }).then((result) => {
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
-                                        window.location.reload();
+                                        getListCpmk();
+                                        // window.location.reload();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });
@@ -562,7 +590,8 @@
                                 }).then((result) => {
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
-                                        window.location.reload();
+                                        getListSubCpmk();
+                                        // window.location.reload();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });
@@ -621,7 +650,8 @@
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
                                         // Perbarui langkah saat ini setelah berhasil menghapus data
-                                        window.location.reload();
+                                        getListTugas();
+                                        // window.location.reload();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });
@@ -670,7 +700,8 @@
                     url: "{{ url('admin/rps/editcpmk') }}/" + id,
                     type: 'GET',
                     success: function(response){
-                        $('#cpl_id').val(response.data.cpl_id);
+                        $('#hidden-id').val(response.data.cpl_id);
+                        $('#cpl-option').val(response.data.kode_cpl);
                         $('#kode_cpmk').val(response.data.kode_cpmk);
                         $('#deskripsi_cpmk').val(response.data.deskripsi);
                         // var form = document.getElementById('myFormCpmk');
@@ -727,7 +758,11 @@
                                     }).then((result) => {
                                         // Check if the user clicked "OK"
                                         if (result.isConfirmed) {
-                                            window.location.reload();
+                                            form[0].reset();
+                                            getListCpmk();
+
+                                            document.getElementById('tambah-cpmk').style.display = 'block';
+                                            document.getElementById('simpan-cpmk-edit').style.display = 'none';
                                         };
                                             // window.location.href = "{{ route('admin.kelas') }}";
                                     });
@@ -744,7 +779,7 @@
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
                                         // Redirect to the desired URL
-                                        window.location.reload();
+                                        // window.location.reload();
                                     };
                                 });
                                 }
@@ -758,7 +793,7 @@
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
                                         // Redirect to the desired URL
-                                        window.location.reload();
+                                        // window.location.reload();
                                     };
                                 });
                                 }
@@ -775,7 +810,7 @@
                     url: "{{ url('admin/rps/editsubcpmk') }}/" + id,
                     type: 'GET',
                     success: function(response){
-                        $('#hidden-id').val(response.data.cpmk_id);
+                        $('#cpmk-id').val(response.data.cpmk_id);
                         $('#cpmk-option').val(response.data.kode_cpmk);
                         $('#kode_subcpmk').val(response.data.kode_subcpmk);
                         $('#deskripsi_subcpmk').val(response.data.deskripsi);
@@ -837,6 +872,9 @@
                                         if (result.isConfirmed) {
                                             form[0].reset();
                                             getListSubCpmk();
+
+                                            document.getElementById('tambah-subcpmk').style.display = 'block';
+                                            document.getElementById('simpan-subcpmk-edit').style.display = 'none';
                                         };
                                             // window.location.href = "{{ route('admin.kelas') }}";
                                     });
@@ -886,7 +924,13 @@
                 url: "{{ url('admin/rps/editsoalsubcpmk') }}/" + id,
                 type: 'GET',
                 success: function(response){
-                    $('#pilih_subcpmk').val(response.data.subcpmk_id);
+                    document.querySelectorAll('input[name="pilih_subcpmk[]"]').forEach(function(checkbox) {
+                        checkbox.checked = false;
+                    });
+
+                    // Check the relevant checkboxes
+                    let subcpmkId = response.data.subcpmk_id;
+                    document.getElementById('subcpmk_' + subcpmkId).checked = true;
                     $('#bentuk_soal').val(response.data.bentuk_soal).change();
                     $('#bobot').val(response.data.bobot_soal);
                     // $('#waktu_pelaksanaan').val(response.data.waktu_pelaksanaan);
@@ -987,7 +1031,11 @@
                                 }).then((result) => {
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
-                                        window.location.reload();
+                                        form[0].reset();
+                                        getListTugas();
+
+                                        document.getElementById('tambah-soalsubcpmk').style.display = 'block';
+                                        document.getElementById('simpan-soalsubcpmk-edit').style.display = 'none';
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });
@@ -1041,7 +1089,7 @@
                         // Check if the user clicked "OK"
                             if (result.isConfirmed) {
                                 // Redirect to the desired URL
-                                window.location.href = "{{ route('admin.matakuliah') }}";
+                                window.location.href = "{{ route('admin.rps') }}";
                             };
                             // window.location.href = "{{ route('admin.kelas') }}";
                         });
@@ -1051,7 +1099,7 @@
 
             function getListSubCpmk(page = null){
                 $.ajax({
-                        url: "{{ url('admin/rps/listsubcpmk') }}/" + {{ $matkul->id }}, // URL untuk menyimpan data yang diedit
+                        url: "{{ url('admin/rps/listsubcpmk') }}/" + {{ $rps->id }}, // URL untuk menyimpan data yang diedit
                         type: 'GET', // Metode HTTP untuk menyimpan data
                         headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1080,7 +1128,7 @@
 
             function getListCpmk(page = null){
                 $.ajax({
-                    url: "{{ url('admin/rps/listcpmk') }}/" + {{ $matkul->id }}, // URL untuk menyimpan data yang diedit
+                    url: "{{ url('admin/rps/listcpmk') }}/" + {{ $rps->id }}, // URL untuk menyimpan data yang diedit
                     type: 'GET', // Metode HTTP untuk menyimpan data
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1109,7 +1157,7 @@
 
         function getListTugas(page = null){
                 $.ajax({
-                    url: "{{ url('admin/rps/listtugas') }}/" + {{ $matkul->id }}, // URL untuk menyimpan data yang diedit
+                    url: "{{ url('admin/rps/listtugas') }}/" + {{ $rps->id }}, // URL untuk menyimpan data yang diedit
                     type: 'GET', // Metode HTTP untuk menyimpan data
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

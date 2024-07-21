@@ -13,7 +13,7 @@ class SemesterController extends Controller
     {
         $query = Semester::select();
 
-        $semester = $query->paginate(5);
+        $semester = $query->paginate(20);
 
         $startNumber = ($semester->currentPage() - 1) * $semester->perPage() + 1;
 

@@ -7,7 +7,7 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            table-layout: auto;
+            table-layout: fixed;
             word-wrap: break-word;
             font-size: 8px; /* Mengurangi ukuran font */
         }
@@ -28,6 +28,13 @@
         .table-wrapper {
             width: 100%;
             overflow-x: auto;
+        }
+        .info-soal {
+            width: 50px; /* Menetapkan lebar tetap untuk kolom info soal */
+        }
+
+        .no-column {
+            width: 10px; /* Menetapkan lebar tetap untuk kolom "No" */
         }
     </style>
 </head>
@@ -55,33 +62,36 @@
     <table id="" class="table table-bordered">
         <thead>
           <tr>
-            <th rowspan="4">No</th>
+            <th class="no-column" rowspan="4">No</th>
             <th rowspan="4">NIM</th>
             <th rowspan="4">Nama</th>
             @foreach ($info_soal as $data)
             {{-- @foreach ($data['waktu_pelaksanaan'] as $waktu) --}}
-                <th class="p-1">{{$data['waktu_pelaksanaan']}}</th>
+                <th class="info-soal">{{$data['waktu_pelaksanaan']}}</th>
             {{-- @endforeach --}}
             @endforeach
+            <th rowspan="4">Nilai Akhir</th>
+            <th rowspan="4">Huruf</th>
+            <th rowspan="4">Keterangan</th>
           </tr>
           <tr>
               @foreach ($info_soal as $data)
                   {{-- @foreach ($data['kode_subcpmk'] as $kode) --}}
-                      <th class="p-1">{{$data['kode_subcpmk']}}</th>
+                      <th class="info-soal">{{$data['kode_subcpmk']}}</th>
                   {{-- @endforeach --}}
               @endforeach
           </tr>
           <tr>
               @foreach ($info_soal as $data)
                   {{-- @foreach ($data['bobot_soal'] as $bobot) --}}
-                      <th class="p-1">{{$data['bobot_soal']}} %</th>
+                      <th class="info-soal">{{$data['bobot_soal']}} %</th>
                   {{-- @endforeach --}}
               @endforeach
           </tr>
           <tr>
               @foreach ($info_soal as $data)
                   {{-- @foreach ($data['bentuk_soal'] as $bentuk) --}}
-                      <th class="p-1">{{$data['bentuk_soal'] }}</th>
+                      <th class="info-soal">{{$data['bentuk_soal'] }}</th>
                   {{-- @endforeach --}}
               @endforeach
           </tr>
@@ -94,7 +104,7 @@
                 <td>{{ $mhs['nim'] }}</td>
                 <td>{{ $mhs['nama'] }}</td>
                   @foreach ($mhs['id_nilai'] as $id_nilai)
-                  <td>
+                  <td class="info-soal">
                       <div id="nilai-tugas-{{ $id_nilai }}">
                           @php
                               $nilai =  $mhs['nilai'][$loop->index];
@@ -104,6 +114,9 @@
                       </div>
                   </td>
                   @endforeach
+                <td>{{ $mhs['nilai_akhir'] ?? '-' }}</td>
+                <td>{{ $mhs['nilai_huruf'] ?? '-' }}</td>
+                <td>{{ $mhs['keterangan'] ?? '-' }}</td>
             </tr>
           {{-- @endforeach --}}
         @endforeach

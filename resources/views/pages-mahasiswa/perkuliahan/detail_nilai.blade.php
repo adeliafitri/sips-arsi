@@ -46,9 +46,9 @@
                              Lihat RPS
                         </button>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('mahasiswa.matakuliah.generatepdf', $data->id_matkul) }}"><i class="fas fa-download mr-2"></i> Download PDF</a>
+                          <a class="dropdown-item" href="{{ route('mahasiswa.matakuliah.generatepdf', $data->id_rps) }}"><i class="fas fa-download mr-2"></i> Download PDF</a>
                           <div class="dropdown-divider"></div>
-                          <a href="{{ route('mahasiswa.matakuliah.show', $data->id_matkul) }}" class="dropdown-item"><i class="fas fa-eye mr-2"></i>Hanya Lihat</a>
+                          <a href="{{ route('mahasiswa.matakuliah.show', $data->id_rps) }}" class="dropdown-item"><i class="fas fa-eye mr-2"></i>Hanya Lihat</a>
                         </div>
                     </div>
                   </div>
@@ -84,6 +84,9 @@
                     <li class="nav-item">
                         <a class="nav-link" role="tab"  data-toggle="pill" href="#cpmk-tab" aria-controls="cpmk-tab" aria-selected="false" onclick="nilaiCpmk({{ $data->matakuliah_kelasid }});"><h6 style="font-weight: bold">Data CPMK</h6></a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" role="tab"  data-toggle="pill" href="#tugas-tab" aria-controls="tugas-tab" aria-selected="false" onclick="nilaiTugas({{ $data->matakuliah_kelasid }});"><h6 style="font-weight: bold">Data Tugas</h6></a>
+                    </li>
                 </ul>
             </div>
             <div class="card-body">
@@ -95,6 +98,11 @@
 
                     <div class="tab-pane fade justify-content-center" id="cpmk-tab" role="tabpanel">
                         <div id="nilai_cpmk">
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade justify-content-center" id="tugas-tab" role="tabpanel">
+                        <div id="nilai_tugas">
                         </div>
                     </div>
                 </div>
@@ -154,7 +162,7 @@
 @section('script')
 
 <script>
-  function nilaiCpl(matakuliah_kelasid, mahasiswa_id){
+  function nilaiCpl(matakuliah_kelasid,  page = null){
     $.ajax({
             url: "{{ url('mahasiswa/kelas-kuliah/nilai/cpl') }}",
             type: 'GET',
@@ -162,8 +170,9 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
+                page:page,
                 matakuliah_kelasid: matakuliah_kelasid,
-                mahasiswa_id: mahasiswa_id
+                // mahasiswa_id: mahasiswa_id
             },
             success: function(data) {
             // Insert the table into the #cpl-tab element
@@ -176,7 +185,7 @@
         });
   }
 
-  function nilaiCpmk(matakuliah_kelasid, mahasiswa_id){
+  function nilaiCpmk(matakuliah_kelasid,  page = null){
     $.ajax({
             url: "{{ url('mahasiswa/kelas-kuliah/nilai/cpmk') }}",
             type: 'GET',
@@ -184,12 +193,36 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
+                page: page,
                 matakuliah_kelasid: matakuliah_kelasid,
-                mahasiswa_id: mahasiswa_id
+                // mahasiswa_id: mahasiswa_id
             },
             success: function(data) {
             // Insert the table into the #cpl-tab element
             $('#nilai_cpmk').html(data);
+
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+  }
+
+  function nilaiTugas(matakuliah_kelasid,  page = null){
+    $.ajax({
+            url: "{{ url('mahasiswa/kelas-kuliah/nilai/tugas') }}",
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                page: page,
+                matakuliah_kelasid: matakuliah_kelasid,
+                // mahasiswa_id: mahasiswa_id
+            },
+            success: function(data) {
+            // Insert the table into the #cpl-tab element
+            $('#nilai_tugas').html(data);
 
             },
             error: function(error) {
@@ -280,6 +313,34 @@
             }
         });
     });
+
+    $(document).ready(function() {
+        nilaiCpl({{ $data->matakuliah_kelasid }});
+    });
+
+        $(document).on('click', '#tabel-datacpl .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            nilaiCpl({{ $data->matakuliah_kelasid }}, page);
+        });
+
+        $(document).on('click', '#tabel-datacpmk .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            nilaiCpmk({{ $data->matakuliah_kelasid }}, page);
+        });
+
+        // $(document).on('click', '#tabel-datasubcpmk .pagination a', function(e) {
+        //     e.preventDefault();
+        //     var page = $(this).attr('href').split('page=')[1];
+        //     detailSubCpmk({{ $data->id_rps }}, page);
+        // });
+
+        $(document).on('click', '#tabel-datatugas .pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            nilaiTugas({{ $data->matakuliah_kelasid }}, page);
+        });
 </script>
 @endsection
 

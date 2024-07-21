@@ -27,7 +27,7 @@ class MataKuliahController extends Controller
             });
         }
 
-        $mata_kuliah = $query->paginate(5);
+        $mata_kuliah = $query->paginate(20);
 
         $startNumber = ($mata_kuliah->currentPage() - 1) * $mata_kuliah->perPage() + 1;
 
@@ -85,15 +85,15 @@ class MataKuliahController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        $rps = MataKuliah::where('id', $id)->first();
+    // public function show($id)
+    // {
+    //     $rps = MataKuliah::where('id', $id)->first();
 
-        return view('pages-admin.mata_kuliah.detail_mata_kuliah', [
-            'success' => 'Data Ditemukan',
-            'data' => $rps
-        ]);
-    }
+    //     return view('pages-admin.mata_kuliah.detail_mata_kuliah', [
+    //         'success' => 'Data Ditemukan',
+    //         'data' => $rps
+    //     ]);
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -165,95 +165,5 @@ class MataKuliahController extends Controller
             // return redirect()->route('admin.matakuliah')
             //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
-    }
-
-    public function detailCpl(Request $request)
-    {
-        $id = $request->id;
-
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
-
-        $data = $query->paginate(10);
-
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
-
-        if ($request->ajax()) {
-            return view('pages-admin.mata_kuliah.partials.detail.detail_cpl', [
-                'data' => $data,
-                'startNumber' => $startNumber,
-            ])->with('success', 'Data Mata Kuliah Ditemukan');
-            // return view('pages-admin.mata_kuliah.partials.detail.detail_cpl', compact('data'));
-        }
-
-        return response()->json($data);
-    }
-
-    public function detailCpmk(Request $request)
-    {
-        $id = $request->id;
-
-        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
-
-        $data = $query->paginate(10);
-
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
-
-        if ($request->ajax()) {
-            return view('pages-admin.mata_kuliah.partials.detail.detail_cpmk', [
-                'data' => $data,
-                'startNumber' => $startNumber,
-            ])->with('success', 'Data Mata Kuliah Ditemukan');
-            // return view('pages-admin.mata_kuliah.partials.detail.detail_cpmk', compact('data'));
-        }
-
-        return response()->json($data);
-    }
-
-    public function detailSubCpmk(Request $request)
-    {
-        $id = $request->id;
-
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
-        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-        ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('cpmk.id');
-
-        $data = $query->paginate(10);
-
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
-
-        if ($request->ajax()) {
-            return view('pages-admin.mata_kuliah.partials.detail.detail_subcpmk', [
-                'data' => $data,
-                'startNumber' => $startNumber,
-            ])->with('success', 'Data Mata Kuliah Ditemukan');
-            // return view('pages-admin.mata_kuliah.partials.detail.detail_subcpmk', compact('data'));
-        }
-
-        return response()->json($data);
-    }
-
-    public function detailTugas(Request $request)
-    {
-        $id = $request->id;
-
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-        ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
-        ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
-        ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-        ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
-
-        $data = $query->paginate(10);
-
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
-
-        if ($request->ajax()) {
-            return view('pages-admin.mata_kuliah.partials.detail.detail_rps', [
-                'data' => $data,
-                'startNumber' => $startNumber,
-            ])->with('success', 'Data Mata Kuliah Ditemukan');
-            // return view('pages-admin.mata_kuliah.partials.detail.detail_rps', compact('data'));
-        }
-
-        return response()->json($data);
     }
 }

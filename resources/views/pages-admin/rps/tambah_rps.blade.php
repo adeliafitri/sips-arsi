@@ -42,7 +42,7 @@
                             <h3 class="card-title col align-self-center">Form Tambah Data Mata Kuliah</h3>
                             <!-- <div class="col-sm-2">
                                 <a href="index.php?include=data-mahasiswa" class="btn btn-warning"><i class="nav-icon fas fa-arrow-left mr-2"></i> Kembali</a>
-                            </div> -->
+                                </div> -->
                         </div>
                         <div class="card-body">
                             <div class="container">
@@ -50,19 +50,23 @@
                                     @CSRF
                                     <div id="test-l-1" class="content">
                                         <div class="form-group">
-                                            <label for="kode_matkul">Kode Matkul</label>
-                                            <input type="text" class="form-control" id="kode_matkul"
-                                                name="kode_matkul" placeholder="Kode Mata Kuliah" required>
+                                            <label for="mata_kuliah">Mata Kuliah</label>
+                                                <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" >
+                                                {{-- <option value="">- Pilih Mata Kuliah -</option> --}}
+                                                {{-- @foreach ($mata_kuliah as $id => $name) --}}
+                                                      <option value="{{ $idMatkul }}">{{ $namaMatkul }}</option>
+                                                  {{-- @endforeach --}}
+                                                </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="nama_matkul">Nama Matkul</label>
-                                            <input type="text" class="form-control" id="nama_matkul"
-                                                name="nama_matkul" placeholder="Nama Mata Kuliah">
+                                            <label for="semester">Semester</label>
+                                            <input type="number" class="form-control" id="semester" name="semester"
+                                                placeholder="Semester">
                                         </div>
                                         <div class="form-group">
-                                            <label for="sks">SKS</label>
-                                            <input type="number" class="form-control" id="sks" name="sks"
-                                                placeholder="SKS">
+                                            <label for="tahun_rps">Tahun RPS</label>
+                                            <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
+                                                placeholder="Tahun RPS">
                                         </div>
                                         <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Batal</a>
                                         <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
@@ -83,7 +87,7 @@
         var form = $('#addDataForm');
         $.ajax({
             type: 'POST',
-            url: "{{ url('admin/mata-kuliah/create') }}",
+            url: "{{ url('admin/rps/create') }}",
             data: form.serialize(),
             success: function(response) {
                 if (response.status == "success") {
@@ -95,7 +99,7 @@
                     // Check if the user clicked "OK"
                     if (result.isConfirmed) {
                         // Redirect to the desired URL
-                        window.location.href = "{{ route('admin.matakuliah') }}";
+                        window.location.href = "{{ route('admin.rps') }}";
                     };
                 });
                 }

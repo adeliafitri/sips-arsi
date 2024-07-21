@@ -28,13 +28,13 @@ class DaftarMahasiswaImportExcel implements ToModel, WithHeadingRow
         $mahasiswa = Mahasiswa::where('nim', $nim)->first();
 
         if ($mahasiswa) {
-            $matkul_id = KelasKuliah::where('id', $this->matakuliah_kelasid)->value('matakuliah_id');
-            if (empty($matkul_id)) {
+            $rps_id = KelasKuliah::where('id', $this->matakuliah_kelasid)->value('rps_id');
+            if (empty($rps_id)) {
                 return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
             }
             $soal_sub_cpmk = Cpmk::join('sub_cpmk', 'cpmk.id', 'sub_cpmk.cpmk_id')
                 ->join('soal_sub_cpmk', 'sub_cpmk.id', 'soal_sub_cpmk.subcpmk_id')
-                ->where('cpmk.matakuliah_id', $matkul_id)->select('soal_sub_cpmk.id as soal_id')->get();
+                ->where('cpmk.rps_id', $rps_id)->select('soal_sub_cpmk.id as soal_id')->get();
             foreach ($soal_sub_cpmk as $data) {
                 // dd($data);
                 // $soal_id = $data->soal_id;

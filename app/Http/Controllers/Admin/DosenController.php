@@ -32,7 +32,7 @@ class DosenController extends Controller
             });
         }
 
-        $dosen = $query->paginate(5);
+        $dosen = $query->paginate(20);
 
         $startNumber = ($dosen->currentPage() - 1) * $dosen->perPage() + 1;
 

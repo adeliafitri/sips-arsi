@@ -87,7 +87,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.matakuliah') }}" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
+                <a href="{{ route('admin.rps') }}" class="nav-link {{ request()->routeIs('admin.rps') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>
@@ -120,6 +120,12 @@
                         <a href="{{ route('admin.kelas') }}" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Data Kelas</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.matakuliah') }}" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data Mata Kuliah</p>
                         </a>
                     </li>
                     <li class="nav-item">
