@@ -12,7 +12,7 @@ class Cpmk extends Model
     protected $table ='cpmk';
 
     protected $fillable = [
-        'matakuliah_id',
+        'rps_id',
         'cpl_id',
         'kode_cpmk',
         'deskripsi',
@@ -22,9 +22,9 @@ class Cpmk extends Model
     {
         return $this->belongsTo(Cpl::class);
     }
-    public function mata_kuliah()
+    public function rps()
     {
-        return $this->belongsTo(MataKuliah::class);
+        return $this->belongsTo(Rps::class);
     }
     public function sub_cpmk()
     {

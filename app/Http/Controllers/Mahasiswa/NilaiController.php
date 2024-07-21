@@ -20,7 +20,8 @@ class NilaiController extends Controller
         $semester = Semester::all();
         $activeSemester = $semester->where('is_active', true)->first();
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+        ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
@@ -28,6 +29,22 @@ class NilaiController extends Controller
         ->select('matakuliah_kelas.id as id_kelas', 'nilaiakhir_mahasiswa.nilai_akhir','matakuliah_kelas.*', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
         // ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
         ->where('mahasiswa.id_auth', Auth::user()->id);
+
+        $angkatan = Mahasiswa::where('mahasiswa.id_auth', Auth::user()->id)
+            ->select('mahasiswa.angkatan')
+            ->first()
+            ->angkatan;
+
+        // Cari semester yang dimulai dari tahun angkatan dengan semester ganjil dan hingga 4 tahun ke depan
+        $tahunAjaranAwal = $angkatan;
+        $tahunAjaranAkhir = $angkatan + 4;
+
+        // Ambil data semester dengan tahun ajaran dari tahun angkatan hingga 4 tahun ke depan
+        $semesters = Semester::whereBetween('tahun_ajaran', [$tahunAjaranAwal, $tahunAjaranAkhir])
+            ->orderBy('tahun_ajaran')
+            ->orderBy('semester')
+            ->get();
+
 
         if ($request->has('tahun_ajaran')) {
             $tahunAjaranTerm = $request->input('tahun_ajaran');
@@ -50,13 +67,13 @@ class NilaiController extends Controller
 
         $query->groupBy('matakuliah_kelas.id');
 
-        $nilai = $query->paginate(5);
+        $nilai = $query->paginate(20);
         // dd($nilai);
         $startNumber = ($nilai->currentPage() - 1) * $nilai->perPage() + 1;
 
         return view('pages-mahasiswa.perkuliahan.nilai', [
             'data' => $nilai,
-            'semester' => $semester,
+            'semester' => $semesters,
             'title' => $title,
             'startNumber' => $startNumber,
         ])->with('success', 'Data Ditemukan');
@@ -68,11 +85,12 @@ class NilaiController extends Controller
 
         $nilai_mahasiswa = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilaiakhir_mahasiswa.matakuliah_kelasid', '=', 'matakuliah_kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
             ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
             ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
             ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
-            ->select( 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul', 'dosen.nama', 'kelas.nama_kelas', 'semester.tahun_ajaran', 'semester.semester', 'nilaiakhir_mahasiswa.*')
+            ->select( 'rps.id as id_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul', 'dosen.nama', 'kelas.nama_kelas', 'semester.tahun_ajaran', 'semester.semester', 'nilaiakhir_mahasiswa.*')
             // ->distinct()
             ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)
             ->where('nilaiakhir_mahasiswa.mahasiswa_id', $id_mahasiswa->id)
@@ -172,8 +190,9 @@ class NilaiController extends Controller
             ->orderBy('cpl.id')
             ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa->id)
             ->where('nilai_mahasiswa.matakuliah_kelasid', $matakuliah_kelasid)
-            ->get();
+            ->paginate(20);
 
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
             // dd($data);
 
             // foreach ($data as $item) {
@@ -181,7 +200,7 @@ class NilaiController extends Controller
             // }
         // $data = $nilai_cpl->toArray();
         // $dataIndexed = array_values($data);
-        $startNumber = [];
+        // $startNumber = [];
 
         if ($request->ajax()) {
             return view('pages-mahasiswa.perkuliahan.partials.nilai_cpl', [
@@ -189,7 +208,7 @@ class NilaiController extends Controller
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
         }
-        return $data;
+        return response()->json($data);
     }
 
     public function nilaiCpmk(Request $request)
@@ -207,9 +226,10 @@ class NilaiController extends Controller
             ->orderBy('cpmk.id')
             ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa->id)
             ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
-            ->get();
+            ->paginate(20);
 
-        $startNumber = [];
+        // $startNumber = [];
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
         if ($request->ajax()) {
             return view('pages-mahasiswa.perkuliahan.partials.nilai_cpmk', [
@@ -217,7 +237,31 @@ class NilaiController extends Controller
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
         }
-        return $data;
+        return response()->json($data);
+    }
+
+    public function nilaiTugas(Request $request)
+    {
+        $mahasiswa = Mahasiswa::where('mahasiswa.id_auth', Auth::user()->id)->first();
+        $data = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->select('soal_sub_cpmk.*', 'soal.bentuk_soal as bentuk_soal', 'nilai_mahasiswa.nilai as nilai', 'nilai_mahasiswa.id as id_nilai', 'sub_cpmk.kode_subcpmk as kode_subcpmk', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+            ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa->id)
+            ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
+            ->paginate(20);
+        // $startNumber = [];
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+
+        if ($request->ajax()) {
+            return view('pages-mahasiswa.perkuliahan.partials.nilai_tugas', [
+                'data' => $data,
+                'startNumber' => $startNumber,
+            ])->with('success', 'Data Mata Kuliah Ditemukan');
+        }
+        return response()->json($data);
     }
 
     public function chartCPL(Request $request)

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DaftarMahasiswaFormatExcel;
 use App\Imports\DaftarMahasiswaImportExcel;
+use App\Models\Rps;
 
 class PerkuliahanController extends Controller
 {
@@ -26,12 +27,14 @@ class PerkuliahanController extends Controller
      */
     public function index(Request $request)
     {
+        // $mata_kuliah =
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', '=', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
             ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-            ->select('matakuliah_kelas.id','matakuliah_kelas.koordinator','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen')
+            ->select('matakuliah_kelas.id','matakuliah_kelas.koordinator','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen', 'rps.tahun_rps')
             ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
 
         // Cek apakah ada parameter pencarian
@@ -76,6 +79,7 @@ class PerkuliahanController extends Controller
                 'jumlah_mahasiswa' => $item->jumlah_mahasiswa,
                 'nama_dosen' => $item->nama_dosen,
                 'koordinator' => $item->koordinator,
+                'tahun_rps' => $item->tahun_rps
             ];
         }
 
@@ -114,13 +118,26 @@ class PerkuliahanController extends Controller
         $kelas = Kelas::pluck('nama_kelas', 'id');
         // $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
         $dosen = Dosen::pluck('nama', 'id');
+        $idMatkul = $request->query('id_matkul');
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->where('mata_kuliah.id', $idMatkul)->get();
         // $semester = Semester::all();
         $idSemester = $request->query('id_smt');
-        $idMatkul = $request->query('id_matkul');
         $tahunAjaran = $request->query('tahun_ajaran');
         $semester = $request->query('semester');
         $namaMatkul = $request->query('nama_matkul');
-        return view('pages-admin.perkuliahan.tambah_kelas_perkuliahan', compact('kelas', 'dosen','idSemester','idMatkul', 'tahunAjaran', 'semester', 'namaMatkul'));
+        return view('pages-admin.perkuliahan.tambah_kelas', compact('rps', 'kelas', 'dosen','idSemester','idMatkul', 'tahunAjaran', 'semester', 'namaMatkul'));
+    }
+
+    public function createKelas(Request $request)
+    {
+        $kelas = Kelas::pluck('nama_kelas', 'id');
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->select('rps.id', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')->get();
+        $dosen = Dosen::pluck('nama', 'id');
+        $semester = Semester::all();
+
+        return view('pages-admin.perkuliahan.tambah_kelas_perkuliahan', compact('kelas', 'dosen', 'semester', 'rps'));
     }
 
     /**
@@ -130,7 +147,7 @@ class PerkuliahanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'kelas' => 'required|exists:kelas,id',
-            'mata_kuliah' => 'required|exists:mata_kuliah,id',
+            'rps' => 'required|exists:rps,id',
             'dosen' => 'required|exists:dosen,id',
             'semester' => 'required',
         ]);
@@ -144,7 +161,7 @@ class PerkuliahanController extends Controller
         }
 
         try {
-            $existingRecord = KelasKuliah::where('matakuliah_id', $request->mata_kuliah)
+            $existingRecord = KelasKuliah::where('rps_id', $request->rps)
                 ->where('dosen_id', $request->dosen)
                 ->first();
 
@@ -152,7 +169,7 @@ class PerkuliahanController extends Controller
 
             KelasKuliah::create([
                 'kelas_id' => $request->kelas,
-                'matakuliah_id' => $request->mata_kuliah,
+                'rps_id' => $request->rps,
                 'dosen_id' => $request->dosen,
                 'semester_id' => $request->semester,
                 'koordinator' => $koordinatorValue,
@@ -179,7 +196,7 @@ class PerkuliahanController extends Controller
                 'koordinator' => $request->koordinator
             ]);
 
-            KelasKuliah::where('matakuliah_id', $kelas_kuliah->matakuliah_id)
+            KelasKuliah::where('rps_id', $kelas_kuliah->rps_id)
                 ->where('semester_id', $kelas_kuliah->semester_id)
                 ->update([
                     'koordinator' => '0'
@@ -188,7 +205,7 @@ class PerkuliahanController extends Controller
             // dd($query->toSql(), $query->getBindings());
 
             if ($oldKoordinatorValue != $request->koordinator) {
-                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->matakuliah_id, $kelas_kuliah->semester_id, $request->koordinator);
+                $this->updateOtherData($kelas_kuliah->dosen_id, $kelas_kuliah->rps_id, $kelas_kuliah->semester_id, $request->koordinator);
             }
 
             return response()->json(['status' => 'success', 'message' => 'Data koordinator berhasil diupdate']);
@@ -197,11 +214,11 @@ class PerkuliahanController extends Controller
         }
     }
 
-    private function updateOtherData($dosenID, $matakuliahID, $tahunAjaran, $newKoordinatorValue)
+    private function updateOtherData($dosenID, $rpsID, $tahunAjaran, $newKoordinatorValue)
     {
         try {
             KelasKuliah::where('dosen_id', $dosenID)
-                ->where('matakuliah_id', $matakuliahID)
+                ->where('rps_id', $rpsID)
                 ->where('semester_id', $tahunAjaran)
                 ->update([
                     'koordinator' => $newKoordinatorValue
@@ -219,7 +236,8 @@ class PerkuliahanController extends Controller
     public function show(Request $request, $id)
     {
         $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', '=', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
             ->select(
@@ -250,7 +268,7 @@ class PerkuliahanController extends Controller
             });
         }
         // $query->distinct();
-        $mahasiswa = $query->orderBy('nim', 'asc')->distinct()->paginate(5);
+        $mahasiswa = $query->orderBy('nim', 'asc')->distinct()->paginate(20);
 
         $startNumber = ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + 1;
 
@@ -301,7 +319,8 @@ class PerkuliahanController extends Controller
         $mahasiswa = Mahasiswa::pluck('nama', 'id');
         $kelas_kuliah = KelasKuliah::find($id);
         $matakuliah_kelas = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->select('matakuliah_kelas.*', 'kelas.nama_kelas as kelas', 'mata_kuliah.nama_matkul as nama_matkul')
             ->get();
 
@@ -322,20 +341,20 @@ class PerkuliahanController extends Controller
         }
 
         try {
-            $matkul_id = KelasKuliah::where('id', $id)->value('matakuliah_id');
-            // $get_matkul = "SELECT `matakuliah_id` FROM `matakuliah_kelas` WHERE `id`= '$id'";
-            // $result = DB::select($get_matkul);
+            $rps_id = KelasKuliah::where('id', $id)->value('rps_id');
+            // $get_rps = "SELECT `matakuliah_id` FROM `matakuliah_kelas` WHERE `id`= '$id'";
+            // $result = DB::select($get_rps);
 
-            if (empty($matkul_id)) {
-                return redirect()->back()->withErrors(['errors' => 'Invalid matakuliah_kelas ID'])->withInput();
+            if (empty($rps_id)) {
+                return redirect()->back()->withErrors(['errors' => 'Invalid RPS ID'])->withInput();
             }
 
-            // $id_matkul = $result[0]->matakuliah_i                                                                                                                                                                     d;
+            // $id_rps = $result[0]->matakuliah_i                                                                                                                                                                     d;
 
             // Your existing SQL query
             $soal_sub_cpmk = Cpmk::join('sub_cpmk', 'cpmk.id', 'sub_cpmk.cpmk_id')
                 ->join('soal_sub_cpmk', 'sub_cpmk.id', 'soal_sub_cpmk.subcpmk_id')
-                ->where('cpmk.matakuliah_id', $matkul_id)->select('soal_sub_cpmk.id as soal_id')->get();
+                ->where('cpmk.rps_id', $rps_id)->select('soal_sub_cpmk.id as soal_id')->get();
 
             // $sql_get = "SELECT `s`.`id` FROM `sub_cpmk` `s`
             // INNER JOIN `cpmk` `c` ON `s`.`cpmk_id` = `c`.`id`
@@ -377,7 +396,8 @@ class PerkuliahanController extends Controller
     public function edit(string $id)
     {
         $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
             // ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
             ->select(
@@ -389,14 +409,16 @@ class PerkuliahanController extends Controller
             ->where('matakuliah_kelas.id', $id)->first();
 
         $kelas = Kelas::pluck('nama_kelas', 'id');
-        $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        // $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->select('rps.id', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')->get();
         $dosen = Dosen::pluck('nama', 'id');
         $semester = Semester::all();
         return view('pages-admin.perkuliahan.edit_kelas_perkuliahan', [
             'success' => 'Data Ditemukan',
             'data' => $kelas_kuliah,
             'kelas' => $kelas,
-            'mata_kuliah' => $mata_kuliah,
+            'rps' => $rps,
             'dosen' => $dosen,
             'semester' => $semester
         ]);
@@ -409,7 +431,7 @@ class PerkuliahanController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'kelas' => 'required|exists:kelas,id',
-            'mata_kuliah' => 'required|exists:mata_kuliah,id',
+            'rps' => 'required|exists:rps,id',
             'dosen' => 'required|exists:dosen,id',
             'semester' => 'required',
         ]);
@@ -422,10 +444,22 @@ class PerkuliahanController extends Controller
         }
 
         try {
+            // $kelas_kuliah = KelasKuliah::where('id', $id)->first();
             $kelas_kuliah = KelasKuliah::find($id);
+            $oldRpsValue = $kelas_kuliah->rps_id;
+            $oldKoordinatorValue = $kelas_kuliah->koordinator;
+
+            if ($oldRpsValue != $request->rps) {
+                if ($oldKoordinatorValue === '1'){
+                    $kelas_kuliah->update([
+                        'koordinator' => '0',
+                    ]);
+                }
+            }
+
             $kelas_kuliah->update([
                 'kelas_id' => $request->kelas,
-                'matakuliah_id' => $request->mata_kuliah,
+                'rps_id' => $request->rps,
                 'dosen_id' => $request->dosen,
                 'semester_id' => $request->semester,
             ]);

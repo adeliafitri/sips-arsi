@@ -7,6 +7,7 @@ use App\Models\Cpl;
 use App\Models\Cpmk;
 use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
+use App\Models\Rps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -19,11 +20,12 @@ class MataKuliahController extends Controller
     public function index(Request $request)
     {
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+        ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator')
+        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator')
         ->where('dosen.id_auth', Auth::user()->id)
         ->distinct();
 
@@ -36,7 +38,7 @@ class MataKuliahController extends Controller
             });
         }
 
-        $mata_kuliah = $query->paginate(5);
+        $mata_kuliah = $query->paginate(20);
 
         $startNumber = ($mata_kuliah->currentPage() - 1) * $mata_kuliah->perPage() + 1;
 
@@ -87,7 +89,10 @@ class MataKuliahController extends Controller
      */
     public function show($id)
     {
-        $rps = MataKuliah::where('id', $id)->first();
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->select('rps.*', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
+            ->first();
 
         return view('pages-dosen.mata_kuliah.detail_mata_kuliah', [
             'success' => 'Data Ditemukan',
@@ -161,7 +166,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
 
         $data = $query->paginate(20);
 
@@ -182,7 +187,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
+        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('rps_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
 
         $data = $query->paginate(20);
 
@@ -203,7 +208,11 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk')->orderBy('cpmk.id');
+        $query = Cpmk::where('rps_id', $id)
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+            ->orderBy('cpmk.id');
 
         $data = $query->paginate(20);
 
@@ -224,7 +233,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
             ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')

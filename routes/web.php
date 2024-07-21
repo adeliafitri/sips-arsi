@@ -85,22 +85,33 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('', [MataKuliahController::class, 'index'])->name('admin.matakuliah');
             Route::get('create', [MataKuliahController::class, 'create'])->name('admin.matakuliah.create.matkul');
             Route::post('create', [MataKuliahController::class, 'store'])->name('admin.matakuliah.store');
-            Route::get('/{id}', [MataKuliahController::class, 'show'])->name('admin.matakuliah.show');
+            // Route::get('/{id}', [MataKuliahController::class, 'show'])->name('admin.matakuliah.show');
             Route::get('edit/{id}', [MataKuliahController::class, 'edit'])->name('admin.matakuliah.edit');
             Route::put('edit/{id}', [MataKuliahController::class, 'update'])->name('admin.matakuliah.update');
             Route::delete('{id}', [MataKuliahController::class, 'destroy'])->name('admin.matakuliah.destroy');
-            Route::get('detail/cpl', [MataKuliahController::class, 'detailCpl']);
-            Route::get('detail/cpmk', [MataKuliahController::class, 'detailCpmk']);
-            Route::get('detail/sub-cpmk', [MataKuliahController::class, 'detailSubCpmk']);
-            Route::get('detail/tugas', [MataKuliahController::class, 'detailTugas']);
+            // Route::get('detail/cpl', [MataKuliahController::class, 'detailCpl']);
+            // Route::get('detail/cpmk', [MataKuliahController::class, 'detailCpmk']);
+            // Route::get('detail/sub-cpmk', [MataKuliahController::class, 'detailSubCpmk']);
+            // Route::get('detail/tugas', [MataKuliahController::class, 'detailTugas']);
         });
 
         Route::prefix('admin/rps')->group(function () {
-            Route::get('{id}', [RpsController::class, 'index'])->name('admin.rps');
+            Route::get('', [RpsController::class, 'index'])->name('admin.rps');
+            Route::get('create', [RpsController::class, 'create'])->name('admin.rps.create');
+            Route::post('create', [RpsController::class, 'store'])->name('admin.rps.store');
+            Route::get('edit/{id}', [RpsController::class, 'edit'])->name('admin.rps.edit');
+            Route::put('edit/{id}', [RpsController::class, 'update'])->name('admin.rps.update');
+            Route::delete('{id}', [RpsController::class, 'destroy'])->name('admin.rps.destroy');
+            Route::get('/{id}', [RpsController::class, 'show'])->name('admin.rps.show');
+            Route::get('detail/cpl', [RpsController::class, 'detailCpl']);
+            Route::get('detail/cpmk', [RpsController::class, 'detailCpmk']);
+            Route::get('detail/sub-cpmk', [RpsController::class, 'detailSubCpmk']);
+            Route::get('detail/tugas', [RpsController::class, 'detailTugas']);
+
             Route::post('create/cpmk/{id}', [RpsController::class, 'storecpmk'])->name('admin.rps.storecpmk');
             Route::post('create/subcpmk/{id}', [RpsController::class, 'storesubcpmk'])->name('admin.rps.storesubcpmk');
             Route::post('create/soal/{id}', [RpsController::class, 'storesoal'])->name('admin.rps.storesoal');
-            Route::get('{id}', [RpsController::class, 'create'])->name('admin.rps.create');
+            Route::get('create/{id}', [RpsController::class, 'createDetail'])->name('admin.rpsDetail.create');
             Route::delete('deletecpmk/{id}', [RpsController::class, 'destroyCpmk'])->name('admin.rps.destroycpmk');
             Route::delete('deletecpmk/sub/{id}', [RpsController::class, 'destroySubCpmk'])->name('admin.rps.destroysubcpmk');
             Route::delete('deletecpmk/sub/soal/{id}', [RpsController::class, 'destroySoal'])->name('admin.rps.destroysoal');
@@ -171,6 +182,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::prefix('admin/kelas-kuliah')->group(function () {
             Route::get('', [AdminPerkuliahanController::class, 'index'])->name('admin.kelaskuliah');
             Route::get('create', [AdminPerkuliahanController::class, 'create'])->name('admin.kelaskuliah.create');
+            Route::get('create-kelas', [AdminPerkuliahanController::class, 'createKelas'])->name('admin.kelaskuliah.createKelas');
             Route::post('create', [AdminPerkuliahanController::class, 'store'])->name('admin.kelaskuliah.store');
             Route::post('update-koordinator/{id}', [AdminPerkuliahanController::class, 'updateKoordinator'])->name('admin.kelaskuliah.update-koordinator');
             Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
@@ -269,10 +281,6 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [DosenMataKuliahController::class, 'edit'])->name('dosen.matakuliah.edit');
             Route::put('edit/{id}', [DosenMataKuliahController::class, 'update'])->name('dosen.matakuliah.update');
             Route::delete('{id}', [DosenMataKuliahController::class, 'destroy'])->name('dosen.matakuliah.destroy');
-            Route::get('detail/cpl', [DosenMataKuliahController::class, 'detailCpl']);
-            Route::get('detail/cpmk', [DosenMataKuliahController::class, 'detailCpmk']);
-            Route::get('detail/sub-cpmk', [DosenMataKuliahController::class, 'detailSubCpmk']);
-            Route::get('detail/tugas', [DosenMataKuliahController::class, 'detailTugas']);
         });
 
         Route::prefix('dosen/rps')->group(function () {
@@ -289,6 +297,15 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('updatesubcpmk', [DosenRpsController::class, 'updateSubCpmk'])->name('dosen.rps.updatesubcpmk');
             Route::get('editsoalsubcpmk/{id}', [DosenRpsController::class, 'editSoalSubCpmk'])->name('dosen.rps.editsoalsubcpmk');
             Route::put('updatesoalsubcpmk', [DosenRpsController::class, 'updateSoalSubCpmk'])->name('dosen.rps.updatesoalsubcpmk');
+
+            Route::get('listsubcpmk/{id}', [DosenRpsController::class, 'listSubCpmk'])->name('dosen.rps.listsubcpmk');
+            Route::get('listcpmk/{id}', [DosenRpsController::class, 'listCpmk'])->name('dosen.rps.listcpmk');
+            Route::get('listtugas/{id}', [DosenRpsController::class, 'listTugas'])->name('dosen.rps.listtugas');
+
+            Route::get('detail/cpl', [DosenMataKuliahController::class, 'detailCpl']);
+            Route::get('detail/cpmk', [DosenMataKuliahController::class, 'detailCpmk']);
+            Route::get('detail/sub-cpmk', [DosenMataKuliahController::class, 'detailSubCpmk']);
+            Route::get('detail/tugas', [DosenMataKuliahController::class, 'detailTugas']);
         });
     });
 

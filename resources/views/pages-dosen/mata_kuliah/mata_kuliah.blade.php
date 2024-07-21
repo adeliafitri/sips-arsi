@@ -10,12 +10,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-            <h1 class="m-0">Data Mata Kuliah</h1>
+            <h1 class="m-0">Data RPS</h1>
             </div><!-- /.col -->
             <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <!-- <li class="breadcrumb-item"><a href="index.php?include=dashboard">Home</a></li> -->
-                <li class="breadcrumb-item active">Data Mata Kuliah</li>
+                <li class="breadcrumb-item active">Data RPS</li>
             </ol>
             </div><!-- /.col -->
         </div><!-- /.row -->
@@ -67,6 +67,8 @@
                             <th>Kode Mata Kuliah</th>
                             <th>Nama Mata Kuliah</th>
                             <th>SKS</th>
+                            <th>Semester</th>
+                            <th>Tahun RPS</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
                         </thead>
@@ -77,11 +79,13 @@
                               <td>{{ $datas->kode_matkul }}</td>
                               <td>{{ $datas->nama_matkul }}</td>
                               <td>{{ $datas->sks }}</td>
+                              <td>{{ $datas->semester }}</td>
+                              <td>{{ $datas->tahun_rps }}</td>
                               <td class="d-flex justify-content-center">
                                   @if ($datas->koordinator == 1)
-                                  <a href="{{ route('dosen.rps.create', $datas->id_matkul) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
+                                  <a href="{{ route('dosen.rps.create', $datas->id_rps) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
                                   @endif
-                                   <a href="{{ route('dosen.matakuliah.show', $datas->id_matkul) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
+                                   <a href="{{ route('dosen.matakuliah.show', $datas->id_rps) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
                               </td>
                           </tr>
                           @endforeach

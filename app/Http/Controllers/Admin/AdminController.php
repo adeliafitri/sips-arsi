@@ -37,7 +37,7 @@ class AdminController extends Controller
             });
         }
 
-        $admin = $query->paginate(5);
+        $admin = $query->paginate(20);
 
         $startNumber = ($admin->currentPage() - 1) * $admin->perPage() + 1;
 

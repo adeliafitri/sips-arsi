@@ -35,18 +35,18 @@
                 <div class="form-group">
                   <label for="semester">Semester</label>
                       <select class="form-control select2bs4" id="semester" name="semester" >
-                      <option value="">- Pilih Semester -</option>
-                      @foreach ($semester as $key => $data)
-                            <option value="{{ $data->id }}">{{ $data->tahun_ajaran ." ". $data->semester }}</option>
-                        @endforeach
+                      {{-- <option value="">- Pilih Semester -</option> --}}
+                      {{-- @foreach ($semester as $key => $data) --}}
+                            <option value="{{ $idSemester }}">{{ $tahunAjaran ." ". $semester }}</option>
+                        {{-- @endforeach --}}
                       </select>
                 </div>
                 <div class="form-group">
                   <label for="rps">Mata Kuliah</label>
-                      <select class="form-control select2bs4" id="rps" name="rps">
+                      <select class="form-control select2bs4" id="rps" name="rps" >
                       <option value="">- Pilih Mata Kuliah -</option>
-                      @foreach ($rps as $key => $data_rps)
-                            <option value="{{ $data_rps->id }}">{{ $data_rps->nama_matkul ." ". $data_rps->tahun_rps }}</option>
+                      @foreach ($rps as $key => $data)
+                            <option value="{{ $data->id }}">{{ $data->nama_matkul ." ". $data->tahun_rps }}</option>
                         @endforeach
                       </select>
                 </div>

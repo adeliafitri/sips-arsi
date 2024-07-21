@@ -5,11 +5,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Data RPS</h1>
+                    <h1>Detail Data RPS</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="">Data RPS</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.rps') }}">Data RPS</a></li>
+                        <li class="breadcrumb-item active"><a href="">Detail Data RPS</a></li>
                     </ol>
                 </div>
             </div>
@@ -38,6 +39,8 @@
                             <h6> <span style="font-weight: bold"> Kode Mata Kuliah : </span>  {{ $data->kode_matkul }}</h6>
                             <h6> <span style="font-weight: bold"> Nama Mata Kuliah : </span> {{ $data->nama_matkul }}</h6>
                             <h6> <span style="font-weight: bold" onclick="loadCPL(1);"> SKS : </span> {{ $data->sks }}</h6>
+                            <h6> <span style="font-weight: bold"> Semester : </span> {{ $data->semester }}</h6>
+                            <h6> <span style="font-weight: bold"> Tahun RPS: </span> {{ $data->tahun_rps }}</h6>
                         </div>
                     </div>
                     <!-- /.card -->
@@ -137,7 +140,7 @@
     <script>
         function detailCpl(id, page = null){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/cpl') }}",
+                    url: "{{ url('admin/rps/detail/cpl') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -163,7 +166,7 @@
 
         function detailCpmk(id, page = null){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/cpmk') }}",
+                    url: "{{ url('admin/rps/detail/cpmk') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -185,7 +188,7 @@
 
         function detailSubCpmk(id, page = null){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/sub-cpmk') }}",
+                    url: "{{ url('admin/rps/detail/sub-cpmk') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -207,7 +210,7 @@
 
         function detailTugas(id, page = null){
             $.ajax({
-                    url: "{{ url('admin/mata-kuliah/detail/tugas') }}",
+                    url: "{{ url('admin/rps/detail/tugas') }}",
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

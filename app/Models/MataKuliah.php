@@ -15,16 +15,10 @@ class MataKuliah extends Model
         'kode_matkul',
         'nama_matkul',
         'sks',
-        'semester',
-        'tahun_rps',
     ];
 
-    public function cpmk()
+    public function rps()
     {
-        return $this->hasMany(Cpmk::class);
-    }
-    public function kelas_kuliah()
-    {
-        return $this->hasMany(KelasKuliah::class);
+        return $this->hasMany(Rps::class);
     }
 }

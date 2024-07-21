@@ -48,17 +48,6 @@
                 </div>
               </div>
               <div class="card-body">
-              <div class="col-sm-12 mt-3">
-                @if (session('success'))
-                    <div class="alert alert-success bg-success" role="alert">
-                        {{ session('success') }}
-                    </div>
-                @elseif (session('error'))
-                    <div class="alert alert-danger bg-danger" role="alert">
-                        {{ session('error') }}
-                    </div>
-                @endif
-              </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
@@ -67,8 +56,6 @@
                             <th>Kode Mata Kuliah</th>
                             <th>Nama Mata Kuliah</th>
                             <th>SKS</th>
-                            <th>Semester</th>
-                            <th>Tahun RPS</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
                         </thead>
@@ -77,13 +64,20 @@
                           <tr>
                               <td>{{ $startNumber++ }}</td>
                               <td>{{ $datas->kode_matkul }}</td>
-                              <td>{{ $datas->nama_matkul }}</td>
+                              <td>{{ $datas->nama_matkul }}
+                                <div class="mt-2">
+                                    <a href="{{ route('admin.rps.create', [
+                                            'nama_matkul' => $datas['nama_matkul'],
+                                            'id_matkul' => $datas->id
+                                    ]) }}" class="btn-sm btn-primary">
+                                        <i class="nav-icon fas fa-plus mr-2"></i> Tambah RPS
+                                    </a>
+                                </div>
+                              </td>
                               <td>{{ $datas->sks }}</td>
-                              <td>{{ $datas->semester }}</td>
-                              <td>{{ $datas->tahun_rps }}</td>
                               <td class="d-flex justify-content-center">
-                                  <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
-                                   <a href="{{ route('admin.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
+                                  {{-- <a href="{{ route('admin.rps.create', $datas->id) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a> --}}
+                                   {{-- <a href="{{ route('admin.matakuliah.show', $datas->id) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a> --}}
                                   <a href="{{ route('admin.matakuliah.edit', $datas->id) }}" class="btn btn-secondary ml-1 mr-1"><i class="nav-icon fas fa-edit"></i></a>
                                   <a class="btn btn-danger" onclick="deleteMatkul({{$datas->id}})"><i class="nav-icon fas fa-trash-alt"></i></a>
                                   {{-- <form action="{{ route('admin.matakuliah.destroy', $datas->id) }}" method="post">
