@@ -25,7 +25,7 @@ class KelasController extends Controller
             });
         }
 
-        $kelas = $query->paginate(5);
+        $kelas = $query->paginate(20);
 
         $startNumber = ($kelas->currentPage() - 1) * $kelas->perPage() + 1;
 

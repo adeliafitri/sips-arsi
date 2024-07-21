@@ -18,7 +18,8 @@ class MahasiswaController extends Controller
         ->where('mahasiswa.id_auth', Auth::user()->id)->count('matakuliah_kelasid');
         $data = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
         ->join('matakuliah_kelas', 'nilaiakhir_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+        ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
         ->select('mata_kuliah.*','nilaiakhir_mahasiswa.id as id_nilai', 'nilaiakhir_mahasiswa.nilai_akhir as nilai_akhir')
         ->where('mahasiswa.id_auth', Auth::user()->id)
         ->get();
@@ -39,7 +40,8 @@ class MahasiswaController extends Controller
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-            ->join('mata_kuliah', 'cpmk.matakuliah_id', 'mata_kuliah.id')
+            ->join('rps', 'cpmk.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->selectRaw('cpl.id, cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
             ->groupBy('cpl.id','mata_kuliah.id')
             ->where('mahasiswa.id_auth', Auth::user()->id);
@@ -50,7 +52,10 @@ class MahasiswaController extends Controller
 
         // dd($averageCPL);
 
-        $totalMataKuliah = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')->selectRaw('COUNT(distinct matakuliah_id) as total_matkul, cpl_id, cpl.kode_cpl')->groupBy('cpl_id')->get();
+        $totalMataKuliah = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->join('rps', 'cpmk.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->selectRaw('COUNT(distinct mata_kuliah.id) as total_matkul, cpl_id, cpl.kode_cpl')->groupBy('cpl_id')->get();
             // dd($totalMataKuliah);
         $results = [];
 
@@ -88,7 +93,8 @@ class MahasiswaController extends Controller
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-            ->join('mata_kuliah', 'cpmk.matakuliah_id', 'mata_kuliah.id')
+            ->join('rps', 'cpmk.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
             ->groupBy('cpl.id','mata_kuliah.id')
             ->where('mahasiswa.id_auth', Auth::user()->id);

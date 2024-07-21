@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\MataKuliah;
+// use App\Models\Rps;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\MataKuliah;
+use App\Models\Rps;
 use App\Models\Soal;
 use App\Models\SoalSubCpmk;
 use App\Models\SubCpmk;
@@ -16,26 +18,314 @@ use Illuminate\Support\Collection;
 class RpsController extends Controller
 {
 
-    // public function index()
-    // {
-
-    //     // return $data_matkul;
-    //     return view('pages-admin.mata_kuliah.tambah_rps')->with('data', $data_cpmk);
-    // }
-
-    public function create($id)
+    public function index(Request $request)
     {
-        $matkul= MataKuliah::find($id);
+        $query = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->select('rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
+
+        // Cek apakah ada parameter pencarian
+        if ($request->has('search')) {
+            $searchTerm = $request->input('search');
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('mata_kuliah.kode_matkul', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('mata_kuliah.nama_matkul', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $query->groupBy('rps.id');
+
+        $rps = $query->paginate(20);
+
+        $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
+
+        $data = [];
+        foreach ($rps as $item) {
+            $kode_matkul = $item->kode_matkul;
+            $nama_matkul = $item->nama_matkul;
+            $sks = $item->sks;
+
+            if (!isset($data[$kode_matkul])) {
+                $data[$kode_matkul] = [];
+            }
+            if (!isset($data[$kode_matkul][$nama_matkul])) {
+                $data[$kode_matkul][$nama_matkul] = [];
+            }
+            if (!isset($data[$kode_matkul][$nama_matkul][$sks])) {
+                $data[$kode_matkul][$nama_matkul][$sks] = [
+                    'id_matkul' => $item->id_matkul,
+                    'info_rps' => []
+                ];
+            }
+
+            $data[$kode_matkul][$nama_matkul][$sks]['info_rps'][] = [
+                'id_rps' => $item->id,
+                'semester' => $item->semester,
+                'tahun_rps' => $item->tahun_rps,
+            ];
+        }
+
+        // Flatten the data structure for easier use in the view
+        $flatData = [];
+        foreach ($data as $kode_matkul => $semesters) {
+            foreach ($semesters as $nama_matkul => $mata_kuliah) {
+                foreach ($mata_kuliah as $sks => $info) {
+                    $flatData[] = [
+                        'id_matkul' => $info['id_matkul'],
+                        'kode_matkul' => $kode_matkul,
+                        'nama_matkul' => $nama_matkul,
+                        'sks' => $sks,
+                        'info_rps' => $info['info_rps'],
+                    ];
+                }
+            }
+        }
+
+        return view('pages-admin.rps.rps', [
+            'data' => $flatData,
+            'startNumber' => $startNumber,
+        ])->with('success', 'Data Ditemukan');
+        // return view('pages-admin.perkuliahan.kelas_perkuliahan', [
+        //     'data' => $kelas_kuliah,
+        //     'startNumber' => $startNumber,
+        // ])->with('success', 'Data CPMK Ditemukan');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $idMatkul = $request->query('id_matkul');
+        $namaMatkul = $request->query('nama_matkul');
+        return view('pages-admin.rps.tambah_rps' , compact('idMatkul', 'namaMatkul'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'mata_kuliah' => 'required|exists:mata_kuliah,id',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
+
+        try {
+            Rps::create([
+                'matakuliah_id' => $request->mata_kuliah,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
+            ]);
+
+            // return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->select('rps.*', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
+            ->first();
+
+        return view('pages-admin.rps.detail_rps', [
+            'success' => 'Data Ditemukan',
+            'data' => $rps
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->select('rps.id', 'rps.semester', 'rps.tahun_rps', 'rps.matakuliah_id', 'mata_kuliah.nama_matkul')
+            ->first();
+            $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        return view('pages-admin.rps.edit_rps', [
+            'success' => 'Data Ditemukan',
+            'data' => $rps,
+            'mata_kuliah' => $mata_kuliah
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $validate = Validator::make($request->all(), [
+            'mata_kuliah' => 'required|exists:mata_kuliah,id',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
+
+        try {
+            $mata_kuliah = Rps::find($id);
+            $mata_kuliah->update([
+                'matakuliah_id' => $request->mata_kuliah,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
+            ]);
+
+            // return redirect()->route('admin.matakuliah')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $mata_kuliah
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $mata_kuliah]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            // return redirect()->route('admin.matakuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        try {
+            Rps::where('id', $id)->delete();
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('success', 'Data berhasil dihapus');
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function detailCpl(Request $request)
+    {
+        $id = $request->id;
+
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
+
+        $data = $query->paginate(20);
+
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+
+        if ($request->ajax()) {
+            return view('pages-admin.rps.partials.detail.detail_cpl', [
+                'data' => $data,
+                'startNumber' => $startNumber,
+            ])->with('success', 'Data Mata Kuliah Ditemukan');
+            // return view('pages-admin.mata_kuliah.partials.detail.detail_cpl', compact('data'));
+        }
+
+        return response()->json($data);
+    }
+
+    public function detailCpmk(Request $request)
+    {
+        $id = $request->id;
+
+        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('rps_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
+
+        $data = $query->paginate(20);
+
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+
+        if ($request->ajax()) {
+            return view('pages-admin.rps.partials.detail.detail_cpmk', [
+                'data' => $data,
+                'startNumber' => $startNumber,
+            ])->with('success', 'Data Mata Kuliah Ditemukan');
+            // return view('pages-admin.mata_kuliah.partials.detail.detail_cpmk', compact('data'));
+        }
+
+        return response()->json($data);
+    }
+
+    public function detailSubCpmk(Request $request)
+    {
+        $id = $request->id;
+
+        $query = Cpmk::where('rps_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('cpmk.id');
+
+        $data = $query->paginate(20);
+
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+
+        if ($request->ajax()) {
+            return view('pages-admin.rps.partials.detail.detail_subcpmk', [
+                'data' => $data,
+                'startNumber' => $startNumber,
+            ])->with('success', 'Data Mata Kuliah Ditemukan');
+            // return view('pages-admin.mata_kuliah.partials.detail.detail_subcpmk', compact('data'));
+        }
+
+        return response()->json($data);
+    }
+
+    public function detailTugas(Request $request)
+    {
+        $id = $request->id;
+
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
+
+        $data = $query->paginate(20);
+
+        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+
+        if ($request->ajax()) {
+            return view('pages-admin.rps.partials.detail.detail_rps', [
+                'data' => $data,
+                'startNumber' => $startNumber,
+            ])->with('success', 'Data Mata Kuliah Ditemukan');
+            // return view('pages-admin.mata_kuliah.partials.detail.detail_rps', compact('data'));
+        }
+
+        return response()->json($data);
+    }
+
+    public function createDetail($id)
+    {
+        $rps= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->first();
         $cpl= Cpl::pluck('kode_cpl', 'id');
-        $kode_cpmk = Cpmk::where('matakuliah_id', '=', $id)->pluck('kode_cpmk', 'id');
+        $kode_cpmk = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');
         $kode_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
-            ->where('cpmk.matakuliah_id', $id)
+            ->where('cpmk.rps_id', $id)
             ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
             // dd ($kode_subcpmk);
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         // dd($data_cpmk);
         $data_soal = Soal::pluck('bentuk_soal', 'id');
-        return view('pages-admin.mata_kuliah.tambah_rps', compact('cpl','matkul','kode_cpmk','kode_subcpmk', 'data_soal'));
+        return view('pages-admin.rps.tambah_detail_rps', compact('cpl','rps','kode_cpmk','kode_subcpmk', 'data_soal'));
     }
 
     public function storecpmk(Request $request, $id)
@@ -54,9 +344,9 @@ class RpsController extends Controller
         }
 
         try {
-            $id_matkul = $id;
+            $id_rps = $id;
             Cpmk::create([
-                'matakuliah_id' => $id_matkul,
+                'rps_id' => $id_rps,
                 'cpl_id' => $request->cpl_id,
                 'kode_cpmk' => $request->kode_cpmk,
                 'deskripsi' => $request->deskripsi_cpmk,
@@ -104,23 +394,23 @@ class RpsController extends Controller
     public function listSubCpmk($id) {
         $data['data_subcpmk'] = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-            ->where('cpmk.matakuliah_id', $id)
+            ->where('cpmk.rps_id', $id)
             ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.id', 'sub_cpmk.deskripsi')
-            ->paginate(5);
+            ->paginate(20);
         $data['start_nosubcpmk'] = ($data['data_subcpmk']->currentPage() - 1) * $data['data_subcpmk']->perPage() + 1;
 
 
-        return view('pages-admin.mata_kuliah.partials.tabel_rps.tabel_subcpmk', $data);
+        return view('pages-admin.rps.partials.tabel_rps.tabel_subcpmk', $data);
     }
 
     public function listCpmk($id) {
         $data['data_cpmk'] =Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
-        ->where('matakuliah_id', '=', $id)
+        ->where('rps_id', '=', $id)
         ->select('cpmk.kode_cpmk', 'cpl.kode_cpl', 'cpmk.id', 'cpmk.deskripsi')
-        ->paginate(2);
+        ->paginate(20);
         $data['start_nocpmk'] = ($data['data_cpmk']->currentPage() - 1) * $data['data_cpmk']->perPage() + 1;
 
-        return view('pages-admin.mata_kuliah.partials.tabel_rps.tabel_cpmk', $data);
+        return view('pages-admin.rps.partials.tabel_rps.tabel_cpmk', $data);
     }
 
     public function listTugas($id) {
@@ -128,15 +418,15 @@ class RpsController extends Controller
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
-            ->where('cpmk.matakuliah_id', $id)
+            ->where('cpmk.rps_id', $id)
             ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
-            ->paginate(10);
+            ->paginate(20);
             // ->toSql();
             // dd($data_soalsubcpmk);
 
         $data['start_nosoalsubcpmk'] = ($data['data_soalsubcpmk']->currentPage() - 1) * $data['data_soalsubcpmk']->perPage() + 1;
 
-        return view('pages-admin.mata_kuliah.partials.tabel_rps.tabel_tugas', $data);
+        return view('pages-admin.rps.partials.tabel_rps.tabel_tugas', $data);
     }
 
     public function storesoal(Request $request, $id) {

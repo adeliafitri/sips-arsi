@@ -36,6 +36,14 @@
             <th>SKS</th>
             <td>{{ $matkul->sks }}</td>
         </tr>
+        <tr>
+            <th>Semester</th>
+            <td>{{ $matkul->semester }}</td>
+        </tr>
+        <tr>
+            <th>Tahun RPS</th>
+            <td>{{ $matkul->tahun_rps }}</td>
+        </tr>
     </table>
     <br>
     <table class="table table-bordered">
@@ -62,7 +70,7 @@
             @endforeach
                 <tr>
                     <td colspan="5">Total Bobot</td>
-                    <td>100%</td>
+                    <td>{{ $total_bobot }}%</td>
                 </tr>
         </tbody>
     </table>

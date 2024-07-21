@@ -8,6 +8,7 @@ use App\Models\Cpmk;
 use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
 use App\Models\NilaiAkhirMahasiswa;
+use App\Models\Rps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -55,7 +56,10 @@ class MataKuliahController extends Controller
      */
     public function show($id)
     {
-        $rps = MataKuliah::where('id', $id)->first();
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->where('rps.id', $id)
+            ->select('rps.id as id_rps', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'rps.semester', 'rps.tahun_rps')
+            ->first();
 
         return view('pages-mahasiswa.mata_kuliah.detail_mata_kuliah', [
             'success' => 'Data Ditemukan',
@@ -67,7 +71,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpl.id', 'cpmk.cpl_id')->select('cpl.*')->distinct();
 
         $data = $query->paginate(20);
 
@@ -88,7 +92,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('matakuliah_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
+        $query = Cpmk::join('cpl', 'cpl.id', 'cpmk.cpl_id')->where('rps_id', $id)->select('cpmk.*', 'cpl.kode_cpl')->orderBy('cpl.id', 'asc');
 
         $data = $query->paginate(20);
 
@@ -109,7 +113,7 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk')->orderBy('cpmk.id');
+        $query = Cpmk::where('rps_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')->select('sub_cpmk.*', 'cpmk.kode_cpmk','cpl.kode_cpl')->orderBy('cpmk.id');
 
         $data = $query->paginate(20);
 
@@ -130,7 +134,8 @@ class MataKuliahController extends Controller
     {
         $id = $request->id;
 
-        $query = Cpmk::where('matakuliah_id', $id)->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        $query = Cpmk::where('rps_id', $id)
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
             ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
@@ -153,20 +158,30 @@ class MataKuliahController extends Controller
     public function generatePdf($id)
     {
         // Ambil data mata kuliah dari database
-        $mata_kuliah = MataKuliah::find($id);
+        $mata_kuliah= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->where('rps.id', $id)
+        ->first();
 
         $rps = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
         ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
         ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-        ->where('matakuliah_id', $id)
+        ->where('rps_id', $id)
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
         ->orderBy('soal_sub_cpmk.waktu_pelaksanaan', 'asc')
         ->get();
 
+        $totalBobotKeseluruhan = 0; // Initialize a variable to store the overall total weight
+
+        foreach ($rps as $rpsItem) {
+            $totalBobot = $rpsItem->bobot_soal; // Access the calculated total weight for the current RPS
+            $totalBobotKeseluruhan += $totalBobot; // Add the current RPS weight to the overall total
+        }
+
+
         // Mulai membuat laporan PDF
         $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('pages-mahasiswa.mata_kuliah.rps_pdf', ['rps' => $rps, 'matkul' => $mata_kuliah]));
+        $dompdf->loadHtml(view('pages-mahasiswa.mata_kuliah.rps_pdf', ['rps' => $rps, 'matkul' => $mata_kuliah, 'total_bobot'=> $totalBobotKeseluruhan]));
 
         // Atur opsi PDF
         $options = new Options();

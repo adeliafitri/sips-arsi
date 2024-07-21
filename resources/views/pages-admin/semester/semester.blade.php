@@ -98,6 +98,13 @@
                        </table>
                  </div>
               </div>
+              <div class="card-footer clearfix">
+                <ul class="pagination pagination-sm m-0 float-right">
+                    <div class="float-right">
+                        {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }}
+                    </div>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

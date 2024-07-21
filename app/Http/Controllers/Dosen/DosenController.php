@@ -14,7 +14,8 @@ class DosenController extends Controller
     public function dashboard() {
         $getSemesterAktif = Semester::where('is_active', '1')->first();
         $matakuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+        ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
