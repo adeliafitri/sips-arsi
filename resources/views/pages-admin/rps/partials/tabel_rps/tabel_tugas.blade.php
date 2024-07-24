@@ -20,7 +20,7 @@
                 <td>{{ $contents->kode_cpmk}}</td>
                 <td>{{ $contents->kode_subcpmk }}</td>
                 <td>{{ $contents->bentuk_soal }}</td>
-                <td>{{ $contents->bobot_soal }}</td>
+                <td>{{ $contents->bobot_soal }}%</td>
                 <td>{{ $contents->waktu_pelaksanaan }}</td>
                 <td class="d-flex justify-content-center">
                     <!-- <a href="index.php?include=detail-kelas" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->

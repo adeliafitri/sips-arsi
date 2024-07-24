@@ -9,11 +9,11 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Data RPS {{ $rps->nama_matkul }}</h1>
+                    <h4>Data RPS {{ $rps->nama_matkul." (". $rps->tahun_rps .")" }}</h4>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.matakuliah') }}">Data Mata Kuliah</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.rps') }}">Data RPS</a></li>
                         <li class="breadcrumb-item active">Tambah Data RPS</li>
                     </ol>
                 </div>

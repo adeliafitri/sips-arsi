@@ -13,10 +13,10 @@
         </div> -->
         <div class="card-body">
             <div class="row justify-content-center">
-                <div class="col-md-3 mb-2">
+                <div class="col-3 mb-2">
                     <img src="{{ asset('dist/img/logo_uin.png') }}" width="75px" alt="logo Prodi Arsitektur UIN Malang">
                 </div>
-                <div class="col-md-4 mb-2">
+                <div class="col-3 mb-2">
                     <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" width="100px" alt="logo Prodi Arsitektur UIN Malang">
                 </div>
             </div>
