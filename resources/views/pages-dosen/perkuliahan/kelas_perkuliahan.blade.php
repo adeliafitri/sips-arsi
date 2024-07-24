@@ -72,7 +72,7 @@
                           <tr>
                               <td>{{ $startNumber++ }}</td>
                               <td>{{ $datas->tahun_ajaran }}</td>
-                              <td>{{ $datas->semester }}</td>
+                              <td class="text-capitalize">{{ $datas->semester }}</td>
                               <td>{{ $datas->nama_matkul }}</td>
                               <td>{{ $datas->kelas }}</td>
                               {{-- <td>{{ $datas->nama_dosen }}</td> --}}

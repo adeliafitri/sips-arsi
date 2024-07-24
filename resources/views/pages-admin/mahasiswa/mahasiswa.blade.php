@@ -64,7 +64,7 @@
                                             <div class="callout callout-info">
                                                 {{-- <h5>I am an info callout!</h5> --}}
                                                 <p>Pastikan tidak ada NIM yang sama</p>
-                                                <p>Pastikan kolom No Telepon pada file excel sudah diisi menggunakan petik satu seperti berikut '081234567891'</p>
+                                                <p>Pastikan kolom No Telepon pada file excel diisi menggunakan petik satu di depan nol seperti berikut '081234567891</p>
                                             </div>
                                             <form id="formImport" enctype="multipart/form-data">
                                                 @csrf

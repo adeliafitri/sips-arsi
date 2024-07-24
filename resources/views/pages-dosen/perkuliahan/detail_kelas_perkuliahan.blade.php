@@ -41,7 +41,7 @@
             <div class="row d-flex">
                 <div class="col-sm-10">
                     <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
-                    <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
+                    <p class="text-capitalize"><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
                     <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
                     <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
                 </div>
@@ -55,7 +55,7 @@
       <!-- /.card -->
       <div class="callout callout-info">
         {{-- <h5>I am an info callout!</h5> --}}
-        <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+        <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul. " (".$data->tahun_rps.")" }}</p>
     </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">

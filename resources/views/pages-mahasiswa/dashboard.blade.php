@@ -53,7 +53,7 @@
             </div>
             <!-- ./col -->
 
-            <div class="col-md-6 col-sm-6 col-12">
+            <div class="col-md-6 col-sm-12 col-12">
                 <div class="info-box bg-success">
                   <span class="info-box-icon"><i class="far fa-thumbs-up"></i></span>
 

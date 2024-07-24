@@ -246,7 +246,8 @@ class PerkuliahanController extends Controller
                 'semester.semester',
                 'kelas.nama_kelas as kelas',
                 'mata_kuliah.nama_matkul as nama_matkul',
-                'dosen.nama as nama_dosen'
+                'dosen.nama as nama_dosen',
+                'rps.tahun_rps'
             )
             ->where('matakuliah_kelas.id', $id)
             ->first();

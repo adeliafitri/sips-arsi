@@ -140,7 +140,7 @@ class RpsController extends Controller
     {
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->where('rps.id', $id)
-            ->select('rps.*', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
+            ->select('rps.id as id_rps', 'rps.semester', 'rps.tahun_rps', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
             ->first();
 
         return view('pages-admin.rps.detail_rps', [
@@ -315,6 +315,7 @@ class RpsController extends Controller
     {
         $rps= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->where('rps.id', $id)
+            ->select('rps.*', 'mata_kuliah.nama_matkul')
             ->first();
         $cpl= Cpl::pluck('kode_cpl', 'id');
         $kode_cpmk = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');

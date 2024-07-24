@@ -1,6 +1,6 @@
 <aside class="main-sidebar sidebar-light-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="./pages/dashboard.php" class="brand-link">
+    <a href="{{ route('mahasiswa.dashboard') }}" class="brand-link">
         <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Prodi Arsitektur UIN Malang" class="brand-image elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-dark text-xs text-uppercase">Prodi S1 Teknik Arsitektur</span>
     </a>
