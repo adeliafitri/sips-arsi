@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\MahasiswaFormatExcel;
 use App\Http\Controllers\Controller;
+use App\Imports\MahasiswaImportExcel;
 use App\Models\Mahasiswa;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Models\NilaiMahasiswa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MahasiswaController extends Controller
 {
@@ -19,7 +25,7 @@ class MahasiswaController extends Controller
     public function index(Request $request)
     {
         $query = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-        ->select('mahasiswa.*', 'auth.username as username');
+            ->select('mahasiswa.*', 'auth.username as username');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -30,7 +36,7 @@ class MahasiswaController extends Controller
             });
         }
 
-        $mahasiswa = $query->paginate(5);
+        $mahasiswa = $query->paginate(20);
 
         $startNumber = ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + 1;
 
@@ -61,8 +67,11 @@ class MahasiswaController extends Controller
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -100,10 +109,12 @@ class MahasiswaController extends Controller
                 'image' => $image
             ]);
 
-            return redirect()->route('admin.mahasiswa')->with('success', 'Data Mahasiswa Berhasil Ditambahkan');
+            // return redirect()->route('admin.mahasiswa')->with('success', 'Data Mahasiswa Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
             // dd($e->getMessage(), $e->getTrace());
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
         }
     }
 
@@ -113,9 +124,9 @@ class MahasiswaController extends Controller
     public function show($id)
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-                    ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('mahasiswa.id', $id)
+            ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
 
         return view('pages-admin.mahasiswa.detail_mahasiswa', [
             'success' => 'Data Ditemukan',
@@ -129,9 +140,9 @@ class MahasiswaController extends Controller
     public function edit($id)
     {
         $mahasiswa = Mahasiswa::join('auth', 'mahasiswa.id_auth', '=', 'auth.id')
-                    ->where('mahasiswa.id', $id)
-                    ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('mahasiswa.id', $id)
+            ->select('mahasiswa.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
 
         return view('pages-admin.mahasiswa.edit_mahasiswa', [
             'success' => 'Data Ditemukan',
@@ -149,15 +160,16 @@ class MahasiswaController extends Controller
             'nama' => 'required|string',
             'nim' => 'required',
             'angkatan' => 'required|numeric',
-            // 'tanggal_lahir' => 'required',
-            // 'jenis_kelamin' => 'required',
-            // 'alamat' => 'required',
             'telp' => 'required|string',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+            // return redirect()->back()->withErrors($validate)->withInput();
         }
 
         try {
@@ -180,11 +192,11 @@ class MahasiswaController extends Controller
             $mahasiswa = Mahasiswa::where('id', $id)->first();
             $password = $request->password;
 
-            if($password){
+            if ($password) {
                 $user = User::Where('id_auth', $mahasiswa->id_auth)->first();
 
                 $user->update([
-                        'password' => $password ? Hash::make($password) : $user->password,
+                    'password' => $password ? Hash::make($password) : $user->password,
                 ]);
             }
 
@@ -196,13 +208,15 @@ class MahasiswaController extends Controller
                 'image' => $image ? $image : $mahasiswa->image,
             ]);
 
-            return redirect()->route('admin.mahasiswa')->with([
-                'success' => 'User updated successfully.',
-                'data' => $mahasiswa
-            ]);
+            // return redirect()->route('admin.mahasiswa')->with([
+            //     'success' => 'User updated successfully.',
+            //     'data' => $mahasiswa
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $mahasiswa]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.mahasiswa.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.mahasiswa.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -212,15 +226,52 @@ class MahasiswaController extends Controller
     public function destroy($id)
     {
         try {
-            $mahasiswa = Mahasiswa::where('id_auth', $id)->delete();
+            $mahasiswa = Mahasiswa::where('id_auth', $id)->first();
             if ($mahasiswa) {
+                $id_mahasiswa = $mahasiswa->id;
+                NilaiAkhirMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                NilaiMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                $mahasiswa->delete();
                 User::where('id', $id)->delete();
-                return redirect()->route('admin.mahasiswa')
-                ->with('success', 'Data berhasil dihapus');
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             }
         } catch (\Exception $e) {
-            return redirect()->route('admin.mahasiswa')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function downloadExcel()
+    {
+        return Excel::download(new MahasiswaFormatExcel(), 'mahasiswa-excel.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new MahasiswaImportExcel(), $file);
+
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $mahasiswa = Mahasiswa::findOrFail($id);
+            $auth = User::findOrFail($mahasiswa->id_auth);
+            $auth->password = Hash::make($mahasiswa->nim);
+            $auth->save();
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil reset password']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal reset password: ' . $e->getMessage()], 500);
         }
     }
 }

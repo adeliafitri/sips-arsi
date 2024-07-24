@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MataKuliah;
+use App\Models\NilaiAkhirMahasiswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // $data = array(
-        //     'title' => 'Home Page'
-        // );
-
-        return view('pages-admin.dashboard');
+        return view('pages-mahasiswa.dashboard');
     }
 
 }

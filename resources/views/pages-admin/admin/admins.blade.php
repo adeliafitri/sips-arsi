@@ -29,7 +29,7 @@
               <div class="card-header d-flex col-sm-12 justify-content-between">
                 <div class="col-10">
                   <form action="{{ route('admin.admins') }}" method="GET">
-                    <div class="input-group col-sm-4 mr-3">
+                    <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
                       <div class="input-group-append">
                           <button class="btn btn-primary" type="submit">
@@ -40,8 +40,8 @@
                   </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
-                <div class="col-sm-2">
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                <div class="col-2">
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
                 </div>
               </div>
               <div class="card-body">
@@ -56,34 +56,37 @@
                     </div>
                 @endif
               </div>
-                <table class="table table-bordered ">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">No</th>
-                      <th>Nama</th>
-                      <th>Email</th>
-                      <th>No Telp</th>
-                      <th style="width: 150px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach ($data as $key => $datas)
-                    <tr>
-                        <td>{{ $startNumber++ }}</td>
-                        <td>{{ $datas->nama }}</td>
-                        <td>{{ $datas->email }}</td>
-                        <td>{{ $datas->telp }}</td>
-                        <td>
-                            <div class="d-flex">
-                                <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
-                                <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-2"><i class="nav-icon fas fa-edit"></i></a>
-                                <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})"><i class="nav-icon fas fa-trash-alt"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 10px">No</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>No Telp</th>
+                            <th style="width: 150px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach ($data as $key => $datas)
+                          <tr>
+                              <td>{{ $startNumber++ }}</td>
+                              <td>{{ $datas->nama }}</td>
+                              <td>{{ $datas->email }}</td>
+                              <td>{{ $datas->telp }}</td>
+                              <td>
+                                  <div class="d-flex justify-content-center">
+                                      <!-- <a href="index.php?include=detail-cpl" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> -->
+                                      <a href="{{ route('admin.admins.edit', $datas->id) }}" class="btn btn-secondary mr-1" title="Edit Data"><i class="nav-icon fas fa-edit"></i></a>
+                                      <a  onclick="resetPassword({{ $datas->id }})" class="btn btn-warning mr-1" title="Reset Password"><i class="nav-icon fas fa-key" style="color: white"></i></a>
+                                      <a class="btn btn-danger" onclick="deleteAdmin({{$datas->id_auth}})" title="Hapus Data"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                  </div>
+                              </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                </div>
               </div>
               <!-- /.card-body -->
 
@@ -113,13 +116,14 @@
           function deleteAdmin(id){
             console.log(id);
             Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data ini?",
             icon: "warning",
             showCancelButton: true,
+            cancelButtonText: "Batal",
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Ya, hapus"
           }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
@@ -133,8 +137,8 @@
                             console.log(response.message);
 
                             Swal.fire({
-                            title: "Deleted!",
-                            text: "Your file has been deleted.",
+                            title: "Sukses!",
+                            text: "Data berhasil dihapus",
                             icon: "success"
                             }).then((result) => {
                                 // Check if the user clicked "OK"
@@ -156,4 +160,79 @@
           });
 
           }
+
+          function resetPassword(id){
+            console.log(id);
+            Swal.fire({
+            title: "Konfirmasi Reset Password",
+            text: "Apakah anda yakin ingin mereset password data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.admins.reset-password') }}",
+                    type: 'POST',
+                    headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.status == "success") {
+                            Swal.fire({
+                            title: "Sukses!",
+                            text: response.message,
+                            icon: "success"
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status == 422) {
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Validation Error",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        else{
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Error!",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+                }
+            });
+        }
         </script>

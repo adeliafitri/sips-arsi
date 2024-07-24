@@ -1,4 +1,10 @@
-@extends('layouts.admin.main')
+@extends('layouts.dosen.main')
+
+<!-- Preloader -->
+<div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Arsitektur UIN Maulana Malik Ibrahim Malang" height="60" width="60">
+  </div>
+
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -6,6 +12,7 @@
       <div class="row mb-2">
         <div class="col-sm-6">
           <h1 class="m-0">Dashboard</h1>
+          <p class="m-0 text-capitalize pt-1">Tahun Ajaran {{ $semester->tahun_ajaran . " " . $semester->semester }}</p>
         </div><!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
@@ -21,54 +28,35 @@
   <!-- Main content -->
   <section class="content">
     <div class="container-fluid">
-      <!-- Small boxes (Stat box) -->
       <!-- <div class="row"> -->
-        <div class="callout callout-info">
-            <h5><i class="fas fa-info"></i> Pengumuman</h5>
-            This page has been enhanced for printing. Click the print button at the bottom of the invoice to test.
-        </div>
+        <!-- Small boxes (Stat box) -->
+    <div class="row">
+        @php
+            $colors = ['bg-info', 'bg-success', 'bg-warning', 'bg-danger'];
+        @endphp
+        @foreach ($data as $key => $datas)
+        <div class="col-lg-4 col-12">
+            <!-- small box -->
+            <div class="small-box {{ $colors[$key % count($colors)] }}">
+              <div class="inner">
+                <h4>{{ $datas->nama_matkul }}</h4>
+
+                <p><b>{{ $datas->kode_matkul }}</b></p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-book-reader"></i>
+              </div>
+              <a href="{{ route('dosen.matakuliah.show', $datas->id_matkul) }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        @endforeach
+    </div>
+    <!-- /.row -->
       <!-- </div> -->
       <!-- /.row -->
       <!-- Main row -->
-      <div class="row">
-      <div class="col-6">
-          <!-- small box -->
-          <div class="small-box bg-info">
-            <div class="inner">
-              <h3>8</h3>
 
-              <p>Jumlah Mata Kuliah</p>
-            </div>
-            <div class="icon">
-              <i class="ion ion-ios-people"></i>
-            </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        <!-- ./col -->
-        <!-- BAR CHART -->
-        <div class="card card-info">
-            <div class="card-header">
-              <h3 class="card-title">Bar Chart</h3>
-
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-tool" data-card-widget="remove">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="chart">
-                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-              </div>
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-      </div>
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
   </section>

@@ -12,10 +12,11 @@ class KelasKuliah extends Model
     protected $table ='matakuliah_kelas';
 
     protected $fillable = [
-        'matakuliah_id',
+        'rps_id',
         'kelas_id',
         'dosen_id',
         'semester_id',
+        'koordinator'
     ];
 
     public function kelas()

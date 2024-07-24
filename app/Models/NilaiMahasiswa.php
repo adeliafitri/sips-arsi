@@ -9,12 +9,12 @@ class NilaiMahasiswa extends Model
 {
     use HasFactory;
 
-    protected $table ='nilai_mahasiswa';
+    protected $table = 'nilai_mahasiswa';
 
     protected $fillable = [
         'matakuliah_kelasid',
         'mahasiswa_id',
-        'subcpmk_id',
+        'soal_id',
         'nilai',
     ];
 

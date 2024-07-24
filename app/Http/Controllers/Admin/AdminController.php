@@ -17,17 +17,19 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
-    public function dashboard() {
+    public function dashboard()
+    {
         $jml_mahasiswa = Mahasiswa::count();
         $jml_dosen = Dosen::count();
         $jml_matkul = MataKuliah::count();
-        $jml_kelas= KelasKuliah::count();
+        $jml_kelas = KelasKuliah::count();
         return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas'));
     }
 
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $query = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
-        ->select('admin.*');
+            ->select('admin.*');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -37,7 +39,7 @@ class AdminController extends Controller
             });
         }
 
-        $admin = $query->paginate(5);
+        $admin = $query->paginate(20);
 
         $startNumber = ($admin->currentPage() - 1) * $admin->perPage() + 1;
 
@@ -47,19 +49,24 @@ class AdminController extends Controller
         ])->with('success', 'Data Admin Ditemukan');
     }
 
-    public function create() {
+    public function create()
+    {
         return view('pages-admin.admin.tambah_admin');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validate = Validator::make($request->all(), [
             'nama' => 'required|string',
             'email' => 'required|email',
             'telp' => 'required',
         ]);
         // dd($validate);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -79,22 +86,26 @@ class AdminController extends Controller
                 'id_auth' => $id_auth
             ]);
 
-            return redirect()->route('admin.admins')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.admins')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
     }
 
-    public function detailUser(){
+    public function detailUser()
+    {
         return view('pages-admin.admin.detail_user');
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         // dd($id);
         $admin = Admin::join('auth', 'admin.id_auth', '=', 'auth.id')
-                    ->where('admin.id', $id)
-                    ->select('admin.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
-                    ->first();
+            ->where('admin.id', $id)
+            ->select('admin.*', 'auth.username') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+            ->first();
         // dd($admin);
         if (!$admin) {
             return redirect()->route('admin.admins')->withErrors(['error' => 'Admin not found']);
@@ -107,11 +118,18 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validate = Validator::make($request->all(), [
             'nama' => 'required|string',
-            'telp' => 'required|string',
-            'email' => 'required|string',
+            'email' => 'required|email',
+            'telp' => 'required',
         ]);
+        // dd($validate);
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
 
         try {
             // Update data produk berdasarkan ID
@@ -122,12 +140,14 @@ class AdminController extends Controller
                 'email' => $request->email,
             ]);
 
-            return redirect()->route('admin.admins')->with([
-                'success' => 'User updated successfully.',
-                'data' => $admin
-            ]);
+            // return redirect()->route('admin.admins')->with([
+            //     'success' => 'User updated successfully.',
+            //     'data' => $admin
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $admin]);
         } catch (\Exception $e) {
-            return redirect()->route('admin.admins.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.admins.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -141,6 +161,23 @@ class AdminController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $id = $request->id;
+        //  dd($id);
+
+        try {
+            $admin = Admin::findOrFail($id);
+            $auth = User::findOrFail($admin->id_auth);
+            $auth->password = Hash::make('admin123');
+            $auth->save();
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil reset password']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal reset password: ' . $e->getMessage()], 500);
         }
     }
 }

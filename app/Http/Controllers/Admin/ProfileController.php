@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -73,12 +76,47 @@ class ProfileController extends Controller
             session(['admin' => $admin]);
             //dd($admin->getAttributes()); // Mengecek apakah atribut sudah di-update sesuai harapan
 
-            return redirect()->route('admin.user', $id)->with([
-                'success' => 'User updated successfully.',
-                'data' => $admin
-            ]);
+            // return redirect()->route('admin.user', $id)->with([
+            //     'success' => 'User updated successfully.',
+            //     'data' => $admin
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $admin]);
         } catch (\Exception $e) {
-            return redirect()->route('admin.user.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.user.edit', $id)->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function showFormChangePass() {
+        return view('pages-admin.admin.changePass');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required',
+            'confirm_password' => 'required|same:new_password',
+        ], [
+            'old_password.required' => 'Password lama harus diisi',
+            'new_password.required' => 'Password baru harus diisi',
+            // 'new_password.min' => 'The new password must be at least 8 characters.',
+            'confirm_password.required' => 'Konfirmasi password harus diisi ',
+            'confirm_password.same' => 'Konfirmasi password tidak sesuai dengan password baru',
+        ]);
+
+        $currentPasswordStatus = Hash::check($request->old_password, auth()->user()->password);
+        if($currentPasswordStatus){
+
+            User::findOrFail(Auth::user()->id)->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+
+            // return redirect()->back()->with('success','Password Updated Successfully');
+            return response()->json(['status' => 'success', 'message' => 'Password berhasil diupdate']);
+        }else{
+            return response()->json(['status' => 'error', 'message' => 'Gagal update: Password lama salah atau tidak sesuai']);
+            // return redirect()->back()->with('error','Current Password does not match with Old Password');
         }
     }
 }

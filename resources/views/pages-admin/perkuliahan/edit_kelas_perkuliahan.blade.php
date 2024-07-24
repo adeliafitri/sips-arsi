@@ -10,7 +10,7 @@
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="{{ route('admin.kelaskuliah') }}">Data Kelas Perkuliahan</a></li>
-              <li class="breadcrumb-item active">Edit Data Kelas</li>
+              <li class="breadcrumb-item active">Edit Data</li>
             </ol>
           </div>
         </div>
@@ -41,7 +41,7 @@
                 </div> -->
               </div>
                 <div class="card-body">
-                <form action="{{ route('admin.kelaskuliah.update', $data->id) }}h" method="post">
+                <form id="editDataForm">
                 @csrf
                 @method('PUT')
                 <div class="form-group">
@@ -54,12 +54,12 @@
                         </select>
                   </div>
                   <div class="form-group">
-                    <label for="mata_kuliah">Mata Kuliah</label>
-                        <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah">
+                    <label for="rps">Mata Kuliah</label>
+                        <select class="form-control select2bs4" id="rps" name="rps">
                         <option value="">- Pilih Mata Kuliah -</option>
-                        @foreach ($mata_kuliah as $id => $name)
-                                <option value="{{ $id }}" {{ $data->matakuliah_id == $id ? 'selected' : '' }}>{{ $name }}</option>
-                            @endforeach
+                        @foreach ($rps as $key => $data_rps)
+                              <option value="{{ $data_rps->id }}" {{ $data->rps_id == $data_rps->id ? 'selected' : '' }}>{{ $data_rps->nama_matkul ." ". $data_rps->tahun_rps }}</option>
+                          @endforeach
                         </select>
                   </div>
                   <div class="form-group">
@@ -82,8 +82,8 @@
                   </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">
-                    <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Batal</a>
+                    <button type="button" class="btn btn-primary" onclick="editData({{ $data->id }})">Simpan</button>
                 </div>
                 </form>
             </div>
@@ -95,4 +95,85 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+@endsection
+
+@section('script')
+    <script>
+        function editData(id){
+            console.log(id);
+            var form = $('#editDataForm');
+            Swal.fire({
+            title: "Konfirmasi Edit",
+            text: "Apakah anda yakin ingin mengedit data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, edit"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/kelas-kuliah/edit') }}/" + id,
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+
+                            Swal.fire({
+                            title: "Sukses!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.href = "{{ route('admin.kelaskuliah') }}";
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status == 422) {
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Validation Error",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        else{
+                            var errorMessage = xhr.responseJSON.message;
+                            Swal.fire({
+                            icon: "error",
+                            title:"Error!",
+                            text: errorMessage,
+                        }).then((result) => {
+                            // Check if the user clicked "OK"
+                            if (result.isConfirmed) {
+                                // Redirect to the desired URL
+                                window.location.reload();
+                            };
+                        });
+                        }
+                        // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+            });
+        }
+    </script>
 @endsection

@@ -1,3 +1,6 @@
+@extends('layouts.dosen.main')
+
+@section('content')
 <section class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
@@ -6,8 +9,8 @@
         </div>
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="index.php?include=data-kelas-perkuliahan">Data Kelas Perkuliahan</a></li>
-            <li class="breadcrumb-item active">Tambah Data</li>
+            <li class="breadcrumb-item"><a href="{{ route('dosen.kelaskuliah') }}">Data Kelas Perkuliahan</a></li>
+            <li class="breadcrumb-item active">Tambah Data Kelas</li>
           </ol>
         </div>
       </div>
@@ -21,11 +24,15 @@
         <div class="col-12">
           <div class="card">
               <div class="col-12 justify-content-center">
-              <?php if((!empty($_GET['notif']))&&(!empty($_GET['jenis']))){?>
-                    <?php if($_GET['notif']=="tambahkosong"){?>
-                        <div class="alert alert-danger bg-danger" role="alert">Maaf data <?php echo $_GET['jenis'];?> wajib di isi</div>
-                    <?php }?>
-                <?php }?>
+                @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
               </div>
             <div class="card-header d-flex justify-content-end">
               <h3 class="card-title col align-self-center">Form Tambah Data Kelas Perkuliahan</h3>
@@ -34,63 +41,47 @@
               </div> -->
             </div>
               <div class="card-body">
-              <form action="index.php?include=proses-tambah-kelas-kuliah" method="post">
+              <form action="{{ route('dosen.kelaskuliah.store') }}" method="post">
+                @csrf
                 <div class="form-group">
-                  <label for="kelas">Kelas</label>
-                      <select class="form-control select2bs4" id="kelas" name="kelas">
-                      <option value="">- Pilih Kelas-</option>
-                      <?php
-                      $sql_k = "SELECT `id`, `nama_kelas` FROM `kelas` ORDER BY `nama_kelas`";
-                      $query_k = mysqli_query($koneksi, $sql_k);
-                      while($data_k = mysqli_fetch_row($query_k)){
-                              $id_kelas = $data_k[0];
-                              $nama_kelas = $data_k[1];
-                      ?>
-                      <option value="<?php echo $id_kelas;?>"><?php echo "$nama_kelas";?></option>
-                      <?php }?>
+                  <label for="semester">Semester</label>
+                      <select class="form-control select2bs4" id="semester" name="semester">
+                      <option value="">- Pilih Semester -</option>
+                      @foreach ($semester as $key => $data)
+                            <option value="{{ $data->id }}">{{ $data->tahun_ajaran ." ". $data->semester }}</option>
+                        @endforeach
                       </select>
                 </div>
                 <div class="form-group">
                   <label for="mata_kuliah">Mata Kuliah</label>
                       <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah">
-                      <option value="">- Pilih Mata Kuliah-</option>
-                      <?php
-                      $sql_k = "SELECT `id`, `nama_matkul` FROM `matakuliah` ORDER BY `nama_matkul`";
-                      $query_k = mysqli_query($koneksi, $sql_k);
-                      while($data_k = mysqli_fetch_row($query_k)){
-                              $id_matkul = $data_k[0];
-                              $nama_matkul = $data_k[1];
-                      ?>
-                      <option value="<?php echo $id_matkul;?>"><?php echo "$nama_matkul";?></option>
-                      <?php }?>
+                      <option value="">- Pilih Mata Kuliah -</option>
+                      @foreach ($mata_kuliah as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
                       </select>
                 </div>
+                <div class="form-group">
+                    <label for="kelas">Kelas</label>
+                        <select class="form-control select2bs4" id="kelas" name="kelas">
+                        <option value="">- Pilih Kelas -</option>
+                        @foreach ($kelas as $id => $name)
+                              <option value="{{ $id }}">{{ $name }}</option>
+                          @endforeach
+                        </select>
+                  </div>
                 <div class="form-group">
                   <label for="dosen">Dosen</label>
                       <select class="form-control select2bs4" id="dosen" name="dosen">
-                      <option value="">- Pilih Dosen-</option>
-                      <?php
-                      $sql_k = "SELECT `id`, `nama` FROM `dosen` ORDER BY `nama`";
-                      $query_k = mysqli_query($koneksi, $sql_k);
-                      while($data_k = mysqli_fetch_row($query_k)){
-                              $id_dosen = $data_k[0];
-                              $nama_dosen = $data_k[1];
-                      ?>
-                      <option value="<?php echo $id_dosen;?>"><?php echo "$nama_dosen";?></option>
-                      <?php }?>
+                      <option value="">- Pilih Dosen -</option>
+                      @foreach ($dosen as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                        @endforeach
                       </select>
-                </div>
-                <div class="form-group">
-                  <label for="tahun_ajaran">Tahun Ajaran</label>
-                  <input type="text" class="form-control" id="tahun_ajaran" name="tahun_ajaran" placeholder="Tahun Ajaran">
-                </div>
-                <div class="form-group">
-                  <label for="semester">Semester</label>
-                  <input type="text" class="form-control" id="semester" name="semester" placeholder="Semester">
                 </div>
                <!-- /.card-body -->
               <div class="card-footer clearfix">
-                  <a href="index.php?include=data-kelas-perkuliahan" class="btn btn-default">Cancel</a>
+                  <a href="{{ route('dosen.kelaskuliah') }}" class="btn btn-default">Cancel</a>
                   <button type="submit" class="btn btn-primary">Save</button>
               </div>
               </form>
@@ -103,3 +94,4 @@
     </div><!-- /.container-fluid -->
   </section>
   <!-- /.content -->
+@endsection

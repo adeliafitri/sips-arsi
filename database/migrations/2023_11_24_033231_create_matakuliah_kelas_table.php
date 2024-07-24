@@ -17,7 +17,7 @@ class CreateMatakuliahKelasTable extends Migration
 
         Schema::create('matakuliah_kelas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('matakuliah_id')->constrained('mata_kuliah');
+            $table->foreignId('rps_id')->constrained('rps');
             $table->foreignId('kelas_id')->constrained('kelas');
             $table->foreignId('dosen_id')->constrained('dosen');
             $table->foreignId('semester_id')->constrained('semester');

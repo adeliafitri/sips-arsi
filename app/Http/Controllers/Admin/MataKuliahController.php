@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cpl;
+use App\Models\Cpmk;
 use App\Models\MataKuliah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +27,7 @@ class MataKuliahController extends Controller
             });
         }
 
-        $mata_kuliah = $query->paginate(5);
+        $mata_kuliah = $query->paginate(20);
 
         $startNumber = ($mata_kuliah->currentPage() - 1) * $mata_kuliah->perPage() + 1;
 
@@ -52,10 +54,15 @@ class MataKuliahController extends Controller
             'kode_matkul' => 'required|unique:mata_kuliah,kode_matkul',
             'nama_matkul' => 'required|string',
             'sks' => 'required|numeric',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
         ]);
 
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -63,21 +70,30 @@ class MataKuliahController extends Controller
                 'kode_matkul' => $request->kode_matkul,
                 'nama_matkul' => $request->nama_matkul,
                 'sks' => $request->sks,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
             ]);
 
-            return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
+            // return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
+            // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: ' . $e->getMessage()])->withInput();
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+    // public function show($id)
+    // {
+    //     $rps = MataKuliah::where('id', $id)->first();
+
+    //     return view('pages-admin.mata_kuliah.detail_mata_kuliah', [
+    //         'success' => 'Data Ditemukan',
+    //         'data' => $rps
+    //     ]);
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -101,10 +117,15 @@ class MataKuliahController extends Controller
             'kode_matkul' => 'required',
             'nama_matkul' => 'required|string',
             'sks' => 'required|numeric',
+            'semester' => 'required|numeric',
+            'tahun_rps' => 'required|numeric',
         ]);
 
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
         }
 
         try {
@@ -113,15 +134,19 @@ class MataKuliahController extends Controller
                 'kode_matkul' => $request->kode_matkul,
                 'nama_matkul' => $request->nama_matkul,
                 'sks' => $request->sks,
+                'semester' => $request->semester,
+                'tahun_rps' => $request->tahun_rps
             ]);
 
-            return redirect()->route('admin.matakuliah')->with([
-                'success' => 'Data Berhasil Diupdate',
-                'data' => $mata_kuliah
-            ]);
+            // return redirect()->route('admin.matakuliah')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $mata_kuliah
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $mata_kuliah]);
         } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
             // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
-            return redirect()->route('admin.matakuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+            // return redirect()->route('admin.matakuliah.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -132,12 +157,13 @@ class MataKuliahController extends Controller
     {
         try {
             MataKuliah::where('id', $id)->delete();
-
-            return redirect()->route('admin.matakuliah')
-                ->with('success', 'Data berhasil dihapus');
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('success', 'Data berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('admin.matakuliah')
-                ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            // return redirect()->route('admin.matakuliah')
+            //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
 }

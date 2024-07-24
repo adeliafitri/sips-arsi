@@ -1,8 +1,8 @@
 <aside class="main-sidebar sidebar-light-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="./pages/dashboard.php" class="brand-link">
+    <a href="{{ route('admin.dashboard') }}" class="brand-link">
         <img src="{{ asset('dist/img/logo-arsitektur-UIN-Malang.png') }}" alt="Logo Prodi Arsitektur UIN Malang" class="brand-image elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-dark">Prodi Arsitektur</span>
+        <span class="brand-text font-weight-dark text-xs text-uppercase">Prodi S1 Teknik Arsitektur</span>
     </a>
 
     @php
@@ -59,30 +59,14 @@
         </div>
         {{-- @endif --}}
 
-        <!-- SidebarSearch Form -->
-        <div class="form-inline">
-            <div class="input-group" data-widget="sidebar-search">
-            <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-            <div class="input-group-append">
-                <button class="btn btn-sidebar">
-                <i class="fas fa-search fa-fw"></i>
-                </button>
-            </div>
-            </div>
-        </div>
-
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
                 @if (session()->has('admin'))
-                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
-                @elseif (session()->has('dosen'))
-                <a href="{{ route('dosen.dashboard') }}" class="nav-link active">
-                @elseif (session()->has('mahasiswa'))
-                <a href="{{ route('mahasiswa.dashboard') }}" class="nav-link active">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 @endif
-                <i class="nav-icon fas fa-th"></i>
+                <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                     Dashboard
                     <!-- <span class="right badge badge-danger">New</span> -->
@@ -91,25 +75,25 @@
             </li>
             @if (session()->has('admin'))
             <li class="nav-item">
-                <a href="{{ route('admin.mahasiswa') }}" class="nav-link">
+                <a href="{{ route('admin.mahasiswa') }}" class="nav-link {{ request()->routeIs('admin.mahasiswa') ? 'active' : '' }}">
                 <i class="fas fa-user-graduate nav-icon"></i>
                 <p>Data Mahasiswa</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.dosen') }}" class="nav-link">
+                <a href="{{ route('admin.dosen') }}" class="nav-link {{ request()->routeIs('admin.dosen') ? 'active' : '' }}">
                 <i class="fas fa-user-tie nav-icon"></i>
                 <p>Data Dosen</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.matakuliah') }}" class="nav-link">
+                <a href="{{ route('admin.rps') }}" class="nav-link {{ request()->routeIs('admin.rps') ? 'active' : '' }}">
                 <i class="fas fa-book-reader nav-icon"></i>
                 <p>Data RPS</p>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link">
+                <a href="{{ route('admin.kelaskuliah') }}" class="nav-link {{ request()->routeIs('admin.kelaskuliah') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>
                     Data Kelas Perkuliahan
@@ -117,7 +101,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link {{ request()->routeIs(['admin.semester', 'admin.kelas', 'admin.cpl']) ? 'active' : '' }}">
                 <i class="nav-icon fas fa-database"></i>
                 <p>
                     Data Master
@@ -139,6 +123,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('admin.matakuliah') }}" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data Mata Kuliah</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('admin.cpl') }}" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Data CPL</p>
@@ -147,7 +137,7 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.admins') }}" class="nav-link">
+                <a href="{{ route('admin.admins') }}" class="nav-link {{ request()->routeIs('admin.admins') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-user"></i>
                 <p>
                     Data Admin
@@ -156,7 +146,7 @@
             </li>
             @endif
             <li class="nav-item">
-                <form action="{{ route('logout') }}" method="post">
+                {{-- <form action="{{ route('logout') }}" method="post">
                     @csrf
                     <button type="submit" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt text-start"></i>
@@ -164,7 +154,11 @@
                             Logout
                         </p>
                     </button>
-                </form>
+                </form> --}}
+                <a href="#" onclick="logout()" class="nav-link">
+                    <i class="nav-icon fas fa-sign-out-alt text-start"></i>
+                    <p class="text-start">Logout</p>
+                </a>
             </li>
             </ul>
         </nav>
@@ -172,3 +166,33 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+<script>
+    function logout() {
+        Swal.fire({
+            title: "Logout",
+            text: "Apakah anda yakin ingin keluar dari aplikasi?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, keluar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/logout",
+                    type: "POST",
+                    data: {_token: "{{ csrf_token() }}"},
+                    success: function(response) {
+                        // Tindakan sukses, misalnya refresh halaman atau redirect ke halaman login
+                        window.location.href = "{{ route('login') }}";
+                    },
+                    error: function(xhr) {
+                        // Tindakan jika terjadi kesalahan
+                        console.log('Kesalahan: ' + xhr.responseText);
+                    }
+                });
+            }
+        });
+    }
+</script>

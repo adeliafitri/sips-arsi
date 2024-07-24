@@ -7,9 +7,9 @@
 <div class="wrapper">
 
   <!-- Preloader -->
-  <div class="preloader flex-column justify-content-center align-items-center">
+  {{-- <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="./assets-admin/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
-  </div>
+  </div> --}}
 
   <!-- Navbar -->
   @include('partials.navbar')
@@ -34,5 +34,7 @@
 </div>
 <!-- ./wrapper -->
 @include('partials.script')
+@yield('script')
+
 </body>
 </html>

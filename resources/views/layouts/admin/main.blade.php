@@ -8,7 +8,6 @@
 
   <!-- Navbar -->
   @include('partials.navbar')
-
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
@@ -30,5 +29,6 @@
 </div>
 <!-- ./wrapper -->
 @include('partials.script')
+@yield('script')
 </body>
 </html>

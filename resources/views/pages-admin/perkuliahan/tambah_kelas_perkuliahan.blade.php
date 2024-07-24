@@ -23,17 +23,6 @@
       <div class="row">
         <div class="col-12">
           <div class="card">
-              <div class="col-12 justify-content-center">
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-              </div>
             <div class="card-header d-flex justify-content-end">
               <h3 class="card-title col align-self-center">Form Tambah Data Kelas Perkuliahan</h3>
               <!-- <div class="col-sm-2">
@@ -41,11 +30,11 @@
               </div> -->
             </div>
               <div class="card-body">
-              <form action="{{ route('admin.kelaskuliah.store') }}" method="post">
+              <form id="addDataForm">
                 @csrf
                 <div class="form-group">
                   <label for="semester">Semester</label>
-                      <select class="form-control select2bs4" id="semester" name="semester">
+                      <select class="form-control select2bs4" id="semester" name="semester" >
                       <option value="">- Pilih Semester -</option>
                       @foreach ($semester as $key => $data)
                             <option value="{{ $data->id }}">{{ $data->tahun_ajaran ." ". $data->semester }}</option>
@@ -53,11 +42,11 @@
                       </select>
                 </div>
                 <div class="form-group">
-                  <label for="mata_kuliah">Mata Kuliah</label>
-                      <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah">
+                  <label for="rps">Mata Kuliah</label>
+                      <select class="form-control select2bs4" id="rps" name="rps">
                       <option value="">- Pilih Mata Kuliah -</option>
-                      @foreach ($mata_kuliah as $id => $name)
-                            <option value="{{ $id }}">{{ $name }}</option>
+                      @foreach ($rps as $key => $data_rps)
+                            <option value="{{ $data_rps->id }}">{{ $data_rps->nama_matkul ." ". $data_rps->tahun_rps }}</option>
                         @endforeach
                       </select>
                 </div>
@@ -81,8 +70,8 @@
                 </div>
                <!-- /.card-body -->
               <div class="card-footer clearfix">
-                  <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Cancel</a>
-                  <button type="submit" class="btn btn-primary">Save</button>
+                  <a href="{{ route('admin.kelaskuliah') }}" class="btn btn-default">Batal</a>
+                  <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
               </div>
               </form>
           </div>
@@ -94,4 +83,65 @@
     </div><!-- /.container-fluid -->
   </section>
   <!-- /.content -->
+@endsection
+
+@section('script')
+  <script>
+    function addData() {
+        var form = $('#addDataForm');
+        $.ajax({
+            type: 'POST',
+            url: "{{ url('admin/kelas-kuliah/create') }}",
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Sukses!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.href = "{{ route('admin.kelaskuliah') }}";
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
+  </script>
 @endsection
