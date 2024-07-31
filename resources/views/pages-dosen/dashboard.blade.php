@@ -12,11 +12,7 @@
       <div class="row mb-2">
         <div class="col-sm-6">
           <h1 class="m-0">Dashboard</h1>
-          @if ($semester == null)
-            <p class="m-0 text-capitalize pt-1">Tidak ada tahun ajaran aktif</p>
-          @else
           <p class="m-0 text-capitalize pt-1">Tahun Ajaran {{ $semester->tahun_ajaran . " " . $semester->semester }}</p>
-          @endif
         </div><!-- /.col -->
         <div class="col-sm-6">
           <ol class="breadcrumb float-sm-right">
