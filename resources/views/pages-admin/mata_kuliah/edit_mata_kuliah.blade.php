@@ -57,7 +57,7 @@
                     <div class="form-group">
                         <label for="semester">Semester</label>
                         <input type="number" class="form-control" id="semester" name="semester"
-                            placeholder="Semester" value="{{ $data->semester }}">
+                            placeholder="Semester" value="  ">
                     </div>
                     <div class="form-group">
                         <label for="tahun_rps">Tahun RPS</label>
