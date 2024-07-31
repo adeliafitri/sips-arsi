@@ -307,8 +307,6 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('create/soal/{id}', [DosenRpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
             Route::get('{id}', [DosenRpsController::class, 'create'])->name('dosen.rps.create');
             Route::delete('deletecpmk/{id}', [DosenRpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
-            Route::delete('deletecpmk/sub/{id}', [DosenRpsController::class, 'destroySubCpmk'])->name('dosen.rps.destroysubcpmk');
-            Route::delete('deletecpmk/sub/soal/{id}', [DosenRpsController::class, 'destroySoal'])->name('dosen.rps.destroysoal');
             // Route::get('create', [RpsController::class, 'create'])->name('dosen.matakuliah.add');
             Route::get('editcpmk/{id}', [DosenRpsController::class, 'editCpmk'])->name('dosen.rps.editcpmk');
             Route::put('updatecpmk', [DosenRpsController::class, 'updateCpmk'])->name('dosen.rps.updatecpmk');
