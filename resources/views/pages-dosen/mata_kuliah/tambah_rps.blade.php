@@ -77,7 +77,7 @@
                                                             <h6>{{ $name }}</h6>
                                                         </div>
                                                         <div class="col-md-8">
-                                                            <button class="btn btn-sm btn-primary" type="button" onclick="inputCpl({{ $id }}, '{{ $name }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Sub-CPMK</button>
+                                                            <button class="btn btn-sm btn-primary" type="button" onclick="inputCpl({{ $id }}, '{{ $name }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah CPMK</button>
                                                         </div>
                                                     </div>
                                                     @endforeach

@@ -4,7 +4,7 @@
         <h6>{{ $kode }}</h6>
     </div>
     <div class="col-md-8">
-        <button class="btn btn-primary" type="button" onclick="inputCpmk({{ $cpmk_id }}, '{{ $kode }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah CPMK</button>
+        <button class="btn btn-primary" type="button" onclick="inputCpmk({{ $cpmk_id }}, '{{ $kode }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Sub-CPMK</button>
     </div>
 </div>
 @endforeach
