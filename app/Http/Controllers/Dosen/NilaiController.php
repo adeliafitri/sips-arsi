@@ -23,7 +23,8 @@ class NilaiController extends Controller
     {
         $nilai_mahasiswa = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilaiakhir_mahasiswa.matakuliah_kelasid', '=', 'matakuliah_kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('rps','matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
             ->select('mahasiswa.nama as nama', 'mahasiswa.nim as nim', 'mata_kuliah.nama_matkul as nama_matkul', 'nilaiakhir_mahasiswa.*')
             // ->distinct()
             ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)
@@ -273,7 +274,8 @@ class NilaiController extends Controller
     public function nilaiExcel($id) {
         $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
-            ->join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
@@ -442,7 +444,8 @@ class NilaiController extends Controller
     public function generatePdf($id)
     {
         // Ambil data mata kuliah dari database
-        $kelas_matkul = KelasKuliah::join('mata_kuliah', 'matakuliah_kelas.matakuliah_id', 'mata_kuliah.id')
+        $kelas_matkul = KelasKuliah::join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
         ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
         ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'dosen.nama as nama_dosen', 'matakuliah_kelas.id as id_kelas')
@@ -459,6 +462,12 @@ class NilaiController extends Controller
             ->orderby('soal_sub_cpmk.id', 'ASC')
             // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
             ->get();
+
+        $nilai_akhir = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
+            ->select('mahasiswa.*', 'nilaiakhir_mahasiswa.nilai_akhir as nilai_akhir')
+            // ->distinct()
+            ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)
+            ->orderBy('nim', 'asc')->distinct()->get();
 
             $mahasiswa_data = [];
             $info_soal = [];
@@ -496,6 +505,15 @@ class NilaiController extends Controller
                 $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
             }
 
+            foreach ($nilai_akhir as $akhir) {
+                $mahasiswa_id = $akhir->nim;
+                if (isset($mahasiswa_data[$mahasiswa_id])) {
+                    $mahasiswa_data[$mahasiswa_id]['nilai_akhir'] = $akhir->nilai_akhir;
+                    $mahasiswa_data[$mahasiswa_id]['nilai_huruf'] = $this->convertNilaiToHuruf($akhir->nilai_akhir);
+                    $mahasiswa_data[$mahasiswa_id]['keterangan'] = $this->getKeterangan($akhir->nilai_akhir);
+                }
+            }
+
         $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
         // Mulai membuat laporan PDF
         $dompdf = new Dompdf();
@@ -516,6 +534,34 @@ class NilaiController extends Controller
 
         // Mengirimkan laporan PDF sebagai respons
         return $dompdf->stream($filename);
+    }
+
+    private function convertNilaiToHuruf($nilai)
+    {
+        if ($nilai >= 85) {
+                return "A";
+            }elseif ($nilai >= 76) {
+                return "B+";
+            }elseif ($nilai >= 71) {
+                return "B";
+            }elseif ($nilai >= 66) {
+                return "C+";
+            }elseif ($nilai >= 61) {
+                return "C";
+            }elseif ($nilai >= 51) {
+                return "D";
+            }else{
+                return "E";
+            }
+    }
+
+    private function getKeterangan($nilai)
+    {
+        if ($nilai >= 61) {
+                return "Lulus";
+            } else {
+                return "Tidak Lulus";
+            }
     }
 }
 
