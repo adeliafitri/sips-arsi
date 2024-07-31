@@ -74,7 +74,21 @@ class RpsController extends Controller
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         // dd($data_cpmk);
         $data_soal = Soal::pluck('bentuk_soal', 'id');
-        return view('pages-dosen.mata_kuliah.tambah_rps', compact('cpl','rps','kode_cpmk','kode_subcpmk', 'data_soal'));
+        return view('pages-dosen.mata_kuliah.tambah_rps', compact('cpl','rps', 'data_soal'));
+    }
+
+    public function listKodeCpmk($id)
+    {
+        $data['kode_cpmk'] = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');
+        return view('pages-dosen.mata_kuliah.partials.input.list_cpmk', $data);
+    }
+
+    public function listKodeSubCpmk($id)
+    {
+        $data['kode_subcpmk'] = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+            ->where('cpmk.rps_id', $id)
+            ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
+        return view('pages-dosen.mata_kuliah.partials.input.list_subcpmk', $data);
     }
 
     public function storecpmk(Request $request, $id)

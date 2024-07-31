@@ -142,6 +142,9 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('listsubcpmk/{id}', [RpsController::class, 'listSubCpmk'])->name('admin.rps.listsubcpmk');
             Route::get('listcpmk/{id}', [RpsController::class, 'listCpmk'])->name('admin.rps.listcpmk');
             Route::get('listtugas/{id}', [RpsController::class, 'listTugas'])->name('admin.rps.listtugas');
+
+            Route::get('listsubcpmk/input/{id}', [RpsController::class, 'listKodeSubCpmk'])->name('admin.rps.listkodesubcpmk');
+            Route::get('listcpmk/input/{id}', [RpsController::class, 'listKodeCpmk'])->name('admin.rps.listkodecpmk');
         });
 
         Route::prefix('admin/kelas')->group(function () {
@@ -307,6 +310,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('create/soal/{id}', [DosenRpsController::class, 'storesoal'])->name('dosen.rps.storesoal');
             Route::get('{id}', [DosenRpsController::class, 'create'])->name('dosen.rps.create');
             Route::delete('deletecpmk/{id}', [DosenRpsController::class, 'destroyCpmk'])->name('dosen.rps.destroycpmk');
+            Route::delete('deletecpmk/sub/{id}', [DosenRpsController::class, 'destroySubCpmk'])->name('dosen.rps.destroysubcpmk');
+            Route::delete('deletecpmk/sub/soal/{id}', [DosenRpsController::class, 'destroySoal'])->name('dosen.rps.destroysoal');
             // Route::get('create', [RpsController::class, 'create'])->name('dosen.matakuliah.add');
             Route::get('editcpmk/{id}', [DosenRpsController::class, 'editCpmk'])->name('dosen.rps.editcpmk');
             Route::put('updatecpmk', [DosenRpsController::class, 'updateCpmk'])->name('dosen.rps.updatecpmk');
@@ -318,6 +323,9 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('listsubcpmk/{id}', [DosenRpsController::class, 'listSubCpmk'])->name('dosen.rps.listsubcpmk');
             Route::get('listcpmk/{id}', [DosenRpsController::class, 'listCpmk'])->name('dosen.rps.listcpmk');
             Route::get('listtugas/{id}', [DosenRpsController::class, 'listTugas'])->name('dosen.rps.listtugas');
+
+            Route::get('listsubcpmk/input/{id}', [DosenRpsController::class, 'listKodeSubCpmk'])->name('dosen.rps.listkodesubcpmk');
+            Route::get('listcpmk/input/{id}', [DosenRpsController::class, 'listKodeCpmk'])->name('dosen.rps.listkodecpmk');
 
             Route::get('detail/cpl', [DosenMataKuliahController::class, 'detailCpl']);
             Route::get('detail/cpmk', [DosenMataKuliahController::class, 'detailCpmk']);
