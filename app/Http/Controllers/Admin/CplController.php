@@ -28,7 +28,7 @@ class CplController extends Controller
             });
         }
 
-        $cpl = $query->paginate(5);
+        $cpl = $query->paginate(20);
 
         $startNumber = ($cpl->currentPage() - 1) * $cpl->perPage() + 1;
 
