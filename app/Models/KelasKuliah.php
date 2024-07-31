@@ -17,8 +17,6 @@ class KelasKuliah extends Model
         'dosen_id',
         'semester_id',
         'koordinator',
-        'evaluasi',
-        'rencana_perbaikan'
     ];
 
     public function kelas()
