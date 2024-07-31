@@ -458,4 +458,36 @@ class PerkuliahanController extends Controller
 
         // return redirect()->back()->with('success', 'Data imported successfully.');
     }
+    public function updateEvaluasi(Request $request, $id)
+    {
+        $validate = Validator::make($request->all(), [
+            'evaluasi' => 'string',
+            'rencana_perbaikan' => 'string',
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
+
+        try {
+            $evaluasi = KelasKuliah::find($id);
+            $evaluasi->update([
+                'evaluasi' => $request->evaluasi,
+                'rencana_perbaikan' => $request->rencana_perbaikan,
+            ]);
+
+            // return redirect()->route('admin.cpl')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $cpl
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $evaluasi]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            // return redirect()->route('admin.cpl.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
 }
