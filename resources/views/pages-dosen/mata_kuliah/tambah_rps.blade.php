@@ -518,6 +518,8 @@
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
                                         getListCpmk();
+                                        getListSubCpmk();
+                                        getListTugas();
                                         // window.location.reload();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
@@ -579,6 +581,7 @@
                                     if (result.isConfirmed) {
                                         // window.location.reload();
                                         getListSubCpmk();
+                                        getListTugas();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });

@@ -19,6 +19,6 @@ class MataKuliah extends Model
 
     public function rps()
     {
-        return $this->hasMany(Rps::class);
+        return $this->hasMany(Rps::class, 'matakuliah_id');
     }
 }

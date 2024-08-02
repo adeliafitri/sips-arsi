@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MataKuliah;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\NilaiMahasiswa;
 use App\Models\Rps;
 use App\Models\Soal;
 use App\Models\SoalSubCpmk;
@@ -252,8 +253,17 @@ class RpsController extends Controller
     public function destroyCpmk($id)
     {
         try {
+            $subcpmk = SubCpmk::where('cpmk_id', $id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+            SubCpmk::where('cpmk_id', $id)->delete();
             $cpmk = Cpmk::findOrFail($id);
-            $cpmk->sub_cpmk()->delete();
+            // $cpmk->sub_cpmk()->delete();
             $cpmk->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
@@ -264,8 +274,12 @@ class RpsController extends Controller
     public function destroySubCpmk($id)
     {
         try {
+            $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $id)->select('id')->get();
+            foreach ($soalsubcpmk as $valueSoal) {
+                NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+            }
+            SoalSubCpmk::where('subcpmk_id', $id)->delete();
             $subcpmk = SubCpmk::findOrFail($id);
-
             $subcpmk->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
@@ -277,8 +291,8 @@ class RpsController extends Controller
     public function destroySoal($id)
     {
         try {
+            NilaiMahasiswa::where('soal_id', $id)->delete();
             $soal = SoalSubCpmk::findOrFail($id);
-
             $soal->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
