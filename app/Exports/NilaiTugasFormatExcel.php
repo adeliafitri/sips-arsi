@@ -39,33 +39,38 @@ class NilaiTugasFormatExcel implements FromView, ShouldAutoSize
         $nomor = 1;
 
         foreach ($nilai_mahasiswa as $nilai) {
-            $soal_id = $nilai->id;
+            $bentuk_soal = $nilai->bentuk_soal;
+            $bobot_soal = $nilai->bobot_soal;
+            $soal_key = $bentuk_soal . '_' . $bobot_soal;
             $mahasiswa_id = $nilai->nim;
 
-            if (!isset($info_soal[$soal_id])) {
-                $info_soal[$soal_id] = [
-                    'waktu_pelaksanaan' => $nilai->waktu_pelaksanaan,
-                    'kode_subcpmk' => $nilai->kode_subcpmk,
-                    'bobot_soal' => $nilai->bobot_soal,
-                    'bentuk_soal' => $nilai->bentuk_soal,
+            // Menyusun info soal
+            if (!isset($info_soal[$bentuk_soal])) {
+                $info_soal[$bentuk_soal] = [
+                    'bobot_soal' => []
                 ];
             }
 
+            if (!in_array($bobot_soal, $info_soal[$bentuk_soal]['bobot_soal'])) {
+                $info_soal[$bentuk_soal]['bobot_soal'][] = $bobot_soal;
+            }
+
+            // Tambah bobot_soal jika bentuk_soal sama
+            // $info_soal[$bentuk_soal]['bobot_soal'] += $bobot_soal;
+
+            // Menyusun data mahasiswa
             if (!isset($mahasiswa_data[$mahasiswa_id])) {
                 $mahasiswa_data[$mahasiswa_id] = [
                     'kelas_id' => $nilai->id_kelas,
                     'id_mhs' => $nilai->id_mhs,
                     'nim' => $nilai->nim,
                     'nama' => $nilai->nama,
-                    'id_nilai' => [],
-                    'nomor' => $nomor
-                    // 'nilai' => [],
+                    'nilai' => [],
+                    'nomor' => $nomor,
                 ];
-                $nomor++;
             }
-
-            $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
-            // $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
+            $nomor++;
+            $mahasiswa_data[$mahasiswa_id]['nilai'][$soal_key] = $nilai->nilai;
         }
 
         return view('pages-dosen.generate.excel.nilai-mahasiswa', [
