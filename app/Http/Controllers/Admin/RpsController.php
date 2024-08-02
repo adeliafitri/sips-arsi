@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 // use App\Models\Rps;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Models\NilaiMahasiswa;
 use App\Models\Rps;
 use App\Models\Soal;
 use App\Models\SoalSubCpmk;
@@ -207,9 +210,26 @@ class RpsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
+    public function destroy(string $id) {
         try {
+            $cpmk = Cpmk::where('rps_id', $id)->select('id')->get();
+            foreach ($cpmk as $valueCpmk) {
+                $subcpmk = SubCpmk::where('cpmk_id', $valueCpmk->id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        $matakuliah_kelas = KelasKuliah::where('rps_id', $id)->select('id')->get();
+                        foreach ($matakuliah_kelas as $kelas) {
+                            NilaiAkhirMahasiswa::where('matakuliah_kelasid', $kelas->id)->delete();
+                            NilaiMahasiswa::where('soal_id', $valueSoal->id)->where('matakuliah_kelasid', $kelas->id)->delete();
+                        }
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+                SubCpmk::where('cpmk_id', $valueCpmk->id)->delete();
+            }
+            Cpmk::where('rps_id', $id)->delete();
+            KelasKuliah::where('rps_id', $id)->delete();
             Rps::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.matakuliah')
@@ -500,8 +520,17 @@ class RpsController extends Controller
     public function destroyCpmk($id)
     {
         try {
+            $subcpmk = SubCpmk::where('cpmk_id', $id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+            SubCpmk::where('cpmk_id', $id)->delete();
             $cpmk = Cpmk::findOrFail($id);
-            $cpmk->sub_cpmk()->delete();
+            // $cpmk->sub_cpmk()->delete();
             $cpmk->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
@@ -512,8 +541,12 @@ class RpsController extends Controller
     public function destroySubCpmk($id)
     {
         try {
+            $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $id)->select('id')->get();
+            foreach ($soalsubcpmk as $valueSoal) {
+                NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+            }
+            SoalSubCpmk::where('subcpmk_id', $id)->delete();
             $subcpmk = SubCpmk::findOrFail($id);
-
             $subcpmk->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
@@ -525,8 +558,8 @@ class RpsController extends Controller
     public function destroySoal($id)
     {
         try {
+            NilaiMahasiswa::where('soal_id', $id)->delete();
             $soal = SoalSubCpmk::findOrFail($id);
-
             $soal->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
@@ -654,10 +687,11 @@ class RpsController extends Controller
                 $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
             }
 
+            $subcpmkId = is_array($request->pilih_subcpmk) ? $request->pilih_subcpmk[0] : $request->pilih_subcpmk;
             $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
             $soalsubcpmk->update([
-                'subcpmk_id' => $request->pilih_subcpmk,
+                'subcpmk_id' => $subcpmkId,
                 'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
                 'waktu_pelaksanaan' => $minggu,

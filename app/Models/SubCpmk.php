@@ -21,4 +21,9 @@ class SubCpmk extends Model
     {
         return $this->belongsTo(Cpmk::class);
     }
+
+    public function soal()
+    {
+        return $this->hasMany(SoalSubCpmk::class, 'subcpmk_id');
+    }
 }

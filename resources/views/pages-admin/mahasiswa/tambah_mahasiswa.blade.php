@@ -114,7 +114,7 @@
                         <!-- /.card-body -->
                         <div class="card-footer clearfix">
                             <a href="{{ route('admin.mahasiswa') }}" class="btn btn-default">Batal</a>
-                            <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
+                            <button type="button" class="btn btn-primary" onclick="addData()" id="button-simpan">Simpan</button>
                         </div>
                         </form>
                     </div>
@@ -131,6 +131,7 @@
 @section('script')
   <script>
     function addData() {
+        $('#button-simpan').disabled = true;
         var form = $('#addDataForm');
         $.ajax({
             type: 'POST',

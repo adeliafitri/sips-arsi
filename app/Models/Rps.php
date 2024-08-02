@@ -19,10 +19,14 @@ class Rps extends Model
 
     public function cpmk()
     {
-        return $this->hasMany(Cpmk::class);
+        return $this->hasMany(Cpmk::class, 'rps_id');
     }
     public function kelas_kuliah()
     {
-        return $this->hasMany(KelasKuliah::class);
+        return $this->hasMany(KelasKuliah::class, 'rps_id');
+    }
+    public function mata_kuliah()
+    {
+        return $this->belongsTo(MataKuliah::class);
     }
 }
