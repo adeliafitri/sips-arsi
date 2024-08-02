@@ -51,12 +51,14 @@
                                     <div id="test-l-1" class="content">
                                         <div class="form-group">
                                             <label for="mata_kuliah">Mata Kuliah</label>
-                                                <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" disabled>
+                                            <input type="hidden" name="mata_kuliah" id="rps-id" value="{{ $idMatkul }}">
+                                            <input type="text" id="rps-option" class="form-control" placeholder="Mata Kuliah" value="{{ $namaMatkul }}" disabled>
+                                                {{-- <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" disabled> --}}
                                                 {{-- <option value="">- Pilih Mata Kuliah -</option> --}}
                                                 {{-- @foreach ($mata_kuliah as $id => $name) --}}
-                                                      <option value="{{ $idMatkul }}" selected>{{ $namaMatkul }}</option>
+                                                      {{-- <option value="{{ $idMatkul }}" selected>{{ $namaMatkul }}</option> --}}
                                                   {{-- @endforeach --}}
-                                                </select>
+                                                {{-- </select> --}}
                                         </div>
                                         <div class="form-group">
                                             <label for="semester">Semester</label>
