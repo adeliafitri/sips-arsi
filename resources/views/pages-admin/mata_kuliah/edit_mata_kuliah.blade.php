@@ -54,16 +54,6 @@
                     <label for="sks">SKS</label>
                         <input type="number" class="form-control" id="sks" rows="3" name="sks" placeholder="SKS" value="{{ $data->sks }}">
                     </div>
-                    <div class="form-group">
-                        <label for="semester">Semester</label>
-                        <input type="number" class="form-control" id="semester" name="semester"
-                            placeholder="Semester" value="  ">
-                    </div>
-                    <div class="form-group">
-                        <label for="tahun_rps">Tahun RPS</label>
-                        <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
-                            placeholder="Tahun RPS" value="{{ $data->tahun_rps }}">
-                    </div>
                 </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">

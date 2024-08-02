@@ -5,7 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Models\NilaiMahasiswa;
+use App\Models\Rps;
+use App\Models\SoalSubCpmk;
+use App\Models\SubCpmk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -113,8 +119,6 @@ class MataKuliahController extends Controller
             'kode_matkul' => 'required',
             'nama_matkul' => 'required|string',
             'sks' => 'required|numeric',
-            'semester' => 'required|numeric',
-            'tahun_rps' => 'required|numeric',
         ]);
 
         if ($validate->fails()) {
@@ -130,8 +134,6 @@ class MataKuliahController extends Controller
                 'kode_matkul' => $request->kode_matkul,
                 'nama_matkul' => $request->nama_matkul,
                 'sks' => $request->sks,
-                'semester' => $request->semester,
-                'tahun_rps' => $request->tahun_rps
             ]);
 
             // return redirect()->route('admin.matakuliah')->with([
@@ -152,6 +154,34 @@ class MataKuliahController extends Controller
     public function destroy(string $id)
     {
         try {
+            $rps = Rps::where('matakuliah_id', $id)->select('id')->get();
+            foreach ($rps as $valueRps) {
+                $matakuliah_kelas = KelasKuliah::where('rps_id', $valueRps->id)->select('id')->get();
+
+                foreach ($matakuliah_kelas as $kelas) {
+                    // Delete related NilaiAkhirMahasiswa
+                    NilaiAkhirMahasiswa::where('matakuliah_kelasid', $kelas->id)->delete();
+
+                    // Delete related NilaiMahasiswa for the current KelasKuliah
+                    NilaiMahasiswa::where('matakuliah_kelasid', $kelas->id)->delete();
+                }
+
+                $cpmk = Cpmk::where('rps_id', $valueRps->id)->select('id')->get();
+                foreach ($cpmk as $valueCpmk) {
+                    $subcpmk = SubCpmk::where('cpmk_id', $valueCpmk->id)->select('id')->get();
+                    foreach ($subcpmk as $valueSubCpmk) {
+                        $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                        foreach ($soalsubcpmk as $valueSoal) {
+                                NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                        }
+                        SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                    }
+                    SubCpmk::where('cpmk_id', $valueCpmk->id)->delete();
+                }
+                Cpmk::where('rps_id', $valueRps->id)->delete();
+                KelasKuliah::where('rps_id', $valueRps->id)->delete();
+            }
+            Rps::where('matakuliah_id', $id)->delete();
             MataKuliah::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.matakuliah')

@@ -39,7 +39,7 @@
                             @endif
                         </div>
                         <div class="card-header d-flex justify-content-end">
-                            <h3 class="card-title col align-self-center">Form Tambah Data Mata Kuliah</h3>
+                            <h3 class="card-title col align-self-center">Form Tambah Data RPS</h3>
                             <!-- <div class="col-sm-2">
                                 <a href="index.php?include=data-mahasiswa" class="btn btn-warning"><i class="nav-icon fas fa-arrow-left mr-2"></i> Kembali</a>
                                 </div> -->
@@ -51,10 +51,10 @@
                                     <div id="test-l-1" class="content">
                                         <div class="form-group">
                                             <label for="mata_kuliah">Mata Kuliah</label>
-                                                <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" >
+                                                <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" disabled>
                                                 {{-- <option value="">- Pilih Mata Kuliah -</option> --}}
                                                 {{-- @foreach ($mata_kuliah as $id => $name) --}}
-                                                      <option value="{{ $idMatkul }}">{{ $namaMatkul }}</option>
+                                                      <option value="{{ $idMatkul }}" selected>{{ $namaMatkul }}</option>
                                                   {{-- @endforeach --}}
                                                 </select>
                                         </div>

@@ -49,7 +49,7 @@ class PerkuliahanController extends Controller
 
         $query->groupBy('matakuliah_kelas.id');
 
-        $kelas_kuliah = $query->paginate(20);
+        $kelas_kuliah = $query->paginate(200);
 
         $startNumber = ($kelas_kuliah->currentPage() - 1) * $kelas_kuliah->perPage() + 1;
 
@@ -120,6 +120,7 @@ class PerkuliahanController extends Controller
         $dosen = Dosen::pluck('nama', 'id');
         $idMatkul = $request->query('id_matkul');
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->select('rps.id as id_rps', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')
         ->where('mata_kuliah.id', $idMatkul)->get();
         // $semester = Semester::all();
         $idSemester = $request->query('id_smt');
