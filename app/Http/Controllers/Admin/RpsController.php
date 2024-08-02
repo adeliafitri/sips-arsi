@@ -37,7 +37,7 @@ class RpsController extends Controller
 
         $query->groupBy('rps.id');
 
-        $rps = $query->paginate(20);
+        $rps = $query->paginate(200);
 
         $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
 
