@@ -47,7 +47,7 @@ class PerkuliahanController extends Controller
             });
         }
 
-        $query->groupBy('matakuliah_kelas.id');
+        $query->groupBy('matakuliah_kelas.id')->orderBy('mata_kuliah.nama_matkul', 'ASC');
 
         $kelas_kuliah = $query->paginate(200);
 

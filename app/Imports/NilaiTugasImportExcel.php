@@ -33,19 +33,39 @@ class NilaiTugasImportExcel implements ToModel, WithHeadingRow
                             ->select('nilai_mahasiswa.id as id_nilai', 'soal.bentuk_soal')
                             ->where('mahasiswa_id', $mahasiswa->id)
                             ->where('matakuliah_kelasid', $this->id)
-                            ->get();
+                            ->get()
+                            ->groupBy('bentuk_soal');
+
+                            foreach ($nilaiTugas as $bentukSoal => $tugasGroup) {
+                                $nilaiTotal = 0;
+
+                                foreach ($tugasGroup as $tugas) {
+                                    $minggu = preg_replace('/[&\s]+/', '_', strtolower($bentukSoal));
+                                    $nilai = $row[$minggu];
+
+                                    if ($nilai !== null) {
+                                        $nilaiTotal += $nilai;
+                                    }
+                                }
+
+                                foreach ($tugasGroup as $tugas) {
+                                    $nilaiMahasiswa = NilaiMahasiswa::find($tugas->id_nilai);
+                                    $nilaiMahasiswa->nilai = $nilaiTotal / count($tugasGroup); // Average or distribute the score
+                                    $nilaiMahasiswa->save();
+                                }
+                            }
                 // dd($nilaiTugas);
-                        foreach($nilaiTugas as $tugas) {
-                            $minggu =  preg_replace('/[&\s]+/', '_',strtolower($tugas->bentuk_soal));
-                            // dd($minggu);
-                            // dd($tugas->id_nilai);
-                            $nilaiMahasiswa = NilaiMahasiswa::find($tugas->id_nilai);
-                            $nilai = $row[$minggu];
-                            $nilaiMahasiswa->nilai = $nilai;
-                            // dd($nilaiMahasiswa->toSql(), $nilaiMahasiswa->getBindings());
-                            // dd($nilaiMahasiswa->where('id', $tugas->id_nilai)->toSql(), $nilaiMahasiswa->getBindings());
-                            $nilaiMahasiswa->save();
-                        }
+                        // foreach($nilaiTugas as $tugas) {
+                        //     $minggu =  preg_replace('/[&\s]+/', '_',strtolower($tugas->bentuk_soal));
+                        //     // dd($minggu);
+                        //     // dd($tugas->id_nilai);
+                        //     $nilaiMahasiswa = NilaiMahasiswa::find($tugas->id_nilai);
+                        //     $nilai = $row[$minggu];
+                        //     $nilaiMahasiswa->nilai = $nilai;
+                        //     // dd($nilaiMahasiswa->toSql(), $nilaiMahasiswa->getBindings());
+                        //     // dd($nilaiMahasiswa->where('id', $tugas->id_nilai)->toSql(), $nilaiMahasiswa->getBindings());
+                        //     $nilaiMahasiswa->save();
+                        // }
 
                 $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
                 ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
