@@ -26,7 +26,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-10">
+                <div class="col-8">
                   <form action="{{ route('admin.kelaskuliah') }}" method="GET">
                     <div class="input-group col-sm-5 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
@@ -37,6 +37,22 @@
                       </div>
                     </div>
                   </form>
+                </div>
+                <div class="col-2">
+                    <form action="{{ route('admin.kelaskuliah') }}" method="GET">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-secondary text-capitalize dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-filter fa-sm"></i> {{ $title }}
+                            </button>
+                            <div class="dropdown-menu">
+                                @foreach ($getSemesters as $key => $smt)
+                                {{-- @dd($getSemesters) --}}
+                                    <button class="dropdown-item" type="button" onclick="document.getElementById('tahun_ajaran').value = '{{ $smt->id }}'; this.form.submit();"> <p style="text-transform: uppercase;">{{ $smt->tahun_ajaran . ' ' . $smt->semester }}</p></button>
+                                @endforeach
+                            </div>
+                        </div>
+                        <input type="hidden" id="tahun_ajaran" name="tahun_ajaran">
+                    </form>
                 </div>
                 <div class="col-sm-2">
                     <a href="{{ route('admin.kelaskuliah.createKelas') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
@@ -119,11 +135,11 @@
                 </div>
               </div>
               <!-- /.card-body -->
-
+              {{-- @dd($data); --}}
               <div class="card-footer clearfix">
                 <ul class="pagination pagination-sm m-0 float-right">
                     <div class="float-right">
-                        {{-- {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }} --}}
+                        {{ $data->onEachSide(1)->links('pagination::bootstrap-4') }}
                     </div>
                 </ul>
               </div>
