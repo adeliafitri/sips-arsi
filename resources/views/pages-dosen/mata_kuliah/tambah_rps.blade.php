@@ -9,7 +9,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Data RPS {{ $rps->nama_matkul }}</h1>
+                    <h4>Data RPS {{ $rps->nama_matkul." (". $rps->tahun_rps .")" }}</h4>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -77,7 +77,7 @@
                                                             <h6>{{ $name }}</h6>
                                                         </div>
                                                         <div class="col-md-8">
-                                                            <button class="btn btn-sm btn-primary" type="button" onclick="inputCpl({{ $id }}, '{{ $name }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Sub-CPMK</button>
+                                                            <button class="btn btn-sm btn-primary" type="button" onclick="inputCpl({{ $id }}, '{{ $name }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah CPMK</button>
                                                         </div>
                                                     </div>
                                                     @endforeach
@@ -120,17 +120,8 @@
 
                                         <div id="test-l-2" class="content" role="tabpanel" aria-labelledby="stepper1trigger2">
                                             <div class="row">
-                                                <div class="col-md-5">
-                                                    @foreach ($kode_cpmk as $cpmk_id => $kode)
-                                                    <div class="col-md-12 mb-3 d-flex">
-                                                        <div class="col-md-2 align-self-center">
-                                                            <h6>{{ $kode }}</h6>
-                                                        </div>
-                                                        <div class="col-md-8">
-                                                            <button class="btn btn-primary" type="button" onclick="inputCpmk({{ $cpmk_id }}, '{{ $kode }}')"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Sub-CPMK</button>
-                                                        </div>
-                                                    </div>
-                                                    @endforeach
+                                                <div class="col-md-5" id="input-kodecpmk">
+
                                                 </div>
 
                                                 <div class="col-md-7">
@@ -199,15 +190,8 @@
                                                 </div> --}}
                                                 <div class="form-group">
                                                     <label for="pilih_subcpmk">Kode Sub CPMK</label>
-                                                    <div class="row">
-                                                        @foreach ($kode_subcpmk as $subcpmkid => $value)
-                                                            <div class="col-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="checkbox" id="subcpmk_{{ $subcpmkid }}" name="pilih_subcpmk[]" value="{{ $subcpmkid }}">
-                                                                    <label class="form-check-label" for="subcpmk_{{ $subcpmkid }}">{{ $value }}</label>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
+                                                    <div class="row" id="input-kodesubcpmk">
+
                                                     </div>
                                                 </div>
                                                 <div class="textinput" style="margin-bottom: 1rem">
@@ -291,6 +275,9 @@
         getListSubCpmk();
         getListCpmk();
         getListTugas();
+
+        listInputCpmk();
+        listInputSubCpmk();
     });
 
 
@@ -342,6 +329,7 @@
                         // Redirect to the desired URL
                         form[0].reset();
                         getListCpmk();
+                        listInputCpmk();
                     };
                 });
                 }
@@ -405,6 +393,7 @@
                         // Redirect to the desired URL
                         form[0].reset();
                         getListSubCpmk();
+                        listInputSubCpmk();
                         // window.location.href = "{{ route('admin.rps.create', '') }}/" + id;
                     };
                 });
@@ -529,6 +518,8 @@
                                     // Check if the user clicked "OK"
                                     if (result.isConfirmed) {
                                         getListCpmk();
+                                        getListSubCpmk();
+                                        getListTugas();
                                         // window.location.reload();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
@@ -590,6 +581,7 @@
                                     if (result.isConfirmed) {
                                         // window.location.reload();
                                         getListSubCpmk();
+                                        getListTugas();
                                     };
                                         // window.location.href = "{{ route('admin.kelas') }}";
                                 });
@@ -1183,5 +1175,45 @@
             var page = $(this).attr('href').split('page=')[1];
             getListTugas(page);
         });
+
+        function listInputCpmk() {
+            $.ajax({
+                    url: "{{ url('dosen/rps/listcpmk/input') }}/" + {{ $rps->id }}, // URL untuk menyimpan data yang diedit
+                    type: 'GET', // Metode HTTP untuk menyimpan data
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                    // if (response.status === 'success') {
+                        console.log(data);
+                        $('#input-kodecpmk').html(data);
+                    // }
+                    },
+                    error: function(xhr, status, error) {
+                    // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+        }
+
+        function listInputSubCpmk() {
+            $.ajax({
+                    url: "{{ url('dosen/rps/listsubcpmk/input') }}/" + {{ $rps->id }}, // URL untuk menyimpan data yang diedit
+                    type: 'GET', // Metode HTTP untuk menyimpan data
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                    // if (response.status === 'success') {
+                        console.log(data);
+                        $('#input-kodesubcpmk').html(data);
+                    // }
+                    },
+                    error: function(xhr, status, error) {
+                    // Handle error here
+                        console.error(xhr.responseText);
+                    }
+                });
+        }
 </script>
 @endsection

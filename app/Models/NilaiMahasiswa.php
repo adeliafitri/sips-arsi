@@ -26,8 +26,8 @@ class NilaiMahasiswa extends Model
     {
         return $this->belongsTo(Mahasiswa::class);
     }
-    public function sub_cpmk()
+    public function soal()
     {
-        return $this->belongsTo(SubCpmk::class);
+        return $this->belongsTo(SoalSubCpmk::class);
     }
 }

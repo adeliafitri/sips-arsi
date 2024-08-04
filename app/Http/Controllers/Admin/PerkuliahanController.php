@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\Rps;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
@@ -14,11 +14,12 @@ use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Facades\DB;
 use App\Models\NilaiAkhirMahasiswa;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 use App\Exports\DaftarMahasiswaFormatExcel;
 use App\Imports\DaftarMahasiswaImportExcel;
-use App\Models\Rps;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerkuliahanController extends Controller
 {
@@ -27,7 +28,8 @@ class PerkuliahanController extends Controller
      */
     public function index(Request $request)
     {
-        // $mata_kuliah =
+        $getSemesters = Semester::select('id','tahun_ajaran', 'semester')->get();
+        // dd($semester);
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
             ->join('rps', 'matakuliah_kelas.rps_id', '=', 'rps.id')
             ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
@@ -37,6 +39,14 @@ class PerkuliahanController extends Controller
             ->select('matakuliah_kelas.id','matakuliah_kelas.koordinator','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen', 'rps.tahun_rps')
             ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
 
+            if ($request->has('tahun_ajaran')) {
+                $tahunAjaranTerm = $request->input('tahun_ajaran');
+                $query->where('semester.id', $tahunAjaranTerm);
+                $reqTahunAjaran = $getSemesters->where('id', $tahunAjaranTerm)->first();
+                $title = $reqTahunAjaran->tahun_ajaran ." ". $reqTahunAjaran->semester;
+            }else{
+                $title = 'Tahun Ajaran';
+            }
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
@@ -47,11 +57,17 @@ class PerkuliahanController extends Controller
             });
         }
 
-        $query->groupBy('matakuliah_kelas.id');
+        $query->groupBy('matakuliah_kelas.id')
+            ->orderBy('semester.tahun_ajaran', 'Desc')
+            ->orderBy('semester.semester', 'asc')
+            ->orderBy('mata_kuliah.nama_matkul', 'ASC')
+            ->orderBy('rps.tahun_rps','ASC')
+            ->orderBy('kelas.nama_kelas', 'ASC');
 
-        $kelas_kuliah = $query->paginate(20);
+        $kelas_kuliah = $query->get();
+        // dd($kelas_kuliah);
 
-        $startNumber = ($kelas_kuliah->currentPage() - 1) * $kelas_kuliah->perPage() + 1;
+        // $startNumber = ($kelas_kuliah->currentPage() - 1) * $kelas_kuliah->perPage() + 1;
 
         $data = [];
         foreach ($kelas_kuliah as $item) {
@@ -100,9 +116,21 @@ class PerkuliahanController extends Controller
             }
         }
 
+        // Perform pagination on flatData
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 4;
+        $currentItems = array_slice($flatData, ($currentPage - 1) * $perPage, $perPage);
+        $paginatedData = new LengthAwarePaginator($currentItems, count($flatData), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        $startNumber = ($paginatedData->currentPage() - 1) * $paginatedData->perPage() + 1;
+        // dd($paginatedData);
         return view('pages-admin.perkuliahan.kelas_perkuliahan', [
-            'data' => $flatData,
+            'data' => $paginatedData,
             'startNumber' => $startNumber,
+            'getSemesters' => $getSemesters,
+            'title' => $title,
         ])->with('success', 'Data CPMK Ditemukan');
         // return view('pages-admin.perkuliahan.kelas_perkuliahan', [
         //     'data' => $kelas_kuliah,
@@ -120,6 +148,7 @@ class PerkuliahanController extends Controller
         $dosen = Dosen::pluck('nama', 'id');
         $idMatkul = $request->query('id_matkul');
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->select('rps.id as id_rps', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')
         ->where('mata_kuliah.id', $idMatkul)->get();
         // $semester = Semester::all();
         $idSemester = $request->query('id_smt');
@@ -246,7 +275,8 @@ class PerkuliahanController extends Controller
                 'semester.semester',
                 'kelas.nama_kelas as kelas',
                 'mata_kuliah.nama_matkul as nama_matkul',
-                'dosen.nama as nama_dosen'
+                'dosen.nama as nama_dosen',
+                'rps.tahun_rps'
             )
             ->where('matakuliah_kelas.id', $id)
             ->first();

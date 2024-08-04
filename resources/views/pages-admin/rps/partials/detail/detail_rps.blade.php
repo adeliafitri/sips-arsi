@@ -20,7 +20,7 @@
                 <td>{{ $datas->kode_cpmk }}</td>
                 <td>{{ $datas->kode_subcpmk }}</td>
                 <td>{{ $datas->bentuk_soal }}</td>
-                <td>{{ $datas->bobot_soal }}</td>
+                <td>{{ $datas->bobot_soal }}%</td>
             </tr>
             @endforeach
         </tbody>

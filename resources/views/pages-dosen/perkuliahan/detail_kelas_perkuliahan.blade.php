@@ -39,15 +39,15 @@
         </div>
         <div class="card-body">
             <div class="row d-flex">
-                <div class="col-sm-10">
+                <div class="col-sm-9">
                     <p><span class="text-bold">Tahun Ajaran :</span> {{ $data->tahun_ajaran }}</p>
-                    <p><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
+                    <p class="text-capitalize"><span class="text-bold">Semester :</span> {{ $data->semester }}</p>
                     <p><span class="text-bold">Dosen :</span> {{ $data->nama_dosen }}</p>
                     <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
                 </div>
-                {{-- <div class="col-sm-2">
-                    <a href="" class="btn btn-sm btn-info w-100"><i class="nav-icon fas fa-upload mr-2"></i> Upload File</a>
-                </div> --}}
+                <div class="col-sm-3">
+                    <a href="{{ route('dosen.kelaskuliah.generateportof', $data->id) }}" class="btn btn-sm btn-primary"><i class="nav-icon fas fa-download mr-2"></i> Download Portfolio Perkuliahan</a>
+                </div>
             </div>
         </div>
         <!-- /.card-body -->
@@ -55,7 +55,7 @@
       <!-- /.card -->
       <div class="callout callout-info">
         {{-- <h5>I am an info callout!</h5> --}}
-        <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+        <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul. " (".$data->tahun_rps.")" }}</p>
     </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
@@ -278,6 +278,28 @@
             </div>
           </div>
       </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Evaluasi dan Rencana Perbaikan</h3>
+            </div>
+            <div class="card-body">
+                <form id="dataForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="form-group">
+                        <label for="evaluasi">Evaluasi</label>
+                        <textarea class="form-control" id="evaluasi" name="evaluasi" rows="3">{{ $data->evaluasi }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="rencana_perbaikan">Rencana Perbaikan</label>
+                        <textarea class="form-control" id="rencana_perbaikan" name="rencana_perbaikan" rows="3">{{ $data->rencana_perbaikan }}</textarea>
+                    </div>
+                    <div class="card-footer clearfix">
+                        <button type="button" class="btn btn-primary" onclick="saveData({{$data->id}})">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
           </div>
           <!-- /.col -->
         </div>
@@ -556,6 +578,66 @@
                 }
             });
         }
+        function saveData(id) {
+        var form = $('#dataForm');
+        $.ajax({
+            type: 'PUT',
+            url: "{{ url('dosen/kelas-kuliah/updateEvaluasi') }}/" + id,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            contentType: 'application/x-www-form-urlencoded',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status == "success") {
+                    Swal.fire({
+                    title: "Sukses!",
+                    text: response.message,
+                    icon: "success"
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status == 422) {
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Validation Error",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                else{
+                    var errorMessage = xhr.responseJSON.message;
+                    Swal.fire({
+                    icon: "error",
+                    title:"Error!",
+                    text: errorMessage,
+                }).then((result) => {
+                    // Check if the user clicked "OK"
+                    if (result.isConfirmed) {
+                        // Redirect to the desired URL
+                        window.location.reload();
+                    };
+                });
+                }
+                // Handle error here
+                console.error(xhr.responseText);
+            }
+        });
+    }
 </script>
 @endsection
 

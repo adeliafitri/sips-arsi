@@ -55,7 +55,7 @@
       <!-- /.card -->
         <div class="callout callout-info">
             {{-- <h5>I am an info callout!</h5> --}}
-            <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul }}</p>
+            <p>Sebelum menambahkan mahasiswa ke dalam kelas, pastikan tidak ada penambahan atau pengurangan data RPS {{ $data->nama_matkul. " (".$data->tahun_rps.")" }}</p>
         </div>
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">

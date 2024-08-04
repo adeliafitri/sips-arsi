@@ -10,7 +10,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('admin.rps') }}">Data RPS</a></li>
-                        <li class="breadcrumb-item active"><a href="">Detail Data RPS</a></li>
+                        <li class="breadcrumb-item active">Detail Data RPS</li>
                     </ol>
                 </div>
             </div>
@@ -89,16 +89,16 @@
                         <div class="card-header p-0 pt-1">
                           <ul class="nav nav-tabs justify-content-center" id="custom-tabs-one-tab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" role="tab" data-toggle="pill" href="#cpl-tab" aria-controls="cpl-tab" aria-selected="true" onclick="detailCpl({{ $data->id }});" ><h6  style="font-weight: bold">Data CPL</h6></a>
+                                <a class="nav-link active" role="tab" data-toggle="pill" href="#cpl-tab" aria-controls="cpl-tab" aria-selected="true" onclick="detailCpl({{ $data->id_rps }});" ><h6  style="font-weight: bold">Data CPL</h6></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" role="tab"  data-toggle="pill" href="#cpmk-tab" aria-controls="cpmk-tab" aria-selected="false" onclick="detailCpmk({{ $data->id }});"><h6 style="font-weight: bold">Data CPMK</h6></a>
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#cpmk-tab" aria-controls="cpmk-tab" aria-selected="false" onclick="detailCpmk({{ $data->id_rps }});"><h6 style="font-weight: bold">Data CPMK</h6></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" role="tab"  data-toggle="pill" href="#subcpmk-tab" aria-controls="subcpmk-tab" aria-selected="false" onclick="detailSubCpmk({{ $data->id }});"><h6 style="font-weight: bold">Data Sub CPMK</h6></a>
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#subcpmk-tab" aria-controls="subcpmk-tab" aria-selected="false" onclick="detailSubCpmk({{ $data->id_rps }});"><h6 style="font-weight: bold">Data Sub CPMK</h6></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" role="tab"  data-toggle="pill" href="#rps-tab" aria-controls="rps-tab" aria-selected="false" onclick="detailTugas({{ $data->id }});"><h6 style="font-weight: bold">Tugas</h6></a>
+                                <a class="nav-link" role="tab"  data-toggle="pill" href="#rps-tab" aria-controls="rps-tab" aria-selected="false" onclick="detailTugas({{ $data->id_rps }});"><h6 style="font-weight: bold">Tugas</h6></a>
                             </li>
                           </ul>
                         </div>
@@ -161,7 +161,7 @@
         }
 
         $(document).ready(function() {
-                detailCpl({{ $data->id }}, null);
+                detailCpl({{ $data->id_rps }}, null);
         });
 
         function detailCpmk(id, page = null){
@@ -233,25 +233,25 @@
         $(document).on('click', '#tabel-datacpl .pagination a', function(e) {
             e.preventDefault();
             var page = $(this).attr('href').split('page=')[1];
-            detailCpl({{ $data->id }}, page);
+            detailCpl({{ $data->id_rps }}, page);
         });
 
         $(document).on('click', '#tabel-datacpmk .pagination a', function(e) {
             e.preventDefault();
             var page = $(this).attr('href').split('page=')[1];
-            detailCpmk({{ $data->id }}, page);
+            detailCpmk({{ $data->id_rps }}, page);
         });
 
         $(document).on('click', '#tabel-datasubcpmk .pagination a', function(e) {
             e.preventDefault();
             var page = $(this).attr('href').split('page=')[1];
-            detailSubCpmk({{ $data->id }}, page);
+            detailSubCpmk({{ $data->id_rps }}, page);
         });
 
         $(document).on('click', '#tabel-datatugas .pagination a', function(e) {
             e.preventDefault();
             var page = $(this).attr('href').split('page=')[1];
-            detailTugas({{ $data->id }}, page);
+            detailTugas({{ $data->id_rps }}, page);
         });
     </script>
 @endsection

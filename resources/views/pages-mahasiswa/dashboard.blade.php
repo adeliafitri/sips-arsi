@@ -48,12 +48,12 @@
                 <div class="icon">
                 <i class="ion ion-ios-people"></i>
                 </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="{{ route('mahasiswa.kelaskuliah') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
             </div>
             <!-- ./col -->
 
-            <div class="col-md-6 col-sm-6 col-12">
+            <div class="col-md-6 col-sm-12 col-12">
                 <div class="info-box bg-success">
                   <span class="info-box-icon"><i class="far fa-thumbs-up"></i></span>
 

@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-// use App\Models\Rps;
 use App\Models\Cpl;
-use App\Models\Cpmk;
-use App\Models\MataKuliah;
 use App\Models\Rps;
+// use App\Models\Rps;
+use App\Models\Cpmk;
 use App\Models\Soal;
-use App\Models\SoalSubCpmk;
 use App\Models\SubCpmk;
-use Illuminate\Support\Facades\Validator;
+use App\Models\MataKuliah;
+use App\Models\KelasKuliah;
+use App\Models\SoalSubCpmk;
+use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Collection;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RpsController extends Controller
 {
@@ -21,7 +25,9 @@ class RpsController extends Controller
     public function index(Request $request)
     {
         $query = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-            ->select('rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
+            ->select(
+                'rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul',
+                'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -32,11 +38,11 @@ class RpsController extends Controller
             });
         }
 
-        $query->groupBy('rps.id');
+        $query->groupBy('rps.id')->orderBy('rps.tahun_rps', 'ASC');
 
-        $rps = $query->paginate(20);
+        $rps = $query->get();
 
-        $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
+        // $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
 
         $data = [];
         foreach ($rps as $item) {
@@ -80,8 +86,18 @@ class RpsController extends Controller
             }
         }
 
+        // Perform pagination on flatData
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentItems = array_slice($flatData, ($currentPage - 1) * $perPage, $perPage);
+        $paginatedData = new LengthAwarePaginator($currentItems, count($flatData), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        $startNumber = ($paginatedData->currentPage() - 1) * $paginatedData->perPage() + 1;
+
         return view('pages-admin.rps.rps', [
-            'data' => $flatData,
+            'data' => $paginatedData,
             'startNumber' => $startNumber,
         ])->with('success', 'Data Ditemukan');
         // return view('pages-admin.perkuliahan.kelas_perkuliahan', [
@@ -140,7 +156,7 @@ class RpsController extends Controller
     {
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->where('rps.id', $id)
-            ->select('rps.*', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
+            ->select('rps.id as id_rps', 'rps.semester', 'rps.tahun_rps', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks')
             ->first();
 
         return view('pages-admin.rps.detail_rps', [
@@ -207,9 +223,26 @@ class RpsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
+    public function destroy(string $id) {
         try {
+            $cpmk = Cpmk::where('rps_id', $id)->select('id')->get();
+            foreach ($cpmk as $valueCpmk) {
+                $subcpmk = SubCpmk::where('cpmk_id', $valueCpmk->id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        $matakuliah_kelas = KelasKuliah::where('rps_id', $id)->select('id')->get();
+                        foreach ($matakuliah_kelas as $kelas) {
+                            NilaiAkhirMahasiswa::where('matakuliah_kelasid', $kelas->id)->delete();
+                            NilaiMahasiswa::where('soal_id', $valueSoal->id)->where('matakuliah_kelasid', $kelas->id)->delete();
+                        }
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+                SubCpmk::where('cpmk_id', $valueCpmk->id)->delete();
+            }
+            Cpmk::where('rps_id', $id)->delete();
+            KelasKuliah::where('rps_id', $id)->delete();
             Rps::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.matakuliah')
@@ -315,17 +348,28 @@ class RpsController extends Controller
     {
         $rps= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->where('rps.id', $id)
+            ->select('rps.*', 'mata_kuliah.nama_matkul')
             ->first();
         $cpl= Cpl::pluck('kode_cpl', 'id');
-        $kode_cpmk = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');
-        $kode_subcpmk = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
-            ->where('cpmk.rps_id', $id)
-            ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
             // dd ($kode_subcpmk);
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         // dd($data_cpmk);
         $data_soal = Soal::pluck('bentuk_soal', 'id');
-        return view('pages-admin.rps.tambah_detail_rps', compact('cpl','rps','kode_cpmk','kode_subcpmk', 'data_soal'));
+        return view('pages-admin.rps.tambah_detail_rps', compact('cpl','rps', 'data_soal'));
+    }
+
+    public function listKodeCpmk($id)
+    {
+        $data['kode_cpmk'] = Cpmk::where('rps_id', '=', $id)->pluck('kode_cpmk', 'id');
+        return view('pages-admin.rps.partials.input.list_cpmk', $data);
+    }
+
+    public function listKodeSubCpmk($id)
+    {
+        $data['kode_subcpmk'] = SubCpmk::join('cpmk', 'sub_cpmk.cpmk_id', '=', 'cpmk.id')
+            ->where('cpmk.rps_id', $id)
+            ->pluck('sub_cpmk.kode_subcpmk', 'sub_cpmk.id');
+        return view('pages-admin.rps.partials.input.list_subcpmk', $data);
     }
 
     public function storecpmk(Request $request, $id)
@@ -489,8 +533,17 @@ class RpsController extends Controller
     public function destroyCpmk($id)
     {
         try {
+            $subcpmk = SubCpmk::where('cpmk_id', $id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+            SubCpmk::where('cpmk_id', $id)->delete();
             $cpmk = Cpmk::findOrFail($id);
-            $cpmk->sub_cpmk()->delete();
+            // $cpmk->sub_cpmk()->delete();
             $cpmk->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
@@ -501,8 +554,12 @@ class RpsController extends Controller
     public function destroySubCpmk($id)
     {
         try {
+            $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $id)->select('id')->get();
+            foreach ($soalsubcpmk as $valueSoal) {
+                NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+            }
+            SoalSubCpmk::where('subcpmk_id', $id)->delete();
             $subcpmk = SubCpmk::findOrFail($id);
-
             $subcpmk->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
@@ -514,8 +571,8 @@ class RpsController extends Controller
     public function destroySoal($id)
     {
         try {
+            NilaiMahasiswa::where('soal_id', $id)->delete();
             $soal = SoalSubCpmk::findOrFail($id);
-
             $soal->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
@@ -643,10 +700,11 @@ class RpsController extends Controller
                 $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
             }
 
+            $subcpmkId = is_array($request->pilih_subcpmk) ? $request->pilih_subcpmk[0] : $request->pilih_subcpmk;
             $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
             $soalsubcpmk->update([
-                'subcpmk_id' => $request->pilih_subcpmk,
+                'subcpmk_id' => $subcpmkId,
                 'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
                 'waktu_pelaksanaan' => $minggu,

@@ -17,4 +17,14 @@ class SoalSubCpmk extends Model
         'bobot_soal',
         'waktu_pelaksanaan'
     ];
+
+    public function sub_cpmk()
+    {
+        return $this->belongsTo(SubCpmk::class);
+    }
+
+    public function nilai()
+    {
+        return $this->hasMany(NilaiMahasiswa::class, 'soal_id');
+    }
 }

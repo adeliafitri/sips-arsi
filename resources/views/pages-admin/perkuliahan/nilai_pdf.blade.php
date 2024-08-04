@@ -7,9 +7,9 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            table-layout: fixed;
-            word-wrap: break-word;
-            font-size: 8px; /* Mengurangi ukuran font */
+            /* table-layout: fixed;
+            word-wrap: break-word; */
+            font-size: 10px; /* Mengurangi ukuran font */
         }
         th, td {
             width: auto;
@@ -30,11 +30,13 @@
             overflow-x: auto;
         }
         .info-soal {
-            width: 50px; /* Menetapkan lebar tetap untuk kolom info soal */
+            table-layout: fixed;
+            font-size: 10px;
+            width: 30px; /* Menetapkan lebar tetap untuk kolom info soal */
         }
 
         .no-column {
-            width: 10px; /* Menetapkan lebar tetap untuk kolom "No" */
+            font-size: 10px; /* Menetapkan lebar tetap untuk kolom "No" */
         }
     </style>
 </head>
@@ -63,16 +65,16 @@
         <thead>
           <tr>
             <th class="no-column" rowspan="4">No</th>
-            <th rowspan="4">NIM</th>
-            <th rowspan="4">Nama</th>
+            <th rowspan="4" class="no-column">NIM</th>
+            <th rowspan="4" class="no-column">Nama</th>
             @foreach ($info_soal as $data)
             {{-- @foreach ($data['waktu_pelaksanaan'] as $waktu) --}}
                 <th class="info-soal">{{$data['waktu_pelaksanaan']}}</th>
             {{-- @endforeach --}}
             @endforeach
-            <th rowspan="4">Nilai Akhir</th>
-            <th rowspan="4">Huruf</th>
-            <th rowspan="4">Keterangan</th>
+            <th rowspan="4" class="no-column">Nilai Akhir</th>
+            <th rowspan="4" class="no-column">Huruf</th>
+            <th rowspan="4" class="no-column">Keterangan</th>
           </tr>
           <tr>
               @foreach ($info_soal as $data)
@@ -100,9 +102,9 @@
           @foreach ($mahasiswa_data as $key => $mhs)
           {{-- @foreach ($data['mahasiswa'] as $mahasiswa) --}}
             <tr>
-                <td>{{ $mhs['nomor'] }}</td>
-                <td>{{ $mhs['nim'] }}</td>
-                <td>{{ $mhs['nama'] }}</td>
+                <td class="no-column">{{ $mhs['nomor'] }}</td>
+                <td class="no-column">{{ $mhs['nim'] }}</td>
+                <td class="no-column">{{ $mhs['nama'] }}</td>
                   @foreach ($mhs['id_nilai'] as $id_nilai)
                   <td class="info-soal">
                       <div id="nilai-tugas-{{ $id_nilai }}">
@@ -114,9 +116,9 @@
                       </div>
                   </td>
                   @endforeach
-                <td>{{ $mhs['nilai_akhir'] ?? '-' }}</td>
-                <td>{{ $mhs['nilai_huruf'] ?? '-' }}</td>
-                <td>{{ $mhs['keterangan'] ?? '-' }}</td>
+                <td class="no-column">{{ $mhs['nilai_akhir'] ?? '-' }}</td>
+                <td class="no-column">{{ $mhs['nilai_huruf'] ?? '-' }}</td>
+                <td class="no-column">{{ $mhs['keterangan'] ?? '-' }}</td>
             </tr>
           {{-- @endforeach --}}
         @endforeach

@@ -42,12 +42,12 @@
                     <a href="{{ route('dosen.kelaskuliah.generatepdf', $data->id_kelas) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-download mr-2"></i> Download Nilai</a>
                 </div>
                 <div class="dropdown col-2">
-                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </button>
                     <div class="dropdown-menu">
                       {{-- <a class="dropdown-item" href="#"></a> --}}
-                      <div class="dropdown">
+                      <div class="dropup">
                         <a class="dropdown-item dropdown-toggle" href="#" role="button" id="nestedDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-download mr-2"></i> Unduh Format Excel
                         </a>

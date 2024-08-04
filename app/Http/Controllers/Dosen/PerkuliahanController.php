@@ -15,6 +15,8 @@ use App\Models\NilaiMahasiswa;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
 use App\Imports\DaftarMahasiswaImportExcel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -23,6 +25,7 @@ class PerkuliahanController extends Controller
 {
     public function index(Request $request)
     {
+        $getSemesters = Semester::select('id','tahun_ajaran', 'semester')->get();
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
             ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
             ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
@@ -33,6 +36,14 @@ class PerkuliahanController extends Controller
             ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
             ->where('dosen.id_auth', Auth::user()->id);
 
+            if ($request->has('tahun_ajaran')) {
+                $tahunAjaranTerm = $request->input('tahun_ajaran');
+                $query->where('semester.id', $tahunAjaranTerm);
+                $reqTahunAjaran = $getSemesters->where('id', $tahunAjaranTerm)->first();
+                $title = $reqTahunAjaran->tahun_ajaran ." ". $reqTahunAjaran->semester;
+            }else{
+                $title = 'Tahun Ajaran';
+            }
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
             $searchTerm = $request->input('search');
@@ -42,7 +53,7 @@ class PerkuliahanController extends Controller
             });
         }
 
-        $query->groupBy('matakuliah_kelas.id');
+        $query->groupBy('matakuliah_kelas.id')->orderBy('mata_kuliah.nama_matkul', 'ASC')->orderBy('kelas.nama_kelas','ASC');
 
         $kelas_kuliah = $query->paginate(20);
         // dd($kelas_kuliah);
@@ -51,6 +62,8 @@ class PerkuliahanController extends Controller
         return view('pages-dosen.perkuliahan.kelas_perkuliahan', [
             'data' => $kelas_kuliah,
             'startNumber' => $startNumber,
+            'getSemesters' => $getSemesters,
+            'title' => $title,
         ])->with('success', 'Data Ditemukan');
     }
 
@@ -67,7 +80,8 @@ class PerkuliahanController extends Controller
                 'semester.semester',
                 'kelas.nama_kelas as kelas',
                 'mata_kuliah.nama_matkul as nama_matkul',
-                'dosen.nama as nama_dosen'
+                'dosen.nama as nama_dosen',
+                'rps.tahun_rps'
             )
             ->where('matakuliah_kelas.id', $id)->first();
 
@@ -456,5 +470,360 @@ class PerkuliahanController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
 
         // return redirect()->back()->with('success', 'Data imported successfully.');
+    }
+    public function updateEvaluasi(Request $request, $id)
+    {
+        $validate = Validator::make($request->all(), [
+            'evaluasi' => 'string',
+            'rencana_perbaikan' => 'string',
+        ]);
+
+        if($validate->fails()){
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors()->first(),
+            ], 422);
+        }
+
+        try {
+            $evaluasi = KelasKuliah::find($id);
+            $evaluasi->update([
+                'evaluasi' => $request->evaluasi,
+                'rencana_perbaikan' => $request->rencana_perbaikan,
+            ]);
+
+            // return redirect()->route('admin.cpl')->with([
+            //     'success' => 'Data Berhasil Diupdate',
+            //     'data' => $cpl
+            // ]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate', 'data' => $evaluasi]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
+            // dd($e->getMessage(), $e->getTrace()); // Tambahkan ini untuk melihat pesan kesalahan
+            // return redirect()->route('admin.cpl.edit', $id)->with('error', 'Data Gagal Diupdate: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function generatePdf($id)
+    {
+        // Ambil data mata kuliah dari database
+        $kelas_matkul = KelasKuliah::join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
+        ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
+        ->select(
+            'mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
+            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan')
+        ->where('matakuliah_kelas.id', $id)
+        ->first();
+
+        $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
+            ->where('matakuliah_kelas.id', $id)
+            ->orderby('soal_sub_cpmk.id', 'ASC')
+            // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
+            ->get();
+
+        $nilai_akhir = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
+            ->select('mahasiswa.*', 'nilaiakhir_mahasiswa.nilai_akhir as nilai_akhir')
+            // ->distinct()
+            ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)
+            ->orderBy('nim', 'asc')->distinct()->get();
+
+        $rps = KelasKuliah::where('id', $id)->select('rps_id')->first();
+
+        $cpl = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        // ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        // ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        // ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('cpl.*')
+        ->orderBy('cpl.kode_cpl', 'asc')
+        ->get();
+
+        $cpmk = Cpmk::where('rps_id', $rps->rps_id)
+        ->select('cpmk.*')
+        ->orderBy('cpmk.kode_cpmk', 'asc')
+        ->get();
+
+        $subcpmk = Cpmk::join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('sub_cpmk.*')
+        ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
+        ->get();
+
+        $tugas = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->where('rps_id', $id)
+        ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+        ->orderBy('sub_cpmk.id', 'asc')
+        ->get();
+
+        $totalBobotKeseluruhan = 0; // Initialize a variable to store the overall total weight
+
+        foreach ($tugas as $tugasItem) {
+            $totalBobot = $tugasItem->bobot_soal; // Access the calculated total weight for the current RPS
+            $totalBobotKeseluruhan += $totalBobot; // Add the current RPS weight to the overall total
+        }
+        // dd($rps->id);
+        $nilaiRataRata = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('soal.bentuk_soal, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $id)
+            ->groupBy('soal.bentuk_soal')
+            ->get();
+
+            $labels = $nilaiRataRata->pluck('bentuk_soal')->toArray();
+            $values = $nilaiRataRata->pluck('nilai_rata_rata')->toArray();
+
+            $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, sub_cpmk.kode_subcpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $id)
+            ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
+            ->groupBy('sub_cpmk.kode_subcpmk');
+
+        $rataRataSubcpmk = $query->get();
+
+            $labelSubcpmk = $rataRataSubcpmk->pluck('kode_subcpmk')->toArray();
+            $valueSubcpmk = $rataRataSubcpmk->pluck('nilai_rata_rata')->toArray();
+
+            $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpmk.kode_cpmk')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $id)
+            ->orderBy('cpmk.kode_cpmk', 'asc')
+            ->groupBy('cpmk.kode_cpmk');
+
+            // $sql = $query->toSql();
+            // dd($sql);
+            $rataRataCpmk = $query->get();
+
+            $labelCpmk = $rataRataCpmk->pluck('kode_cpmk')->toArray();
+            $valueCpmk = $rataRataCpmk->pluck('nilai_rata_rata')->toArray();
+
+            $query = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->selectRaw('ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as nilai_rata_rata, soal_sub_cpmk.bobot_soal AS bobot_soal, cpl.kode_cpl')
+            // ->selectRaw('sub_cpmk.kode_subcpmk, ROUND(AVG(nilai_mahasiswa.nilai), 2) as nilai_rata_rata')
+            ->where('matakuliah_kelasid', $id)
+            ->orderBy('cpl.kode_cpl', 'asc')
+            ->groupBy('cpl.kode_cpl');
+
+        // $sql = $query->toSql();
+        // dd($sql);
+        $rataRataCpl = $query->get();
+
+            $labelCpl = $rataRataCpl->pluck('kode_cpl')->toArray();
+            $valueCpl = $rataRataCpl->pluck('nilai_rata_rata')->toArray();
+
+            $charts = [];
+
+            function createChartConfig($labels, $values, $label) {
+                return [
+                    'type' => 'radar',
+                    'data' => [
+                        'labels' => $labels,
+                        'datasets' => [
+                            [
+                                'label' => $label,
+                                'data' => $values,
+                                'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                                'borderColor' => 'rgba(255, 99, 132, 1)',
+                                'borderWidth' => 1
+                            ]
+                        ]
+                    ],
+                    'options' => [
+                        'scale' => [
+                            'ticks' => [
+                                'beginAtZero' => true,
+                                'min' => 0,
+                                'max' => 100
+                            ]
+                        ]
+                    ]
+                ];
+            }
+
+            $charts[] = createChartConfig($labels, $values, 'Nilai rata-rata tugas');
+        $charts[] = createChartConfig($labelSubcpmk, $valueSubcpmk, 'Nilai rata-rata Sub CPMK');
+        $charts[] = createChartConfig($labelCpmk, $valueCpmk, 'Nilai rata-rata CPMK');
+        $charts[] = createChartConfig($labelCpl, $valueCpl, 'Nilai rata-rata CPL');
+
+        $chartUrls = [];
+
+        foreach ($charts as $chartConfig) {
+            $url = 'https://quickchart.io/chart/create';
+            $payload = json_encode(['chart' => $chartConfig]);
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $responseData = json_decode($response, true);
+            $chartUrls[] = $responseData['url'];
+        }
+        // Konfigurasi chart
+        // $chartConfig = [
+        //     'type' => 'radar',
+        //     'data' => [
+        //         'labels' => $labels,
+        //         'datasets' => [
+        //             [
+        //                 'label' => 'Nilai rata-rata tugas',
+        //                 'data' => $values,
+        //                 'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+        //                 'borderColor' => 'rgba(255, 99, 132, 1)',
+        //                 'borderWidth' => 1
+        //             ]
+        //         ]
+        //     ],
+        //     'options' => [
+        //         'scale' => [
+        //             'ticks' => [
+        //                 'beginAtZero' => true,
+        //                 'min' => 0,
+        //                 'max' => 100
+        //             ]
+        //         ]
+        //     ]
+        // ];
+
+        // // Mengirim permintaan ke QuickChart API
+        // $url = 'https://quickchart.io/chart/create';
+        // $payload = json_encode(['chart' => $chartConfig]);
+
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        // curl_setopt($ch, CURLOPT_POST, true);
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+        // $response = curl_exec($ch);
+        // curl_close($ch);
+
+        // // Mendapatkan URL gambar dari respon
+        // $responseData = json_decode($response, true);
+        // $chartImageUrl = $responseData['url'];
+
+            $mahasiswa_data = [];
+            $info_soal = [];
+            $nomor = 1;
+            // $nilaiMhs = [];
+
+            foreach ($nilai_mahasiswa as $nilai) {
+                $soal_id = $nilai->id;
+                $mahasiswa_id = $nilai->nim;
+                // $nilai_id = $nilai->id_nilai;
+
+                if (!isset($info_soal[$soal_id])) {
+                    $info_soal[$soal_id] = [
+                        'waktu_pelaksanaan' => $nilai->waktu_pelaksanaan,
+                        'kode_subcpmk' => $nilai->kode_subcpmk,
+                        'bobot_soal' => $nilai->bobot_soal,
+                        'bentuk_soal' => $nilai->bentuk_soal,
+                    ];
+                }
+
+                if (!isset($mahasiswa_data[$mahasiswa_id])) {
+                    $mahasiswa_data[$mahasiswa_id] = [
+                        'kelas_id' => $nilai->id_kelas,
+                        'id_mhs' => $nilai->id_mhs,
+                        'nim' => $nilai->nim,
+                        'nama' => $nilai->nama,
+                        'id_nilai' => [],
+                        'nilai' => [],
+                        'nomor' => $nomor
+                    ];
+                    $nomor++;
+                }
+
+                $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
+                $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
+            }
+
+            foreach ($nilai_akhir as $akhir) {
+                $mahasiswa_id = $akhir->nim;
+                if (isset($mahasiswa_data[$mahasiswa_id])) {
+                    $mahasiswa_data[$mahasiswa_id]['nilai_akhir'] = $akhir->nilai_akhir;
+                    $mahasiswa_data[$mahasiswa_id]['nilai_huruf'] = $this->convertNilaiToHuruf($akhir->nilai_akhir);
+                    $mahasiswa_data[$mahasiswa_id]['keterangan'] = $this->getKeterangan($akhir->nilai_akhir);
+                }
+            }
+
+        $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
+        // Mulai membuat laporan PDF
+        set_time_limit(300);
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml(view('pages-dosen.perkuliahan.portfolio_perkuliahan_pdf', [
+            'kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal,
+            'jml_mhs' => $jumlah_mahasiswa, 'cpl' => $cpl, 'cpmk' => $cpmk, 'subcpmk' => $subcpmk, 'tugas' => $tugas, 'total_bobot'=> $totalBobotKeseluruhan,
+            'chartUrls' => $chartUrls]));
+
+        // Atur opsi PDF
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        // define("DOMPDF_ENABLE_REMOTE", false);
+
+        $dompdf->setPaper('A4', 'landscape');
+
+        // Render PDF
+        $dompdf->setOptions($options);
+        $dompdf->render();
+
+        // Menghasilkan nama file unik untuk laporan
+        $filename = 'Portfolio Perkuliahan_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+
+        // Mengirimkan laporan PDF sebagai respons
+        return $dompdf->stream($filename);
+    }
+
+    private function convertNilaiToHuruf($nilai)
+    {
+        if ($nilai >= 85) {
+                return "A";
+            }elseif ($nilai >= 76) {
+                return "B+";
+            }elseif ($nilai >= 71) {
+                return "B";
+            }elseif ($nilai >= 66) {
+                return "C+";
+            }elseif ($nilai >= 61) {
+                return "C";
+            }elseif ($nilai >= 51) {
+                return "D";
+            }else{
+                return "E";
+            }
+    }
+
+    private function getKeterangan($nilai)
+    {
+        if ($nilai >= 61) {
+            return "Lulus";
+        } else {
+            return "Tidak Lulus";
+        }
     }
 }
