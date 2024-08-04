@@ -37,8 +37,8 @@
         }
         .info-soal {
             table-layout: fixed;
-            font-size: 8px;
-            width: 30px;
+            font-size: 9px;
+            max-width: 30px;
             /* text-decoration: capitalize; Menetapkan lebar tetap untuk kolom info soal */
         }
 
@@ -52,7 +52,7 @@
         }
 
         .no-column{
-            font-size: 8px;
+            font-size: 9px;
         }
 
         .nama-column{
