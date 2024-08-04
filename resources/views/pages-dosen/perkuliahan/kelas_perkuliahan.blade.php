@@ -26,7 +26,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex col-sm-12 justify-content-between">
-                <div class="col-8">
+                <div class="col-10">
                   <form action="{{ route('dosen.kelaskuliah') }}" method="GET">
                     <div class="input-group col-sm-6 mr-3">
                       <input type="text" name="search" id="search" class="form-control" placeholder="Search">
@@ -37,6 +37,22 @@
                       </div>
                     </div>
                   </form>
+                </div>
+                <div class="col-2">
+                    <form action="{{ route('dosen.kelaskuliah') }}" method="GET">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-secondary text-capitalize dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-filter fa-sm"></i> {{ $title }}
+                            </button>
+                            <div class="dropdown-menu m-5">
+                                @foreach ($getSemesters as $key => $smt)
+                                {{-- @dd($getSemesters) --}}
+                                    <button class="dropdown-item" type="button" onclick="document.getElementById('tahun_ajaran').value = '{{ $smt->id }}'; this.form.submit();"> <p style="text-transform: uppercase;">{{ $smt->tahun_ajaran . ' ' . $smt->semester }}</p></button>
+                                @endforeach
+                            </div>
+                        </div>
+                        <input type="hidden" id="tahun_ajaran" name="tahun_ajaran">
+                    </form>
                 </div>
                 <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
               </div>
