@@ -54,6 +54,10 @@
             font-size: 10px;
         }
 
+        .nama-column{
+            width: 50px;
+        }
+
         .cover{
             margin: 100px 20px;
             text-align: center;
@@ -284,7 +288,7 @@ gap: 20px;
           <tr>
             <th class="no-column" rowspan="4">No</th>
             <th rowspan="4" class="no-column">NIM</th>
-            <th rowspan="4" class="no-column">Nama</th>
+            <th rowspan="4" class="no-column nama-column">Nama</th>
             @foreach ($info_soal as $data)
             {{-- @foreach ($data['waktu_pelaksanaan'] as $waktu) --}}
                 <th class="info-soal">{{$data['waktu_pelaksanaan']}}</th>
@@ -322,7 +326,7 @@ gap: 20px;
             <tr>
                 <td class="no-column">{{ $mhs['nomor'] }}</td>
                 <td class="no-column">{{ $mhs['nim'] }}</td>
-                <td class="no-column">{{ $mhs['nama'] }}</td>
+                <td class="no-column nama-column">{{ $mhs['nama'] }}</td>
                   @foreach ($mhs['id_nilai'] as $id_nilai)
                   <td class="info-soal">
                       <div id="nilai-tugas-{{ $id_nilai }}">
