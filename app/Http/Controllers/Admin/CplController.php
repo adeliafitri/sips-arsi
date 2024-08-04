@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\CplFormatExcel;
-use App\Http\Controllers\Controller;
 use App\Models\Cpl;
+use App\Models\Cpmk;
+use App\Models\SubCpmk;
+use App\Models\KelasKuliah;
+use App\Models\SoalSubCpmk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\NilaiMahasiswa;
+use App\Exports\CplFormatExcel;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use App\Models\Rps;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class CplController extends Controller
 {
@@ -57,7 +64,7 @@ class CplController extends Controller
             'jenis_cpl' => 'required',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => $validate->errors()->first(),
@@ -110,7 +117,7 @@ class CplController extends Controller
             'jenis_cpl' => 'required',
         ]);
 
-        if($validate->fails()){
+        if ($validate->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => $validate->errors()->first(),
@@ -140,9 +147,41 @@ class CplController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
         try {
+
+            $cpmk = Cpmk::where('cpl_id', $id)->get();
+            foreach ($cpmk as $valueCpmk) {
+                $subcpmk = SubCpmk::where('cpmk_id', $valueCpmk->id)->select('id')->get();
+                foreach ($subcpmk as $valueSubCpmk) {
+                    $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
+                    foreach ($soalsubcpmk as $valueSoal) {
+                        NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                        $matakuliah_kelas = KelasKuliah::where('rps_id', $valueCpmk->rps_id)->select('id')->get();
+                        foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                            $nilaiAkhirMahasiswa = NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->get();
+                            foreach ($nilaiAkhirMahasiswa as $valueNilaiAkhir) {
+                                $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                                    ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+                                    ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                                    ->where('nilai_mahasiswa.matakuliah_kelasid', $valueNilaiAkhir->matakuliah_kelasid)
+                                    ->where('nilai_mahasiswa.mahasiswa_id', $valueNilaiAkhir->mahasiswa_id)
+                                    ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+                                    ->first();
+
+                                // dd($update_nilai_akhir);
+                                // dd('dont cont.');
+                                $valueNilaiAkhir->nilai_akhir = $update_nilai_akhir->nilai_akhir == null ? 0 : $update_nilai_akhir->nilai_akhir;
+                                $valueNilaiAkhir->save();
+                            }
+                        }
+                    }
+                    SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
+                }
+                SubCpmk::where('cpmk_id', $id)->delete();
+            }
+            Cpmk::where('cpl_id', $id)->delete();
             Cpl::where('id', $id)->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
