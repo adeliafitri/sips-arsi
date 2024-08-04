@@ -25,4 +25,5 @@ class NilaiAkhirMahasiswa extends Model
     {
         return $this->belongsTo(Mahasiswa::class);
     }
+
 }

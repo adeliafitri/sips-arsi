@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\DosenFormatExcel;
 use App\Models\User;
 use App\Models\Dosen;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\NilaiMahasiswa;
+use App\Exports\DosenFormatExcel;
 use App\Imports\DosenImportExcel;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
@@ -206,11 +209,17 @@ class DosenController extends Controller
     public function destroy($id)
     {
         try {
-            $dosen = Dosen::where('id_auth', $id)->delete();
-            if ($dosen) {
-                User::where('id', $id)->delete();
-                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
+            $dosen = Dosen::where('id_auth', $id)->select('id')->first();
+            $matakuliah_kelas = KelasKuliah::where('dosen_id', $dosen->id)->get();
+            foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                NilaiMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+                NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
             }
+            KelasKuliah::where('dosen_id', $dosen->id)->delete();
+            Dosen::where('id_auth', $id)->delete();
+            User::where('id', $id)->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
