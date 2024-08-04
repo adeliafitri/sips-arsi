@@ -38,7 +38,7 @@ class MataKuliahController extends Controller
             });
         }
 
-        $mata_kuliah = $query->paginate(20);
+        $mata_kuliah = $query->orderBy('mata_kuliah.nama_matkul', 'ASC')->orderBy('rps.tahun_rps', 'ASC')->paginate(20);
 
         $startNumber = ($mata_kuliah->currentPage() - 1) * $mata_kuliah->perPage() + 1;
 

@@ -33,13 +33,15 @@
               <form id="addDataForm">
                 @csrf
                 <div class="form-group">
-                  <label for="semester">Semester</label>
-                      <select class="form-control select2bs4" id="semester" name="semester" >
+                    <label for="semester">Semester</label>
+                    <input type="hidden" name="semester" id="semester-id" value="{{ $idSemester }}">
+                    <input type="text" id="semester-option" class="form-control" placeholder="Semester" value="{{ $tahunAjaran ." ". $semester }}" disabled>
+                      {{-- <select class="form-control select2bs4" id="semester" name="semester" > --}}
                       {{-- <option value="">- Pilih Semester -</option> --}}
                       {{-- @foreach ($semester as $key => $data) --}}
-                            <option value="{{ $idSemester }}">{{ $tahunAjaran ." ". $semester }}</option>
+                            {{-- <option value="{{ $idSemester }}">{{ $tahunAjaran ." ". $semester }}</option> --}}
                         {{-- @endforeach --}}
-                      </select>
+                      {{-- </select> --}}
                 </div>
                 <div class="form-group">
                   <label for="rps">Mata Kuliah</label>

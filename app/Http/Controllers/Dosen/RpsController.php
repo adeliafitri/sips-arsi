@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Dosen;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\MataKuliah;
 use App\Models\Cpl;
-use App\Models\Cpmk;
-use App\Models\NilaiMahasiswa;
 use App\Models\Rps;
+use App\Models\Cpmk;
 use App\Models\Soal;
-use App\Models\SoalSubCpmk;
 use App\Models\SubCpmk;
+use App\Models\MataKuliah;
+use App\Models\KelasKuliah;
+use App\Models\SoalSubCpmk;
+use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class RpsController extends Controller
@@ -258,6 +260,27 @@ class RpsController extends Controller
                     $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->select('id')->get();
                     foreach ($soalsubcpmk as $valueSoal) {
                         NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                        $rps = CPMK::where('id', $id)->select('rps_id')->first();
+                        // dd($rps_id);
+                        $matakuliah_kelas = KelasKuliah::where('rps_id', $rps->rps_id)->select('id')->get();
+                        // dd($matakuliah_kelas);
+                        foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                            $nilaiAkhirMahasiswa = NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->get();
+                            foreach ($nilaiAkhirMahasiswa as $valueNilaiAkhir) {
+                                $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                                    ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+                                    ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                                    ->where('nilai_mahasiswa.matakuliah_kelasid', $valueNilaiAkhir->matakuliah_kelasid)
+                                    ->where('nilai_mahasiswa.mahasiswa_id', $valueNilaiAkhir->mahasiswa_id)
+                                    ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+                                    ->first();
+
+                                // dd($update_nilai_akhir);
+                                // dd('dont cont.');
+                                $valueNilaiAkhir->nilai_akhir = $update_nilai_akhir->nilai_akhir == null ? 0 : $update_nilai_akhir->nilai_akhir;
+                                $valueNilaiAkhir->save();
+                            }
+                        }
                     }
                     SoalSubCpmk::where('subcpmk_id', $valueSubCpmk->id)->delete();
                 }
@@ -277,6 +300,28 @@ class RpsController extends Controller
             $soalsubcpmk = SoalSubCpmk::where('subcpmk_id', $id)->select('id')->get();
             foreach ($soalsubcpmk as $valueSoal) {
                 NilaiMahasiswa::where('soal_id', $valueSoal->id)->delete();
+                $cpmk = SubCpmk::where('id', $id)->first();
+                $rps = CPMK::where('id', $cpmk->cpmk_id)->select('rps_id')->first();
+                // dd($rps->rps_id);
+                $matakuliah_kelas = KelasKuliah::where('rps_id', $rps->rps_id)->select('id')->get();
+                // dd($matakuliah_kelas);
+                foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                    $nilaiAkhirMahasiswa = NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->get();
+                    foreach ($nilaiAkhirMahasiswa as $valueNilaiAkhir) {
+                        $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                            ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+                            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                            ->where('nilai_mahasiswa.matakuliah_kelasid', $valueNilaiAkhir->matakuliah_kelasid)
+                            ->where('nilai_mahasiswa.mahasiswa_id', $valueNilaiAkhir->mahasiswa_id)
+                            ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+                            ->first();
+
+                        // dd($update_nilai_akhir);
+                        // dd('dont cont.');
+                        $valueNilaiAkhir->nilai_akhir = $update_nilai_akhir->nilai_akhir == null ? 0 : $update_nilai_akhir->nilai_akhir;
+                        $valueNilaiAkhir->save();
+                    }
+                }
             }
             SoalSubCpmk::where('subcpmk_id', $id)->delete();
             $subcpmk = SubCpmk::findOrFail($id);
@@ -292,6 +337,30 @@ class RpsController extends Controller
     {
         try {
             NilaiMahasiswa::where('soal_id', $id)->delete();
+            $cpmk = SoalSubCpmk::join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->select('sub_cpmk.cpmk_id')
+            ->where('soal_sub_cpmk.id', $id)->first();
+            $rps = CPMK::where('id', $cpmk->cpmk_id)->select('rps_id')->first();
+            // dd($rps->rps_id);
+            $matakuliah_kelas = KelasKuliah::where('rps_id', $rps->rps_id)->select('id')->get();
+            // dd($matakuliah_kelas);
+            foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                $nilaiAkhirMahasiswa = NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->get();
+                foreach ($nilaiAkhirMahasiswa as $valueNilaiAkhir) {
+                    $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                        ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+                        ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                        ->where('nilai_mahasiswa.matakuliah_kelasid', $valueNilaiAkhir->matakuliah_kelasid)
+                        ->where('nilai_mahasiswa.mahasiswa_id', $valueNilaiAkhir->mahasiswa_id)
+                        ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+                        ->first();
+
+                    // dd($update_nilai_akhir);
+                    // dd('dont cont.');
+                    $valueNilaiAkhir->nilai_akhir = $update_nilai_akhir->nilai_akhir == null ? 0 : $update_nilai_akhir->nilai_akhir;
+                    $valueNilaiAkhir->save();
+                }
+            }
             $soal = SoalSubCpmk::findOrFail($id);
             $soal->delete();
 
