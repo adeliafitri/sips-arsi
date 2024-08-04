@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\Semester;
+use App\Models\KelasKuliah;
+use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class SemesterController extends Controller
@@ -127,6 +130,12 @@ class SemesterController extends Controller
     public function destroy($id)
     {
         try {
+            $matakuliah_kelas = KelasKuliah::where('semester_id', $id)->get();
+            foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                NilaiMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+                NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+            }
+            KelasKuliah::where('semester_id', $id)->delete();
             Semester::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.semester')

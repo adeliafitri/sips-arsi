@@ -43,7 +43,7 @@
                     @method('PUT')
                     <div class="form-group">
                         <label for="mata_kuliah">Mata Kuliah</label>
-                            <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah">
+                            <select class="form-control select2bs4" id="mata_kuliah" name="mata_kuliah" disabled>
                             <option value="">- Pilih Mata Kuliah -</option>
                                 @foreach ($mata_kuliah as $id => $name)
                                     <option value="{{ $id }}" {{ $data->matakuliah_id == $id ? 'selected' : '' }}>{{ $name }}</option>

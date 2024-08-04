@@ -512,6 +512,8 @@ class PerkuliahanController extends Controller
     public function destroy(string $id)
     {
         try {
+            NilaiMahasiswa::where('matakuliah_kelasid', $id)->delete();
+            NilaiAkhirMahasiswa::where('matakuliah_kelasid', $id)->delete();
             KelasKuliah::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.kelaskuliah')

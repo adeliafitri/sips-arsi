@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Kelas;
-use Illuminate\Auth\Events\Validated;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Validator;
 
 class KelasController extends Controller
@@ -134,6 +137,12 @@ class KelasController extends Controller
     public function destroy($id)
     {
         try {
+            $matakuliah_kelas = KelasKuliah::where('kelas_id', $id)->get();
+            foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                NilaiMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+                NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+            }
+            KelasKuliah::where('kelas_id', $id)->delete();
             Kelas::where('id', $id)->delete();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus']);
             // return redirect()->route('admin.kelas')
