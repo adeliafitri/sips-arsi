@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-// use App\Models\Rps;
 use App\Models\Cpl;
-use App\Models\Cpmk;
-use App\Models\KelasKuliah;
-use App\Models\MataKuliah;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
 use App\Models\Rps;
+// use App\Models\Rps;
+use App\Models\Cpmk;
 use App\Models\Soal;
-use App\Models\SoalSubCpmk;
 use App\Models\SubCpmk;
-use Illuminate\Support\Facades\Validator;
+use App\Models\MataKuliah;
+use App\Models\KelasKuliah;
+use App\Models\SoalSubCpmk;
+use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Collection;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RpsController extends Controller
 {
@@ -24,7 +25,9 @@ class RpsController extends Controller
     public function index(Request $request)
     {
         $query = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-            ->select('rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
+            ->select(
+                'rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul',
+                'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
 
         // Cek apakah ada parameter pencarian
         if ($request->has('search')) {
@@ -35,11 +38,11 @@ class RpsController extends Controller
             });
         }
 
-        $query->groupBy('rps.id');
+        $query->groupBy('rps.id')->orderBy('rps.tahun_rps', 'ASC');
 
-        $rps = $query->paginate(200);
+        $rps = $query->get();
 
-        $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
+        // $startNumber = ($rps->currentPage() - 1) * $rps->perPage() + 1;
 
         $data = [];
         foreach ($rps as $item) {
@@ -83,8 +86,18 @@ class RpsController extends Controller
             }
         }
 
+        // Perform pagination on flatData
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentItems = array_slice($flatData, ($currentPage - 1) * $perPage, $perPage);
+        $paginatedData = new LengthAwarePaginator($currentItems, count($flatData), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        $startNumber = ($paginatedData->currentPage() - 1) * $paginatedData->perPage() + 1;
+
         return view('pages-admin.rps.rps', [
-            'data' => $flatData,
+            'data' => $paginatedData,
             'startNumber' => $startNumber,
         ])->with('success', 'Data Ditemukan');
         // return view('pages-admin.perkuliahan.kelas_perkuliahan', [

@@ -272,6 +272,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('mahasiswa/download-excel', [DosenPerkuliahanController::class, 'downloadExcel'])->name('dosen.kelaskuliah.mahasiswa.download-excel');
             Route::post('/{id}/mahasiswa/import-excel', [DosenPerkuliahanController::class, 'importExcel'])->name('dosen.kelaskuliah.mahasiswa.import-excel');
             Route::put('updateEvaluasi/{id}', [DosenPerkuliahanController::class, 'updateEvaluasi'])->name('dosen.kelaskuliah.updateEvaluasi');
+            Route::get('{id}/pdf', [DosenPerkuliahanController::class, 'generatePdf'])->name('dosen.kelaskuliah.generateportof');
 
             Route::get('{id}/nilai/{id_mahasiswa}', [DosenNilaiController::class, 'show'])->name('dosen.kelaskuliah.nilaimahasiswa');
             Route::get('/nilai/tugas', [DosenNilaiController::class, 'nilaiTugas'])->name('dosen.kelaskuliah.nilaitugas');
