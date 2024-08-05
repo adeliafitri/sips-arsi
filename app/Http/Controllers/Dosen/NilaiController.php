@@ -459,6 +459,7 @@ class NilaiController extends Controller
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
             ->where('matakuliah_kelas.id', $id)
+            ->orderby('nim','asc')
             ->orderby('soal_sub_cpmk.id', 'ASC')
             // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
             ->get();
