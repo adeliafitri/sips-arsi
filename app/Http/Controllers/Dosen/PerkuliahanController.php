@@ -566,7 +566,7 @@ class PerkuliahanController extends Controller
         ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
         ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
         ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-        ->where('rps_id', $id)
+        ->where('rps_id', $rps->rps_id)
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
         ->orderBy('sub_cpmk.id', 'asc')
         ->get();
