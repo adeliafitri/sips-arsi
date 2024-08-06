@@ -127,6 +127,8 @@
                     </div>
                 @endif
               </div>
+              <form action="{{ route('dosen.kelaskuliah.editsemuanilai', $id_kelas) }}" method="POST">
+                @csrf
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
@@ -169,7 +171,7 @@
                                 <td>{{ $mhs['nomor'] }}</td>
                                 <td>{{ $mhs['nim'] }}</td>
                                 <td>{{ $mhs['nama'] }}</td>
-                                  @foreach ($mhs['id_nilai'] as $id_nilai)
+                                  {{-- @foreach ($mhs['id_nilai'] as $id_nilai)
                                   <td>
                                       <div id="nilai-tugas-{{ $id_nilai }}">
                                           @php
@@ -187,13 +189,20 @@
                                               <button style="display: none;" type="submit" id="edit-nilai-tugas-button-{{ $id_nilai }}" class="ml-2 btn btn-sm btn-primary"><i class="fas fa-check"></i></button>
                                       </form>
                                   </td>
-                                  @endforeach
+                                  @endforeach --}}
+                                @foreach ($mhs['id_nilai'] as $id_nilai)
+                                    <td>
+                                        <input type="number" name="nilai[{{ $mhs['id_mhs'] }}][{{ $id_nilai }}]" value="{{ $mhs['nilai'][$loop->index] }}" step="0.01" class="form-control" style="width: 75px;">
+                                    </td>
+                                @endforeach
                             </tr>
                           {{-- @endforeach --}}
                         @endforeach
                         </tbody>
                       </table>
                 </div>
+                <button type="submit" class="btn btn-primary mt-3">Simpan Nilai</button>
+                </form>
               </div>
               <!-- /.card-body -->
 

@@ -254,6 +254,37 @@ class NilaiController extends Controller
         // ]);
     }
 
+    public function editSemuaNilai(Request $request, $id)
+    {
+        // Loop through the submitted nilai array
+        foreach ($request->nilai as $mahasiswa_id => $nilai_data) {
+            foreach ($nilai_data as $id_nilai => $nilai) {
+                // Update each NilaiMahasiswa record
+                $data = NilaiMahasiswa::findOrFail($id_nilai);
+                $data->nilai = $nilai;
+                $data->save();
+            }
+            // dd($id);
+            // Update nilai akhir mahasiswa
+            $update_nilai_akhir = NilaiMahasiswa::join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                ->join('soal', 'soal.id', 'soal_sub_cpmk.soal_id')
+                ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa_id)
+                ->where('nilai_mahasiswa.matakuliah_kelasid', $id)
+                ->selectRaw('(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / 100) AS nilai_akhir')
+                ->first();
+
+            // dd($update_nilai_akhir);
+            $nilai_akhir_data = NilaiAkhirMahasiswa::where('mahasiswa_id', $mahasiswa_id)
+                ->where('matakuliah_kelasid', $id)->first();
+            // dd($nilai_akhir_data);
+            $nilai_akhir_data->nilai_akhir = $update_nilai_akhir->nilai_akhir == null ? 0 : $update_nilai_akhir->nilai_akhir;
+            $nilai_akhir_data->save();
+        }
+
+        return redirect()->back()->with('success', 'Semua nilai tugas berhasil diupdate.');
+    }
+
     public function editNilaiAkhir(Request $request)
     {
         $data = NilaiAkhirMahasiswa::findOrFail($request->id_nilai);

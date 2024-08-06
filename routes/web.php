@@ -62,6 +62,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:admin'], function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/admin/dashboard/chart-cpl', [AdminController::class, 'chartCplDashboard'])->name('admin.dashboard.chartcpl');
 
         Route::prefix('admin/user')->group(function () {
             Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
@@ -249,6 +250,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:dosen'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
+        Route::get('/dosen/dashboard/chart-cpl', [AdminController::class, 'chartCplDashboard'])->name('dosen.dashboard.chartcpl');
 
         Route::prefix('dosen/user')->group(function () {
             Route::get('/{id}', [DosenProfileController::class, 'show'])->name('dosen.user');
@@ -280,6 +282,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/nilai/cpmk', [DosenNilaiController::class, 'nilaiCpmk'])->name('dosen.kelaskuliah.nilaicpmk');
             Route::get('/nilai/cpl', [DosenNilaiController::class, 'nilaiCpl'])->name('dosen.kelaskuliah.nilaicpl');
 
+            Route::post('{id}/nilai/edit-nilai', [DosenNilaiController::class, 'editSemuaNilai'])->name('dosen.kelaskuliah.editsemuanilai');
             Route::post('/nilai/edit-nilai-tugas', [DosenNilaiController::class, 'editNilaiTugas'])->name('dosen.kelaskuliah.editnilaitugas');
             Route::post('/nilai/edit-nilai-akhir', [DosenNilaiController::class, 'editNilaiAkhir'])->name('dosen.kelaskuliah.editnilaiakhir');
             Route::get('/{id}/lihat-nilai', [DosenPerkuliahanController::class, 'nilaiMahasiswa'])->name('dosen.kelaskuliah.masukkannilai');

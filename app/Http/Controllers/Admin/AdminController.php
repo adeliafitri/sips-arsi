@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Admin;
 use App\Models\Dosen;
-use App\Models\KelasKuliah;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\User;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,9 @@ class AdminController extends Controller
         $jml_dosen = Dosen::count();
         $jml_matkul = MataKuliah::count();
         $jml_kelas = KelasKuliah::count();
-        return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas'));
+        $mahasiswa = Mahasiswa::select('angkatan')->distinct()->orderBy('angkatan')->get();
+        $title = 'Angkatan';
+        return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas', 'mahasiswa', 'title'));
     }
 
     public function index(Request $request)
@@ -179,5 +182,43 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal reset password: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function chartCplDashboard(Request $request)
+    {
+        $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->join('rps', 'cpmk.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
+            ->groupBy('cpl.id','mata_kuliah.id');
+
+            if ($request->has('angkatan')) {
+                $angkatan = $request->input('angkatan');
+                $query->where('mahasiswa.angkatan', $angkatan);
+                $title = $angkatan;
+            } else {
+                $title = 'Semua Angkatan';
+            }
+
+        // $sql = $query->toSql();
+
+        $averageCPL = $query->get();
+
+        $results = $averageCPL->groupBy('kode_cpl')->map(function ($group) {
+            return $group->avg('rata_rata_cpl');
+        });
+
+        $labels = $results->keys()->toArray(); // Ambil kode CPL sebagai label
+        $values = $results->values()->toArray();
+
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values,
+            'title' => $title
+        ]);
     }
 }
