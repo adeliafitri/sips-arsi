@@ -196,6 +196,7 @@
                                                 </div>
                                                 <div class="textinput" style="margin-bottom: 1rem">
                                                     <label for="bentuk_soal">Bentuk Soal</label>
+                                                    <p class="text-red"><i class="fas fa-info-circle"></i> <span class="text-capitalize">hindari penggunaan kurung () dalam penulisan bentuk soal</span></p>
                                                     <select class="form-control select2bs4" id="bentuk_soal" name="bentuk_soal" style="resize: none; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required>
                                                         <option selected>-- Pilih Bentuk Soal --</option>
                                                         @foreach ($data_soal as $soalid => $soal)

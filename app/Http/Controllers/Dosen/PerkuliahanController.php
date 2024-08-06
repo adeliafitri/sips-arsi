@@ -53,7 +53,11 @@ class PerkuliahanController extends Controller
             });
         }
 
-        $query->groupBy('matakuliah_kelas.id')->orderBy('mata_kuliah.nama_matkul', 'ASC')->orderBy('kelas.nama_kelas','ASC');
+        $query->groupBy('matakuliah_kelas.id')
+            ->orderBy('semester.tahun_ajaran', 'Desc')
+            ->orderBy('semester.semester', 'asc')
+            ->orderBy('mata_kuliah.nama_matkul', 'ASC')
+            ->orderBy('kelas.nama_kelas','ASC');
 
         $kelas_kuliah = $query->paginate(20);
         // dd($kelas_kuliah);
@@ -526,6 +530,7 @@ class PerkuliahanController extends Controller
             ->select('mahasiswa.nim', 'mahasiswa.nama', 'soal_sub_cpmk.id', 'soal_sub_cpmk.waktu_pelaksanaan', 'sub_cpmk.kode_subcpmk', 'soal_sub_cpmk.bobot_soal', 'soal.bentuk_soal','nilai_mahasiswa.id as id_nilai','nilai_mahasiswa.mahasiswa_id as id_mhs', 'nilai_mahasiswa.matakuliah_kelasid as id_kelas', 'nilai_mahasiswa.nilai')
             ->where('matakuliah_kelas.id', $id)
             ->orderby('soal_sub_cpmk.id', 'ASC')
+            ->orderBy('nim', 'asc')
             // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
             ->get();
 
@@ -561,7 +566,7 @@ class PerkuliahanController extends Controller
         ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
         ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
         ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-        ->where('rps_id', $id)
+        ->where('rps_id', $rps->rps_id)
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
         ->orderBy('sub_cpmk.id', 'asc')
         ->get();
