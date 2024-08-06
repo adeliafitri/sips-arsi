@@ -91,10 +91,90 @@
         <!-- ./col -->
       </div>
       <!-- /.row -->
+      <div class="row">
+        <!-- RADAR CHART -->
+        <div class="col-md-6">
+            <div class="card card-info">
+                <div class="card-header">
+                <h3 class="card-title">Capaian Pembelajaran Lulusan</h3>
+                {{-- <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div> --}}
+                <div class="card-tools">
+                    <select id="selectAngkatan" class="form-control">
+                        @foreach ($mahasiswa as $data)
+                            <option value="{{ $data->angkatan }}">{{ $data->angkatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                </div>
+                <div class="card-body">
+                <canvas id="radarCPLDashboard" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+      </div>
       <!-- Main row -->
 
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
   </section>
   <!-- /.content -->
+@endsection
+@section('script')
+<script>
+    $(document).ready(function() {
+        // Function to fetch chart data
+        function fetchChartData(angkatan) {
+            $.ajax({
+                url: "{{ route('admin.dashboard.chartcpl') }}",
+                type: 'GET',
+                data: {
+                    angkatan: angkatan // Send selected angkatan to the server
+                },
+                success: function(response) {
+                    var ctx = document.getElementById('radarCPLDashboard').getContext('2d');
+                    var myRadarChart = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                                label: 'Capaian Pembelajaran Mata Kuliah',
+                                data: response.values,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scale: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        // Event listener for dropdown change
+        $('#selectAngkatan').change(function() {
+            var selectedAngkatan = $(this).val();
+            fetchChartData(selectedAngkatan);
+        });
+
+        // Trigger change event on page load to fetch initial data
+        $('#selectAngkatan').trigger('change');
+    });
+</script>
 @endsection
