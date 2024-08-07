@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Mahasiswa;
 
-use App\Http\Controllers\Controller;
 use App\Models\Cpmk;
+use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
 use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class MahasiswaController extends Controller
 {
     public function dashboard() {
+        $mahasiswa = Mahasiswa::where('id_auth', Auth::user()->id)->first();
         $total_sks = MataKuliah::sum('sks');
         $total_kelas_kuliah = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
         ->where('mahasiswa.id_auth', Auth::user()->id)->count('matakuliah_kelasid');
@@ -82,7 +84,8 @@ class MahasiswaController extends Controller
             'total_sks' => $total_sks,
             'total_sks_lulus' => $total_sks_lulus,
             'total_kelas_kuliah' => $total_kelas_kuliah,
-            'data' => $results
+            'data' => $results,
+            'mahasiswa' => $mahasiswa
         ]);
     }
 
@@ -98,6 +101,37 @@ class MahasiswaController extends Controller
             ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
             ->groupBy('cpl.id','mata_kuliah.id')
             ->where('mahasiswa.id_auth', Auth::user()->id);
+
+        // $sql = $query->toSql();
+
+        $averageCPL = $query->get();
+
+        $results = $averageCPL->groupBy('kode_cpl')->map(function ($group) {
+            return $group->avg('rata_rata_cpl');
+        });
+
+        $labels = $results->keys()->toArray(); // Ambil kode CPL sebagai label
+        $values = $results->values()->toArray();
+
+        return response()->json([
+            'labels' => $labels,
+            'values' => $values,
+        ]);
+    }
+
+    public function chartCplDashboard(Request $request)
+    {
+        $mahasiswa = Mahasiswa::where('id_auth', Auth::user()->id)->first();
+        $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+            ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+            ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+            ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+            ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+            ->join('rps', 'cpmk.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+            ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
+            ->groupBy('cpl.id','mata_kuliah.id')
+            ->where('mahasiswa.angkatan', $mahasiswa->angkatan);
 
         // $sql = $query->toSql();
 

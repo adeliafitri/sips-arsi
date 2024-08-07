@@ -72,7 +72,7 @@
                   <!-- /.info-box-content -->
                 </div>
                 <!-- /.info-box -->
-              </div>
+            </div>
               <!-- /.col -->
             <!-- RADAR CHART -->
             <div class="col-md-6">
@@ -118,6 +118,24 @@
                     <!-- /.card-body -->
                 </div>
             </div>
+            <!-- RADAR CHART -->
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                    <h3 class="card-title">Capaian Pembelajaran Lulusan Angkatan {{ $mahasiswa->angkatan }}</h3>
+                    {{-- <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div> --}}
+                    </div>
+                    <div class="card-body">
+                    <canvas id="radarCPLAngkatanDashboard" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
         </div>
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
@@ -139,7 +157,41 @@
                     data: {
                         labels: response.labels,
                         datasets: [{
-                            label: 'Capaian Pembelajaran Mata Kuliah',
+                            label: 'Capaian Pembelajaran Lulusan',
+                            data: response.values,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+
+        //CPL Angkatan
+        $.ajax({
+            url: "{{ url('/mahasiswa/dashboard/chart-cpl-angkatan') }}",
+            type: 'GET',
+            success: function(response) {
+                var ctx = document.getElementById('radarCPLAngkatanDashboard').getContext('2d');
+                var myRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: response.labels,
+                        datasets: [{
+                            label: 'Capaian Pembelajaran Lulusan Angkatan ' +  {{ $mahasiswa->angkatan }},
                             data: response.values,
                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                             borderColor: 'rgba(255, 99, 132, 1)',
