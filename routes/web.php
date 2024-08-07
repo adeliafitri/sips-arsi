@@ -342,6 +342,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'role:mahasiswa'], function () {
         Route::get('/mahasiswa/dashboard', [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
         Route::get('/mahasiswa/dashboard/chart-cpl', [MahasiswaController::class, 'chartDashboard'])->name('mahasiswa.dashboard.chartcpl');
+        Route::get('/mahasiswa/dashboard/chart-cpl-angkatan', [MahasiswaController::class, 'chartCplDashboard'])->name('mahasiswa.dashboard.chartcplAngkatan');
 
         Route::prefix('mahasiswa/user')->group(function () {
             Route::get('/{id}', [MahasiswaProfileController::class, 'show'])->name('mahasiswa.user');
