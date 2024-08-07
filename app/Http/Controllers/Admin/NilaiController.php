@@ -281,6 +281,7 @@ class NilaiController extends Controller
             }
 
             $nilai_mahasiswa = $query->orderby('soal_sub_cpmk.id', 'ASC')
+            ->orderBy('mahasiswa.nim', 'ASC')
             // ->distinct('soal_sub_cpmk.waktu_pelaksanaan')
             ->get();
 

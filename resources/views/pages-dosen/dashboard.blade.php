@@ -36,14 +36,14 @@
         <!-- Small boxes (Stat box) -->
     <div class="row">
         @php
-            $colors = ['bg-info', 'bg-success', 'bg-warning', 'bg-danger'];
+            $colors = ['bg-info', 'bg-success', 'bg-warning'];
         @endphp
         @foreach ($data as $key => $datas)
         <div class="col-lg-4 col-12">
             <!-- small box -->
             <div class="small-box {{ $colors[$key % count($colors)] }}">
               <div class="inner">
-                <h4>{{ $datas->nama_matkul }}</h4>
+                <h4 class="text-capitalize">{{ $datas->nama_matkul }}</h4>
 
                 <p><b>{{ $datas->kode_matkul }}</b></p>
               </div>
@@ -58,6 +58,44 @@
     </div>
     <!-- /.row -->
       <!-- </div> -->
+      <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between">
+            <div class="align-self-center">
+                <h5>Capaian Pembelajaran Lulusan (Angkatan)</h5>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter mr-2"></i> Filter Angkatan</button>
+            </div>
+            {{-- modal import --}}
+            <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter CPL Angkatan</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="angkatanStart">Angkatan Mulai</label>
+                                    <input type="number" class="form-control" id="angkatanStart" placeholder="2018">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="angkatanEnd">Angkatan Akhir</label>
+                                    <input type="number" class="form-control" id="angkatanEnd" placeholder="2022">
+                                </div>
+                            </div>
+                            <button id="applyFilter" class="btn btn-sm btn-primary">Terapkan Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row clearfix" id="chartsContainer"></div>
       <!-- /.row -->
       <!-- Main row -->
 
@@ -66,8 +104,68 @@
   </section>
   <!-- /.content -->
 @endsection
-  <script>
-    $(function () {
+@section('script')
+<script>
+    $(document).ready(function() {
+    // Function to fetch chart data
+    function fetchChartData(startYear, endYear) {
+        $.ajax({
+            url: "{{ route('dosen.dashboard.chartcpl') }}",
+            type: 'GET',
+            data: {
+                angkatan_start: startYear,
+                angkatan_end: endYear
+            },
+            success: function(response) {
+                $('#chartsContainer').empty(); // Kosongkan container sebelum menampilkan chart baru
 
+                response.forEach(function(result) {
+                    var chartId = 'radarCPLDashboard' + result.angkatan;
+                    $('#chartsContainer').append('<div class="col-md-6"><div class="card card-info"><div class="card-header"><h3 class="card-title">Capaian Pembelajaran Lulusan Angkatan ' + result.angkatan + '</h3></div><div class="card-body"><canvas id="' + chartId + '" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas></div></div></div>');
+
+                    var ctx = document.getElementById(chartId).getContext('2d');
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: result.labels,
+                            datasets: [{
+                                label: 'Capaian Pembelajaran Lulusan Angkatan ' + result.angkatan,
+                                data: result.values,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scale: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                });
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+    // Event listener for filter button click
+    $('#applyFilter').click(function() {
+        var startYear = $('#angkatanStart').val();
+        var endYear = $('#angkatanEnd').val();
+        fetchChartData(startYear, endYear);
+        $('#filterModal').modal('hide')
     });
-  </script>
+
+    // Fetch default chart data on page load for current year and 3 years prior
+    var currentYear = new Date().getFullYear();
+    fetchChartData(currentYear - 3, currentYear);
+    });
+
+</script>
+@endsection

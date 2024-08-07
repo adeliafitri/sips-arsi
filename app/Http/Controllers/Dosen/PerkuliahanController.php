@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Dosen;
 
-use App\Exports\DaftarMahasiswaFormatExcel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
@@ -14,12 +15,12 @@ use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
-use App\Imports\DaftarMahasiswaImportExcel;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
+use App\Exports\DaftarMahasiswaFormatExcel;
+use App\Imports\DaftarMahasiswaImportExcel;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerkuliahanController extends Controller
 {
@@ -452,7 +453,25 @@ class PerkuliahanController extends Controller
         // Sekarang $mahasiswa_data berisi data nilai untuk setiap mahasiswa dengan struktur yang diinginkan
         // dd(array_values($mahasiswa_data), array_values($info_soal));
 
-        return view('pages-dosen.perkuliahan.nilai_mahasiswa', ['data' => $kelasMatkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'id_kelas' => $id]);
+        // Convert array to collection
+        $collection = collect($mahasiswa_data);
+
+        // Determine the current page from the request (default to 1)
+        $currentPage = $request->get('page', 1);
+
+        // Set the number of items per page
+        $perPage = 25;
+
+        // Slice the collection to get the items for the current page
+        $currentItems = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        // Create the paginator
+        $paginator = new LengthAwarePaginator($currentItems, $collection->count(), $perPage, $currentPage, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        return view('pages-dosen.perkuliahan.nilai_mahasiswa', ['data' => $kelasMatkul, 'mahasiswa_data' => $paginator, 'info_soal' => $info_soal, 'id_kelas' => $id]);
     }
 
     public function downloadExcel()
