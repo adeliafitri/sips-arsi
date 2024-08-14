@@ -63,6 +63,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'role:admin'], function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/dashboard/chart-cpl', [AdminController::class, 'chartCplDashboard'])->name('admin.dashboard.chartcpl');
+        Route::get('/admin/dashboard/chart-cpl-smt', [AdminController::class, 'chartCplSmtDashboard'])->name('admin.dashboard.chartcplsmt');
 
         Route::prefix('admin/user')->group(function () {
             Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
@@ -80,6 +81,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminMahasiswaController::class, 'edit'])->name('admin.mahasiswa.edit');
             Route::put('edit/{id}', [AdminMahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
             Route::delete('{id}', [AdminMahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
+            Route::post('delete-multiple', [AdminMahasiswaController::class, 'deleteMultiple'])->name('admin.mahasiswa.destroyMultiple');
             Route::get('excel/download', [AdminMahasiswaController::class, 'downloadExcel'])->name('admin.mahasiswa.download-excel');
             Route::post('excel/import', [AdminMahasiswaController::class, 'importExcel'])->name('admin.mahasiswa.import-excel');
             Route::post('reset-password', [AdminMahasiswaController::class, 'resetPassword'])->name('admin.mahasiswa.reset-password');
@@ -93,6 +95,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [AdminDosenController::class, 'edit'])->name('admin.dosen.edit');
             Route::put('edit/{id}', [AdminDosenController::class, 'update'])->name('admin.dosen.update');
             Route::delete('{id}', [AdminDosenController::class, 'destroy'])->name('admin.dosen.destroy');
+            Route::post('delete-multiple', [AdminDosenController::class, 'deleteMultiple'])->name('admin.dosen.destroyMultiple');
             Route::get('download-excel', [AdminDosenController::class, 'downloadExcel'])->name('admin.dosen.download-excel');
             Route::post('import-excel', [AdminDosenController::class, 'importExcel'])->name('admin.dosen.import-excel');
             Route::post('reset-password', [AdminDosenController::class, 'resetPassword'])->name('admin.dosen.reset-password');
@@ -250,7 +253,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::group(['middleware' => 'role:dosen'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
-        Route::get('/dosen/dashboard/chart-cpl', [AdminController::class, 'chartCplDashboard'])->name('dosen.dashboard.chartcpl');
+        Route::get('/dosen/dashboard/chart-cpl', [DosenController::class, 'chartCplDashboard'])->name('dosen.dashboard.chartcpl');
+        Route::get('/dosen/dashboard/chart-cpl-smt', [DosenController::class, 'chartCplSmtDashboard'])->name('dosen.dashboard.chartcplsmt');
 
         Route::prefix('dosen/user')->group(function () {
             Route::get('/{id}', [DosenProfileController::class, 'show'])->name('dosen.user');
