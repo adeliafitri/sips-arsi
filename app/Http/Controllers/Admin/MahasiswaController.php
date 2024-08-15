@@ -240,6 +240,32 @@ class MahasiswaController extends Controller
         }
     }
 
+    public function deleteMultiple(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? null;
+
+        if (is_array($ids) && !empty($ids)) {
+            try {
+                foreach ($ids as $id) {
+                    $mahasiswa = Mahasiswa::where('id_auth', $id)->select('id')->first();
+                    if ($mahasiswa) {
+                        $id_mahasiswa = $mahasiswa->id;
+                        NilaiAkhirMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                        NilaiMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                        $mahasiswa->delete();
+                    }
+                    User::where('id', $id)->delete();
+                }
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data.']);
+        }
+    }
+
     public function downloadExcel()
     {
         return Excel::download(new MahasiswaFormatExcel(), 'mahasiswa-excel.xlsx');

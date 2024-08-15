@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Dosen;
+use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\KelasKuliah;
@@ -25,8 +26,10 @@ class AdminController extends Controller
         $jml_matkul = MataKuliah::count();
         $jml_kelas = KelasKuliah::count();
         $mahasiswa = Mahasiswa::select('angkatan')->distinct()->orderBy('angkatan')->get();
+        $semesters = Semester::all();
+        // dd($semester);
         $title = 'Angkatan';
-        return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas', 'mahasiswa', 'title'));
+        return view('pages-admin.dashboard', compact('jml_mahasiswa', 'jml_dosen', 'jml_matkul', 'jml_kelas', 'mahasiswa', 'title',  'semesters'));
     }
 
     public function index(Request $request)
@@ -186,23 +189,77 @@ class AdminController extends Controller
 
     public function chartCplDashboard(Request $request)
     {
+        // Ambil tahun sekarang
+        $currentYear = date('Y');
+        $startYear = $currentYear - 3;
+
+        // Cek jika request mengandung rentang angkatan
+        if ($request->has('angkatan_start') && $request->has('angkatan_end')) {
+            $startYear = $request->input('angkatan_start');
+            $endYear = $request->input('angkatan_end');
+        } else {
+            // Jika tidak ada filter, gunakan default (tahun sekarang dan 3 tahun ke belakang)
+            $endYear = $currentYear;
+        }
+
+        $resultsByYear = [];
+
+        // Loop untuk tiap angkatan dalam rentang yang diberikan
+        for ($year = $endYear; $year >= $startYear; $year--) {
+            $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
+                ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
+                ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+                ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+                ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+                ->join('rps', 'cpmk.rps_id', 'rps.id')
+                ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+                ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
+                ->where('mahasiswa.angkatan', $year)
+                ->groupBy('cpl.id','mata_kuliah.id');
+
+            $averageCPL = $query->get();
+
+            $results = $averageCPL->groupBy('kode_cpl')->map(function ($group) {
+                return $group->avg('rata_rata_cpl');
+            });
+
+            $labels = $results->keys()->toArray(); // Ambil kode CPL sebagai label
+            $values = $results->values()->toArray();
+
+            $resultsByYear[] = [
+                'angkatan' => $year,
+                'labels' => $labels,
+                'values' => $values
+            ];
+        }
+
+        return response()->json($resultsByYear);
+    }
+
+    public function chartCplSmtDashboard(Request $request)
+    {
+        // Ambil semester yang dipilih dari request, jika tidak ada gunakan semester aktif
+        $semesterId = $request->input('semester_id', null);
+
+        if ($semesterId) {
+            // Jika semester dipilih melalui filter
+            $selectedSemester = Semester::find($semesterId);
+        } else {
+            // Jika tidak ada semester yang dipilih, gunakan semester aktif
+            $selectedSemester = Semester::where('is_active', "1")->first();
+        }
         $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
             ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
             ->join('rps', 'cpmk.rps_id', 'rps.id')
+            ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+            ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
             ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
             ->selectRaw('cpl.kode_cpl, ROUND(SUM(nilai_mahasiswa.nilai * soal_sub_cpmk.bobot_soal) / SUM(soal_sub_cpmk.bobot_soal), 1) as rata_rata_cpl')
-            ->groupBy('cpl.id','mata_kuliah.id');
-
-            if ($request->has('angkatan')) {
-                $angkatan = $request->input('angkatan');
-                $query->where('mahasiswa.angkatan', $angkatan);
-                $title = $angkatan;
-            } else {
-                $title = 'Semua Angkatan';
-            }
+            ->groupBy('cpl.id','mata_kuliah.id')
+            ->where('semester.id', $selectedSemester->id);
 
         // $sql = $query->toSql();
 
@@ -218,7 +275,6 @@ class AdminController extends Controller
         return response()->json([
             'labels' => $labels,
             'values' => $values,
-            'title' => $title
         ]);
     }
 }
