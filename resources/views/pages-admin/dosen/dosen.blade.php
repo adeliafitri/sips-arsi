@@ -106,6 +106,7 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>No Telp</th>
+                            <th>Status</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
                         </thead>
@@ -118,6 +119,7 @@
                               <td>{{ $datas->nama }}</td>
                               <td>{{ $datas->email }}</td>
                               <td>{{ $datas->telp }}</td>
+                              <td class="text-capitalize">{{ $datas->status }}</td>
                               <td class="d-flex">
                                   {{-- <a href="{{ route('admin.dosen.show', $datas->id) }}" class="btn btn-info"><i class="nav-icon far fa-eye mr-2"></i>Detail</a> --}}
                                   <a href="{{ route('admin.dosen.edit', $datas->id) }}" class="btn btn-secondary mr-1" title="Edit Data"><i class="nav-icon fas fa-edit "></i></a>

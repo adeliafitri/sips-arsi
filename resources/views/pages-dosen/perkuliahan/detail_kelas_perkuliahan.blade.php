@@ -75,10 +75,17 @@
                 <div class="col-sm-2">
                     <a href="{{ route('dosen.kelaskuliah.masukkannilai', $data->id) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-pen mr-2"></i> Lihat Nilai</a>
                 </div>
+
                 <div class="dropdown">
+                    @if ($data->status == 'non aktif')
+                    <button class="btn btn-success dropdown-toggle disabled" type="button" data-toggle="dropdown" aria-expanded="false">
+                        Tambah Data Mahasiswa
+                   </button>
+                    @else
                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                         Tambah Data Mahasiswa
+                        Tambah Data Mahasiswa
                     </button>
+                    @endif
                     <div class="dropdown-menu">
                       <a class="dropdown-item" href="{{ route('dosen.kelaskuliah.mahasiswa.download-excel') }}"><i class="fas fa-download mr-2"></i> Download Format</a>
                       <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
@@ -146,8 +153,12 @@
                               <td>{{ $mahasiswas->nama }}</td>
                               <td>
                                   <div id="nilai-akhir-{{ $mahasiswas->id_nilai }}">
-                                      {{ $mahasiswas->nilai_akhir }}
-                                      <i class="nav-icon fas fa-edit" onclick="editNilaiAkhir({{ $mahasiswas->id_nilai }})" style="cursor: pointer"></i>
+                                    @if ($data->status == 'non aktif')
+                                        {{ $mahasiswas->nilai_akhir }}
+                                    @else
+                                    {{ $mahasiswas->nilai_akhir }}
+                                    <i class="nav-icon fas fa-edit" onclick="editNilaiAkhir({{ $mahasiswas->id_nilai }})" style="cursor: pointer"></i>
+                                    @endif
                                   </div>
                                   <form action="{{ route('dosen.kelaskuliah.editnilaiakhir') }}" method="POST" class="d-flex justify-content-end fit-content ">
                                       @csrf
@@ -163,7 +174,11 @@
                               <td>
                                   <div class="d-flex">
                                       {{-- <a href="{{ route('dosen.kelaskuliah.nilaimahasiswa', ['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a> --}}
+                                      @if ($data->status == 'non aktif')
+                                      <a class="btn btn-danger disabled" onclick="deleteDataMahasiswa({{$data->id}}, {{ $mahasiswas->id }})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                      @else
                                       <a class="btn btn-danger" onclick="deleteDataMahasiswa({{$data->id}}, {{ $mahasiswas->id }})"><i class="nav-icon fas fa-trash-alt"></i></a>
+                                      @endif
                                       {{-- <form action="{{ route('dosen.kelaskuliah.destroymahasiswa',['id' => $data->id, 'id_mahasiswa' => $mahasiswas->id]) }}" method="post">
                                           @csrf
                                           @method('delete')
@@ -283,6 +298,16 @@
                 <h3 class="card-title">Evaluasi dan Rencana Perbaikan</h3>
             </div>
             <div class="card-body">
+                @if ($data->status == "non aktif")
+                    <div class="col-12">
+                        <label for="evaluasi">Evaluasi</label>
+                        <p>{{ $data->evaluasi }}</p>
+                    </div>
+                    <div class="col-12">
+                        <label for="rencana_perbaikan">Rencana Perbaikan</label>
+                        <p>{{ $data->rencana_perbaikan }}</p>
+                    </div>
+                @else
                 <form id="dataForm">
                     @csrf
                     @method('PUT')
@@ -298,6 +323,7 @@
                         <button type="button" class="btn btn-primary" onclick="saveData({{$data->id}})">Simpan</button>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
           </div>

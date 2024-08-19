@@ -64,6 +64,7 @@ class DosenController extends Controller
             'email' => 'required|email',
             'nidn' => 'required|unique:dosen,nidn',
             'telp' => 'required|string|unique:dosen,telp',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -103,6 +104,7 @@ class DosenController extends Controller
                 'nidn' => $request->nidn,
                 'telp' => $request->telp,
                 'email' => $request->email,
+                'status' => $request->status,
                 'image' => $image
             ]);
 
@@ -148,6 +150,7 @@ class DosenController extends Controller
             'nama' => 'required|string',
             'nidn' => 'required',
             'telp' => 'required|string',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -189,6 +192,7 @@ class DosenController extends Controller
                 'nama' => $request->nama,
                 'nidn' => $request->nidn,
                 'telp' => $request->telp,
+                'status' => $request->status,
                 'image' => $image ? $image : $dosen->image,
             ]);
 

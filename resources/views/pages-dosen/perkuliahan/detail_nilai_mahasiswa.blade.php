@@ -40,8 +40,8 @@
                   <div class="col-6">
                     <p><span class="text-bold">Nama :</span> {{ $data->nama }}</p>
                     <p><span class="text-bold">NIM :</span> {{ $data->nim }}</p>
-                    <p class="d-flex"><span class="text-bold">Nilai Akhir :</span> 
-                      <span id="nilai-akhir"> {{ $data->nilai_akhir }}  
+                    <p class="d-flex"><span class="text-bold">Nilai Akhir :</span>
+                      <span id="nilai-akhir"> {{ $data->nilai_akhir }}
                         <i class="nav-icon fas fa-edit" onclick="editNilaiAkhir()" style="cursor: pointer"></i>
                       </span>
                       <form action="{{ route('dosen.kelaskuliah.editnilaiakhir') }}" method="POST" class="d-flex">
@@ -53,7 +53,7 @@
                         <button style="display: none;" type="submit" id="edit-nilai-akhir-button" class="ml-2 btn btn-primary"><i class="fas fa-check"></i></button>
                       </form>
                     </p>
-                    
+
                   </div>
                   <div class="col-3">
                     <div class="box box-primary">
@@ -87,7 +87,6 @@
                     <a class="nav-link" role="tab"  data-toggle="pill" href="#tugas-tab" aria-controls="tugas-tab" aria-selected="false" onclick="nilaiTugas({{ $data->matakuliah_kelasid }}, {{ $data->mahasiswa_id }});"><h6 style="color: black; font-weight: bold">Tugas</h6></a>
                 </li>
             </ul>
-            
 
             <div class="tab-content bg-white px-3">
                 <div class="tab-pane show fade active justify-content-center" id="cpl-tab" role="tabpanel">

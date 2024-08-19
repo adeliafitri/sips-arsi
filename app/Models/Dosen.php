@@ -17,7 +17,8 @@ class Dosen extends Model
         'nidn',
         'telp',
         'image',
-        'email'
+        'email',
+        'status'
     ];
 
     public function auth()

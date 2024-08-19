@@ -54,6 +54,24 @@
                       <input type="text" class="form-control" id="telp" name="telp" placeholder="No Telepon" value="{{ $data->telp }}">
                     </div>
                     <div class="form-group">
+                        <label for="status">Status Dosen</label>
+                        <div class="row col-3">
+                            <div class="col-6" class="align-middle">
+                                <input type="radio" id="aktif" name="status" value="aktif" {{ $data->status == 'aktif' ? 'checked' : '' }}>
+                                <label for="aktif" class="radio-label text-box">
+                                    Aktif
+                                </label>
+                            </div>
+                            <div class="col-6" class="align-middle">
+                                <input type="radio" id="non-aktif" name="status" value="non aktif" {{ $data->status == 'non aktif' ? 'checked' : '' }}>
+                                <label for="non-aktif" class="radio-label text-box">
+                                    Non Aktif
+                                </label>
+                            </div>
+                        </div>
+                        {{-- <input type="text" class="form-control" id="semester" name="semester" placeholder="Semester"> --}}
+                    </div>
+                    <div class="form-group">
                         <label for="image">Image</label>
                         <div class="custom-file">
                             <input type="file" class="custom-file-input form-control" id="image" name="image">

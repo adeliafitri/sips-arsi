@@ -19,6 +19,9 @@
     </div>
     <!-- /.content-header -->
 
+    @php
+        $statusDosen = $data->status;
+    @endphp
    <!-- Main content -->
    <section class="content">
       <div class="container-fluid">
@@ -42,9 +45,15 @@
                     <a href="{{ route('dosen.kelaskuliah.generatepdf', $data->id_kelas) }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-download mr-2"></i> Download Nilai</a>
                 </div>
                 <div class="dropdown col-2">
+                    @if ($data->status == 'non aktif')
+                    <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                        <i class="fas fa-file-excel mr-2"></i> Excel
+                    </button>
+                    @else
                     <button class="btn btn-success w-100 dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </button>
+                    @endif
                     <div class="dropdown-menu">
                       {{-- <a class="dropdown-item" href="#"></a> --}}
                       <div class="dropup">
@@ -192,9 +201,14 @@
                                   @endforeach --}}
                                 @foreach ($mhs['id_nilai'] as $id_nilai)
                                     <td>
+                                        @if ($statusDosen == 'non aktif')
+                                        <input type="number" name="nilai[{{ $mhs['id_mhs'] }}][{{ $id_nilai }}]" value="{{ $mhs['nilai'][$loop->index] }}" step="0.01" class="form-control" style="width: 75px;" readonly>
+                                        @else
                                         <input type="number" name="nilai[{{ $mhs['id_mhs'] }}][{{ $id_nilai }}]" value="{{ $mhs['nilai'][$loop->index] }}" step="0.01" class="form-control" style="width: 75px;">
+                                        @endif
                                     </td>
                                 @endforeach
+
                             </tr>
                           {{-- @endforeach --}}
                         @endforeach

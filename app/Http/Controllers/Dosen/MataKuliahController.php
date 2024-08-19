@@ -25,7 +25,7 @@ class MataKuliahController extends Controller
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator')
+        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator', 'dosen.status')
         ->where('dosen.id_auth', Auth::user()->id)
         ->distinct();
 
