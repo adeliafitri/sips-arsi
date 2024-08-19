@@ -104,9 +104,9 @@
                                             <th style="width: 10px">No</th>
                                             <th>NIM</th>
                                             <th>Nama</th>
-                                            {{-- <th>Email</th> --}}
                                             <th>No Telp</th>
                                             <th>Angkatan</th>
+                                            <th>Status</th>
                                             {{-- <th>Image</th> --}}
                                             <th style="width: 150px">Action</th>
                                         </tr>
@@ -118,9 +118,9 @@
                                                 <td>{{ $startNumber++ }}</td>
                                                 <td>{{ $datas->nim }}</td>
                                                 <td>{{ $datas->nama }}</td>
-                                                {{-- <td>{{ $datas->email }}</td> --}}
                                                 <td>{{ $datas->telp }}</td>
                                                 <td>{{ $datas->angkatan }}</td>
+                                                <td class="text-capitalize">{{ $datas->status }}</td>
                                                 {{-- <td>
                                 <div class="text-center">
                                     <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">

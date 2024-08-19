@@ -121,7 +121,8 @@ class PerkuliahanController extends Controller
         $perPage = 4;
         $currentItems = array_slice($flatData, ($currentPage - 1) * $perPage, $perPage);
         $paginatedData = new LengthAwarePaginator($currentItems, count($flatData), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
         ]);
 
         $startNumber = ($paginatedData->currentPage() - 1) * $paginatedData->perPage() + 1;
