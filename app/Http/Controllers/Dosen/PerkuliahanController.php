@@ -86,6 +86,7 @@ class PerkuliahanController extends Controller
                 'kelas.nama_kelas as kelas',
                 'mata_kuliah.nama_matkul as nama_matkul',
                 'dosen.nama as nama_dosen',
+                'dosen.status',
                 'rps.tahun_rps'
             )
             ->where('matakuliah_kelas.id', $id)->first();
@@ -388,7 +389,8 @@ class PerkuliahanController extends Controller
         $kelasMatkul = KelasKuliah::join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
         ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
         ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
-        ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'matakuliah_kelas.id as id_kelas')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
+        ->select('mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'matakuliah_kelas.id as id_kelas', 'dosen.status')
         ->where('matakuliah_kelas.id', $id)
         ->first();
 

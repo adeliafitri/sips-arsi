@@ -64,6 +64,7 @@ class MahasiswaController extends Controller
             'nim' => 'required|unique:mahasiswa,nim',
             'telp' => 'required|string|unique:mahasiswa,telp',
             'angkatan' => 'required|numeric',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -106,6 +107,7 @@ class MahasiswaController extends Controller
                 'nim' => $request->nim,
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
+                'status' => $request->status,
                 'image' => $image
             ]);
 
@@ -161,6 +163,7 @@ class MahasiswaController extends Controller
             'nim' => 'required',
             'angkatan' => 'required|numeric',
             'telp' => 'required|string',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -205,6 +208,7 @@ class MahasiswaController extends Controller
                 'nim' => $request->nim,
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
+                'status' => $request->status,
                 'image' => $image ? $image : $mahasiswa->image,
             ]);
 

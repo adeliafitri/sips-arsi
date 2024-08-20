@@ -82,7 +82,7 @@
                               <td>{{ $datas->semester }}</td>
                               <td>{{ $datas->tahun_rps }}</td>
                               <td class="d-flex justify-content-center">
-                                  @if ($datas->koordinator == 1)
+                                  @if ($datas->koordinator == 1 && $datas->status == 'aktif')
                                   <a href="{{ route('dosen.rps.create', $datas->id_rps) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
                                   @endif
                                    <a href="{{ route('dosen.matakuliah.show', $datas->id_rps) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
