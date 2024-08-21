@@ -21,7 +21,8 @@ class Mahasiswa extends Model
         'alamat',
         'telp',
         'image',
-        'angkatan'
+        'angkatan',
+        'status'
     ];
 
     public function auth()

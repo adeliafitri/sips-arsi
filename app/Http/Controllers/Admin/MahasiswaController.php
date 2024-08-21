@@ -64,6 +64,7 @@ class MahasiswaController extends Controller
             'nim' => 'required|unique:mahasiswa,nim',
             'telp' => 'required|string|unique:mahasiswa,telp',
             'angkatan' => 'required|numeric',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -106,6 +107,7 @@ class MahasiswaController extends Controller
                 'nim' => $request->nim,
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
+                'status' => $request->status,
                 'image' => $image
             ]);
 
@@ -161,6 +163,7 @@ class MahasiswaController extends Controller
             'nim' => 'required',
             'angkatan' => 'required|numeric',
             'telp' => 'required|string',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -205,6 +208,7 @@ class MahasiswaController extends Controller
                 'nim' => $request->nim,
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
+                'status' => $request->status,
                 'image' => $image ? $image : $mahasiswa->image,
             ]);
 
@@ -237,6 +241,32 @@ class MahasiswaController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteMultiple(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? null;
+
+        if (is_array($ids) && !empty($ids)) {
+            try {
+                foreach ($ids as $id) {
+                    $mahasiswa = Mahasiswa::where('id_auth', $id)->select('id')->first();
+                    if ($mahasiswa) {
+                        $id_mahasiswa = $mahasiswa->id;
+                        NilaiAkhirMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                        NilaiMahasiswa::where('mahasiswa_id', $id_mahasiswa)->delete();
+                        $mahasiswa->delete();
+                    }
+                    User::where('id', $id)->delete();
+                }
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data.']);
         }
     }
 

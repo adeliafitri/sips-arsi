@@ -57,6 +57,16 @@
                                         placeholder="Angkatan" value="{{ $data->angkatan }}">
                                 </div>
                                 <div class="form-group">
+                                    <label for="status">Status Mahasiswa</label>
+                                    <select class="form-control select2bs4" id="status" name="status">
+                                        <option value="aktif" {{ $data->status == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="yudisium" {{ $data->status == 'yudisium' ? 'selected' : '' }}>Yudisium</option>
+                                        <option value="mutasi/pernah studi" {{ $data->status == 'mutasi/pernah studi' ? 'selected' : '' }}>Mutasi/ Pernah Studi</option>
+                                        <option value="lulus" {{ $data->status == 'lulus' ? 'selected' : '' }}>Lulus</option>
+                                        <option value="non aktif" {{ $data->status == 'non aktif' ? 'selected' : '' }}>Non Aktif</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label for="telp">No Telepon</label>
                                     <input type="text" class="form-control" id="telp" name="telp"
                                         placeholder="No Telepon" value="{{ $data->telp }}">

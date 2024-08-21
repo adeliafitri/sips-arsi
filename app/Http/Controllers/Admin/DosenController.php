@@ -10,6 +10,7 @@ use App\Models\NilaiMahasiswa;
 use App\Exports\DosenFormatExcel;
 use App\Imports\DosenImportExcel;
 use App\Models\NilaiAkhirMahasiswa;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
@@ -63,6 +64,7 @@ class DosenController extends Controller
             'email' => 'required|email',
             'nidn' => 'required|unique:dosen,nidn',
             'telp' => 'required|string|unique:dosen,telp',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -102,6 +104,7 @@ class DosenController extends Controller
                 'nidn' => $request->nidn,
                 'telp' => $request->telp,
                 'email' => $request->email,
+                'status' => $request->status,
                 'image' => $image
             ]);
 
@@ -147,6 +150,7 @@ class DosenController extends Controller
             'nama' => 'required|string',
             'nidn' => 'required',
             'telp' => 'required|string',
+            'status' => 'required',
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -188,6 +192,7 @@ class DosenController extends Controller
                 'nama' => $request->nama,
                 'nidn' => $request->nidn,
                 'telp' => $request->telp,
+                'status' => $request->status,
                 'image' => $image ? $image : $dosen->image,
             ]);
 
@@ -224,6 +229,56 @@ class DosenController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
         }
     }
+
+    public function deleteMultiple(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? null;
+
+        if (is_array($ids) && !empty($ids)) {
+            try {
+                foreach ($ids as $id) {
+                    $dosen = Dosen::where('id_auth', $id)->select('id')->first();
+
+                    if ($dosen) {
+                        $matakuliah_kelas = KelasKuliah::where('dosen_id', $dosen->id)->get();
+                        foreach ($matakuliah_kelas as $valueMatakuliah_Kelas) {
+                            NilaiMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+                            NilaiAkhirMahasiswa::where('matakuliah_kelasid', $valueMatakuliah_Kelas->id)->delete();
+                        }
+                        KelasKuliah::where('dosen_id', $dosen->id)->delete();
+                        Dosen::where('id_auth', $id)->delete();
+                    }
+
+                    User::where('id', $id)->delete();
+                }
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data.']);
+        }
+    }
+
+    // public function deleteMultiple(Request $request)
+    // {
+    //     $data = json_decode($request->getContent(), true);
+    //     // Log::info('Request Data:', $data);
+    //     // $content = $request->getContent();
+    //     // dd($content); // Pastikan ini berisi data JSON yang benar
+
+    //     $ids = $data['ids'] ?? null;
+    //     // dd($data);
+    //     // Log::info('IDs received:', $ids);
+
+    //     if (is_array($ids) && !empty($ids)) {
+    //         Dosen::whereIn('id', $ids)->delete();
+    //         return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+    //     } else {
+    //         return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data.']);
+    //     }
+    // }
 
     public function downloadExcel()
     {

@@ -58,6 +58,16 @@
                                     <input type="text" class="form-control" name="angkatan" id="angkatan" required
                                         placeholder="Angkatan">
                                 </div>
+                                <div class="form-group">
+                                    <label for="status">Status Mahasiswa</label>
+                                        <select class="form-control select2bs4" id="status" name="status">
+                                        <option value="aktif">Aktif</option>
+                                        <option value="yudisium">Yudisium</option>
+                                        <option value="mutasi/pernah studi">Mutasi/ Pernah Studi</option>
+                                        <option value="lulus">Lulus</option>
+                                        <option value="non aktif">Non Aktif</option>
+                                        </select>
+                                </div>
                                 {{-- <div class="form-group">
                                     <label for="image">Image</label>
                                     <div class="custom-file">

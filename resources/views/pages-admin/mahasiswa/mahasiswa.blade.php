@@ -100,12 +100,13 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
+                                            <th><input type="checkbox" id="checkAll"></th>
                                             <th style="width: 10px">No</th>
                                             <th>NIM</th>
                                             <th>Nama</th>
-                                            {{-- <th>Email</th> --}}
                                             <th>No Telp</th>
                                             <th>Angkatan</th>
+                                            <th>Status</th>
                                             {{-- <th>Image</th> --}}
                                             <th style="width: 150px">Action</th>
                                         </tr>
@@ -113,12 +114,13 @@
                                     <tbody>
                                         <tr>
                                             @foreach ($data as $key => $datas)
+                                                <td><input type="checkbox" class="checkbox" data-id="{{ $datas->id_auth }}"></td>
                                                 <td>{{ $startNumber++ }}</td>
                                                 <td>{{ $datas->nim }}</td>
                                                 <td>{{ $datas->nama }}</td>
-                                                {{-- <td>{{ $datas->email }}</td> --}}
                                                 <td>{{ $datas->telp }}</td>
                                                 <td>{{ $datas->angkatan }}</td>
+                                                <td class="text-capitalize">{{ $datas->status }}</td>
                                                 {{-- <td>
                                 <div class="text-center">
                                     <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">
@@ -143,6 +145,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <button id="deleteSelected" class="btn btn-danger" style="display:none;">Delete Selected</button>
                         </div>
                         <!-- /.card-body -->
 
@@ -168,6 +171,97 @@
     document.addEventListener('DOMContentLoaded', function () {
        //content goes here
     });
+
+    function updateDeleteButtonVisibility() {
+        let checkedCount = document.querySelectorAll('.checkbox:checked');
+        let deleteButton = document.getElementById('deleteSelected');
+
+        if (checkedCount.length > 1) {
+            deleteButton.style.display = 'inline-block';
+        } else {
+            deleteButton.style.display = 'none';
+        }
+    }
+
+    // Event listener untuk checkbox individual
+    document.querySelectorAll('.checkbox').forEach((checkbox) => {
+        checkbox.addEventListener('change', function() {
+            updateDeleteButtonVisibility();
+        });
+    });
+
+    // Event listener untuk checkbox "Select All"
+    document.getElementById('checkAll').addEventListener('change', function() {
+        console.log('Check All clicked');
+        let checkboxes = document.querySelectorAll('.checkbox');
+        console.log(checkboxes);
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = this.checked;
+            console.log('Checkbox state:', checkbox.checked);
+        });
+        updateDeleteButtonVisibility();
+    });
+
+    // Hapus baris yang dipilih secara multiple
+    document.getElementById('deleteSelected').addEventListener('click', function() {
+        let selectedIds = [];
+        document.querySelectorAll('.checkbox:checked').forEach((checkbox) => {
+            selectedIds.push(checkbox.getAttribute('data-id'));
+        });
+        console.log('Selected IDs:', selectedIds)
+
+        if (selectedIds.length > 0) {
+            Swal.fire({
+            title: "Konfirmasi Hapus",
+            text: "Apakah anda yakin ingin menghapus data yang dipilih?",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, hapus"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    $.ajax({
+                    url: "{{ url('admin/mahasiswa/delete-multiple') }}",
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        // 'X-HTTP-Method-Override': 'DELETE'
+                    },
+                    data: JSON.stringify({ ids: selectedIds}),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            selectedIds.forEach(id => {
+                                document.querySelector(`.checkbox[data-id="${id}"]`).closest('tr').remove();
+                            });
+                            updateDeleteButtonVisibility();
+                            console.log(response.message);
+                            Swal.fire({
+                            title: "Sukses!",
+                            text: response.message,
+                            icon: "success"
+                            }).then((result) => {
+                                // Check if the user clicked "OK"
+                                if (result.isConfirmed) {
+                                    // Redirect to the desired URL
+                                    window.location.reload();
+                                };
+                                    // window.location.href = "{{ route('admin.kelas') }}";
+                            });
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error during AJAX request:', error);
+                    }
+                });
+            }
+          });
+        }
+    })
 
           function deleteMahasiswa(id){
             console.log(id);
