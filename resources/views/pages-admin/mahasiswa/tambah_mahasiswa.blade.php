@@ -68,6 +68,12 @@
                                         <option value="non aktif">Non Aktif</option>
                                         </select>
                                 </div>
+
+                                <!-- Hidden input field untuk tahun_lulus -->
+                                <div class="form-group" id="tahun_lulus_div" style="display:none;">
+                                    <label for="tahun_lulus">Tahun Lulus</label>
+                                    <input type="number" class="form-control" id="tahun_lulus" name="tahun_lulus" placeholder="Masukkan Tahun Lulus">
+                                </div>
                                 {{-- <div class="form-group">
                                     <label for="image">Image</label>
                                     <div class="custom-file">
@@ -140,6 +146,20 @@
 
 @section('script')
   <script>
+    // Gunakan Select2 event listener
+    $('#status').on('change', function () {
+        var status = $(this).val();  // Mengambil value dari Select2
+            console.log("Status selected: ", status); // Debugging
+
+            var tahunLulusDiv = document.getElementById('tahun_lulus_div');
+
+            if (status === 'lulus') {
+                tahunLulusDiv.style.display = 'block';
+            } else {
+                tahunLulusDiv.style.display = 'none';
+            }
+    });
+
     function addData() {
         $('#button-simpan').disabled = true;
         var form = $('#addDataForm');

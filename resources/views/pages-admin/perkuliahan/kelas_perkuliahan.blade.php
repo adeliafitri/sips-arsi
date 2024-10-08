@@ -54,8 +54,50 @@
                         <input type="hidden" id="tahun_ajaran" name="tahun_ajaran">
                     </form>
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <a href="{{ route('admin.kelaskuliah.createKelas') }}" class="btn btn-primary w-100"><i class="nav-icon fas fa-plus mr-2"></i> Tambah Data</a>
+                </div> --}}
+                <div>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                             Tambah Data Kelas
+                        </button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('admin.kelaskuliah.excelKelas') }}"><i class="fas fa-download mr-2"></i> Unduh Format Excel</a>
+                          <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
+                          <div class="dropdown-divider"></div>
+                          <a href="{{ route('admin.kelaskuliah.createKelas') }}" class="dropdown-item"><i class="fas fa-plus mr-2"></i>Tambah Data Manual</a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- modal import --}}
+                <div class="modal fade" id="importExcelModal" tabindex="-1" role="dialog" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importExcelModalLabel">Import Excel</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="callout callout-info">
+                                    {{-- <h5>I am an info callout!</h5> --}}
+                                    <p>Harap isi kolom tahun ajaran pada excel seperti ini <span class="text-bold">2023/2024</span> dan kolom semester isi dengan <span class="text-bold">ganjil atau genap</span></p>
+                                    {{-- <p>Pastikan kolom No Telepon pada file excel diisi menggunakan petik satu di depan nol seperti berikut '081234567891</p> --}}
+                                </div>
+                                <form id="formImport" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="excelFile">Choose Excel File</label>
+                                        <input type="file" class="form-control-file" id="excelFile" name="file" required>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="addFile()">Upload</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
               </div>
               <div class="card-body">
@@ -70,7 +112,7 @@
                             <th>Tahun RPS</th>
                             <th>Kelas</th>
                             <th>Dosen</th>
-                            <th style="width: 100px;">Koordinator</th>
+                            {{-- <th style="width: 100px;">Koordinator</th> --}}
                             <th style="width: 100px;">Jumlah Mahasiswa</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
@@ -104,7 +146,7 @@
                             <td>{{ $info['tahun_rps'] }}</td>
                             <td>{{ $info['nama_kelas'] }}</td>
                             <td>{{ $info['nama_dosen'] }}</td>
-                            <td>
+                            {{-- <td>
                                 <div class="row justify-content-center">
                                     <form>
                                         <div class="form-group">
@@ -115,7 +157,7 @@
                                         </div>
                                     </form>
                                 </div>
-                            </td>
+                            </td> --}}
                             <td>{{ $info['jumlah_mahasiswa'] }}</td>
                             <td>
                                 <div class="d-flex">
@@ -255,4 +297,66 @@
             });
 
           }
+
+          function addFile() {
+            // var form = $('#formImport');
+            var form = $('#formImport')[0]; // Get the form element
+            var formData = new FormData(form); // Create a FormData object
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('admin/kelas-kuliah/import-kelas') }}",
+                // data: form.serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status == "success") {
+                        Swal.fire({
+                        title: "Sukses!",
+                        text: response.message,
+                        icon: "success"
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.href = "{{ route('admin.kelaskuliah') }}";
+                        };
+                    });
+                    }
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status == 422) {
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Validation Error",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    else{
+                        var errorMessage = xhr.responseJSON.message;
+                        Swal.fire({
+                        icon: "error",
+                        title:"Error!",
+                        text: errorMessage,
+                    }).then((result) => {
+                        // Check if the user clicked "OK"
+                        if (result.isConfirmed) {
+                            // Redirect to the desired URL
+                            window.location.reload();
+                        };
+                    });
+                    }
+                    // Handle error here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
         </script>

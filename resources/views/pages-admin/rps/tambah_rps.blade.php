@@ -70,6 +70,15 @@
                                             <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
                                                 placeholder="Tahun RPS">
                                         </div>
+                                        <div class="form-group">
+                                            <label for="koordinator">Koordinator</label>
+                                            <select class="form-control select2bs4" id="koordinator" name="koordinator">
+                                                <option value="">- Pilih Koordinator -</option>
+                                                @foreach ($dosen as $id => $name)
+                                                      <option value="{{ $id }}">{{ $name }}</option>
+                                                  @endforeach
+                                            </select>
+                                        </div>
                                         <a href="{{ route('admin.matakuliah') }}" class="btn btn-default">Batal</a>
                                         <button type="button" class="btn btn-primary" onclick="addData()">Simpan</button>
                                     </div>

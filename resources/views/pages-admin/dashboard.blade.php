@@ -151,7 +151,7 @@
         <div class="col-md-6">
             <div class="card card-info">
                 <div class="card-header">
-                <h3 class="card-title text-capitalize">Capaian Pembelajaran Lulusan Semester</h3>
+                <h3 class="card-title text-capitalize">CPL Semester</h3>
                 <div class="float-right">
                     <select class="form-control text-capitalize" id="semesterSelect">
                         @foreach($semesters as $semester)
@@ -298,7 +298,7 @@
 
                 response.forEach(function(result) {
                     var chartId = 'radarCPLDashboard' + result.angkatan;
-                    $('#chartsContainer').append('<div class="col-md-6"><div class="card card-info"><div class="card-header"><h3 class="card-title">Capaian Pembelajaran Lulusan Angkatan ' + result.angkatan + '</h3></div><div class="card-body"><canvas id="' + chartId + '" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas></div></div></div>');
+                    $('#chartsContainer').append('<div class="col-md-6"><div class="card card-info"><div class="card-header"><h3 class="card-title">CPL Angkatan ' + result.angkatan + '</h3></div><div class="card-body"><canvas id="' + chartId + '" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas></div></div></div>');
 
                     var ctx = document.getElementById(chartId).getContext('2d');
                     new Chart(ctx, {

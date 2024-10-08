@@ -107,7 +107,7 @@
                                             <th>No Telp</th>
                                             <th>Angkatan</th>
                                             <th>Status</th>
-                                            {{-- <th>Image</th> --}}
+                                            <th>Tahun Lulus</th>
                                             <th style="width: 150px">Action</th>
                                         </tr>
                                     </thead>
@@ -121,6 +121,7 @@
                                                 <td>{{ $datas->telp }}</td>
                                                 <td>{{ $datas->angkatan }}</td>
                                                 <td class="text-capitalize">{{ $datas->status }}</td>
+                                                <td>{{ $datas->tahun_lulus == '0000' ? 'Belum Lulus' : $datas->tahun_lulus }}</td>
                                                 {{-- <td>
                                 <div class="text-center">
                                     <img src="{{ asset('storage/image/' . $datas->image) }}" class="img-thumbnail" style="max-width: 150px;" alt="">

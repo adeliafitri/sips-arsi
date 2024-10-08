@@ -101,6 +101,10 @@ class MahasiswaController extends Controller
 
             $id_auth = $register->id;
 
+            // if ($request->status == 'lulus') {
+            //     $tahun_lulus = $request->tahun_lulus;
+            // }
+
             Mahasiswa::create([
                 'id_auth' => $id_auth,
                 'nama' => $request->nama,
@@ -108,6 +112,7 @@ class MahasiswaController extends Controller
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
                 'status' => $request->status,
+                'tahun_lulus' => $request->status == 'lulus' ? $request->tahun_lulus : '0000',
                 'image' => $image
             ]);
 
@@ -203,12 +208,17 @@ class MahasiswaController extends Controller
                 ]);
             }
 
+            // if ($request->status == 'lulus') {
+            //     $tahun_lulus = $request->tahun_lulus;
+            // }
+
             $mahasiswa->update([
                 'nama' => $request->nama,
                 'nim' => $request->nim,
                 'telp' => $request->telp,
                 'angkatan' => $angkatan,
                 'status' => $request->status,
+                'tahun_lulus' => $request->status == 'lulus' ? $request->tahun_lulus : '0000',
                 'image' => $image ? $image : $mahasiswa->image,
             ]);
 
