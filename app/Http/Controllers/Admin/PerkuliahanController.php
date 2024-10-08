@@ -12,6 +12,8 @@ use App\Models\MataKuliah;
 use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
+use App\Exports\KelasFormatExcel;
+use App\Imports\KelasImportExcel;
 use Illuminate\Support\Facades\DB;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
@@ -36,7 +38,7 @@ class PerkuliahanController extends Controller
             ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
             ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-            ->select('matakuliah_kelas.id','matakuliah_kelas.koordinator','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen', 'rps.tahun_rps')
+            ->select('matakuliah_kelas.id','semester.id as id_smt', 'semester.tahun_ajaran', 'semester.semester', 'kelas.nama_kelas as kelas','mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'dosen.nama as nama_dosen', 'rps.tahun_rps')
             ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa');
 
             if ($request->has('tahun_ajaran')) {
@@ -94,7 +96,7 @@ class PerkuliahanController extends Controller
                 'nama_kelas' => $item->kelas,
                 'jumlah_mahasiswa' => $item->jumlah_mahasiswa,
                 'nama_dosen' => $item->nama_dosen,
-                'koordinator' => $item->koordinator,
+                // 'koordinator' => $item->koordinator,
                 'tahun_rps' => $item->tahun_rps
             ];
         }
@@ -149,7 +151,7 @@ class PerkuliahanController extends Controller
         $dosen = Dosen::pluck('nama', 'id');
         $idMatkul = $request->query('id_matkul');
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-        ->select('rps.id as id_rps', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')
+        ->select('rps.id as id_rps', 'mata_kuliah.kode_matkul','mata_kuliah.nama_matkul', 'rps.tahun_rps')
         ->where('mata_kuliah.id', $idMatkul)->get();
         // $semester = Semester::all();
         $idSemester = $request->query('id_smt');
@@ -163,7 +165,7 @@ class PerkuliahanController extends Controller
     {
         $kelas = Kelas::pluck('nama_kelas', 'id');
         $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-        ->select('rps.id', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')->get();
+        ->select('rps.id','mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'rps.tahun_rps')->get();
         $dosen = Dosen::pluck('nama', 'id');
         $semester = Semester::all();
 
@@ -191,18 +193,18 @@ class PerkuliahanController extends Controller
         }
 
         try {
-            $existingRecord = KelasKuliah::where('rps_id', $request->rps)
-                ->where('dosen_id', $request->dosen)
-                ->first();
+            // $existingRecord = KelasKuliah::where('rps_id', $request->rps)
+            //     ->where('dosen_id', $request->dosen)
+            //     ->first();
 
-            $koordinatorValue = $existingRecord ? $existingRecord->koordinator : "0";
+            // $koordinatorValue = $existingRecord ? $existingRecord->koordinator : "0";
 
             KelasKuliah::create([
                 'kelas_id' => $request->kelas,
                 'rps_id' => $request->rps,
                 'dosen_id' => $request->dosen,
                 'semester_id' => $request->semester,
-                'koordinator' => $koordinatorValue,
+                // 'koordinator' => $koordinatorValue,
             ]);
             // dd($request->semester);
             // return redirect()->route('admin.kelaskuliah')->with('success', 'Data Berhasil Ditambahkan');
@@ -477,16 +479,16 @@ class PerkuliahanController extends Controller
         try {
             // $kelas_kuliah = KelasKuliah::where('id', $id)->first();
             $kelas_kuliah = KelasKuliah::find($id);
-            $oldRpsValue = $kelas_kuliah->rps_id;
-            $oldKoordinatorValue = $kelas_kuliah->koordinator;
+            // $oldRpsValue = $kelas_kuliah->rps_id;
+            // $oldKoordinatorValue = $kelas_kuliah->koordinator;
 
-            if ($oldRpsValue != $request->rps) {
-                if ($oldKoordinatorValue === '1'){
-                    $kelas_kuliah->update([
-                        'koordinator' => '0',
-                    ]);
-                }
-            }
+            // if ($oldRpsValue != $request->rps) {
+            //     if ($oldKoordinatorValue === '1'){
+            //         $kelas_kuliah->update([
+            //             'koordinator' => '0',
+            //         ]);
+            //     }
+            // }
 
             $kelas_kuliah->update([
                 'kelas_id' => $request->kelas,
@@ -559,8 +561,27 @@ class PerkuliahanController extends Controller
 
         $file = $request->file('file');
 
-
         Excel::import(new DaftarMahasiswaImportExcel($id), $file);
+
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
+
+        // return redirect()->back()->with('success', 'Data imported successfully.');
+    }
+
+    public function downloadExcelKelas()
+    {
+        return Excel::download(new KelasFormatExcel(), 'kelas-excel.xlsx');
+    }
+
+    public function importExcelKelas(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+        Excel::import(new KelasImportExcel(), $file);
 
         return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
 

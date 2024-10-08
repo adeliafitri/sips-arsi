@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\Dosen;
 use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
 use App\Models\Rps;
@@ -19,13 +20,14 @@ class MataKuliahController extends Controller
      */
     public function index(Request $request)
     {
+        $dosen = Dosen::where('dosen.id_auth', Auth::user()->id)->first();
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
         ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
         ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'matakuliah_kelas.koordinator', 'dosen.status')
+        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'rps.koordinator', 'dosen.status')
         ->where('dosen.id_auth', Auth::user()->id)
         ->distinct();
 
@@ -44,6 +46,7 @@ class MataKuliahController extends Controller
 
         return view('pages-dosen.mata_kuliah.mata_kuliah', [
             'data' => $mata_kuliah,
+            'dosen' => $dosen,
             'startNumber' => $startNumber,
         ])->with('success', 'Data Mata Kuliah Ditemukan');
     }

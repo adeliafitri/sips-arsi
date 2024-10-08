@@ -29,4 +29,8 @@ class Dosen extends Model
     {
         return $this->hasMany(KelasKuliah::class);
     }
+    public function rps()
+    {
+        return $this->hasMany(KelasKuliah::class);
+    }
 }
