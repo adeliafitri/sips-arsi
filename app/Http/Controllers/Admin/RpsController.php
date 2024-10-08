@@ -7,6 +7,7 @@ use App\Models\Rps;
 // use App\Models\Rps;
 use App\Models\Cpmk;
 use App\Models\Soal;
+use App\Models\Dosen;
 use App\Models\SubCpmk;
 use App\Models\MataKuliah;
 use App\Models\KelasKuliah;
@@ -25,8 +26,9 @@ class RpsController extends Controller
     public function index(Request $request)
     {
         $query = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->leftjoin('dosen', 'rps.koordinator', 'dosen.id')
             ->select(
-                'rps.id','rps.semester','rps.tahun_rps', 'mata_kuliah.id as id_matkul',
+                'rps.id','rps.semester','rps.tahun_rps','dosen.nama', 'mata_kuliah.id as id_matkul',
                 'mata_kuliah.kode_matkul as kode_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.sks');
 
         // Cek apakah ada parameter pencarian
@@ -67,6 +69,7 @@ class RpsController extends Controller
                 'id_rps' => $item->id,
                 'semester' => $item->semester,
                 'tahun_rps' => $item->tahun_rps,
+                'koordinator'=> $item->nama ?? 'Tidak ada koordinator'
             ];
         }
 
@@ -114,7 +117,8 @@ class RpsController extends Controller
     {
         $idMatkul = $request->query('id_matkul');
         $namaMatkul = $request->query('nama_matkul');
-        return view('pages-admin.rps.tambah_rps' , compact('idMatkul', 'namaMatkul'));
+        $dosen = Dosen::pluck('nama', 'id');
+        return view('pages-admin.rps.tambah_rps' , compact('idMatkul', 'namaMatkul', 'dosen'));
     }
 
     /**
@@ -126,6 +130,7 @@ class RpsController extends Controller
             'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'semester' => 'required|numeric',
             'tahun_rps' => 'required|numeric',
+            'koordinator' => 'required|exists:dosen,id',
         ]);
 
         if ($validate->fails()) {
@@ -139,7 +144,8 @@ class RpsController extends Controller
             Rps::create([
                 'matakuliah_id' => $request->mata_kuliah,
                 'semester' => $request->semester,
-                'tahun_rps' => $request->tahun_rps
+                'tahun_rps' => $request->tahun_rps,
+                'koordinator'=> $request->koordinator
             ]);
 
             // return redirect()->route('admin.matakuliah')->with('success', 'Data Berhasil Ditambahkan');
@@ -175,11 +181,13 @@ class RpsController extends Controller
             ->where('rps.id', $id)
             ->select('rps.id', 'rps.semester', 'rps.tahun_rps', 'rps.matakuliah_id', 'mata_kuliah.nama_matkul')
             ->first();
-            $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        $mata_kuliah = MataKuliah::pluck('nama_matkul', 'id');
+        $dosen = Dosen::pluck('nama', 'id');
         return view('pages-admin.rps.edit_rps', [
             'success' => 'Data Ditemukan',
             'data' => $rps,
-            'mata_kuliah' => $mata_kuliah
+            'mata_kuliah' => $mata_kuliah,
+            'dosen' => $dosen
         ]);
     }
 
@@ -192,6 +200,7 @@ class RpsController extends Controller
             // 'mata_kuliah' => 'required|exists:mata_kuliah,id',
             'semester' => 'required|numeric',
             'tahun_rps' => 'required|numeric',
+            'koordinator' => 'required|exists:dosen,id'
         ]);
 
         if ($validate->fails()) {
@@ -206,7 +215,8 @@ class RpsController extends Controller
             $mata_kuliah->update([
                 // 'matakuliah_id' => $request->mata_kuliah,
                 'semester' => $request->semester,
-                'tahun_rps' => $request->tahun_rps
+                'tahun_rps' => $request->tahun_rps,
+                'koordinator' => $request->koordinator
             ]);
 
             // return redirect()->route('admin.matakuliah')->with([

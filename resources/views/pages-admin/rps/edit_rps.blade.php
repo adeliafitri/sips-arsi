@@ -60,6 +60,15 @@
                         <input type="text" class="form-control" id="tahun_rps" name="tahun_rps"
                             placeholder="Tahun RPS" value="{{ $data->tahun_rps }}">
                     </div>
+                    <div class="form-group">
+                        <label for="koordinator">Koordinator</label>
+                            <select class="form-control select2bs4" id="koordinator" name="koordinator">
+                            <option value="">- Pilih Koordinator -</option>
+                                @foreach ($dosen as $id_dosen => $name)
+                                    <option value="{{ $id_dosen }}" {{ $data->koordinator == $id_dosen ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                      </div>
                 </div>
                  <!-- /.card-body -->
                 <div class="card-footer clearfix">

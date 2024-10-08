@@ -46,7 +46,7 @@
                       <select class="form-control select2bs4" id="rps" name="rps">
                       <option value="">- Pilih Mata Kuliah -</option>
                       @foreach ($rps as $key => $data_rps)
-                            <option value="{{ $data_rps->id }}">{{ $data_rps->nama_matkul ." ". $data_rps->tahun_rps }}</option>
+                            <option value="{{ $data_rps->id }}">{{ $data_rps->kode_matkul." - ".$data_rps->nama_matkul ." ". $data_rps->tahun_rps }}</option>
                         @endforeach
                       </select>
                 </div>

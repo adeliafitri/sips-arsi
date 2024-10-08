@@ -15,6 +15,7 @@ class Rps extends Model
         'matakuliah_id',
         'semester',
         'tahun_rps',
+        'koordinator'
     ];
 
     public function cpmk()
@@ -28,5 +29,9 @@ class Rps extends Model
     public function mata_kuliah()
     {
         return $this->belongsTo(MataKuliah::class);
+    }
+    public function dosen()
+    {
+        return $this->belongsTo(Dosen::class);
     }
 }
