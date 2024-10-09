@@ -53,11 +53,13 @@
                             <th>SKS</th>
                             <th style="width: 100px;">Semester</th>
                             <th style="width: 100px;">Tahun RPS</th>
+                            <th>Koordinator</th>
                             <th style="width: 150px;">Action</th>
                           </tr>
                         </thead>
                         <tbody>
                         @foreach ($data as $key => $datas)
+                        {{-- @dd($data) --}}
                         @php
                             $rowCount = count($datas['info_rps']);
                             $rowIndex = 0;
@@ -81,6 +83,7 @@
                             @endif
                             <td>{{ $info['semester'] }}</td>
                             <td>{{ $info['tahun_rps'] }}</td>
+                            <td>{{ $info['koordinator'] ?? 'Tidak ada koordinator' }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a href="{{ route('admin.rpsDetail.create', $info['id_rps']) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>

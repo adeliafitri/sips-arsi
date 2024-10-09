@@ -66,11 +66,19 @@
                                         <option value="non aktif" {{ $data->status == 'non aktif' ? 'selected' : '' }}>Non Aktif</option>
                                     </select>
                                 </div>
+                                <!-- Hidden input field untuk tahun_lulus -->
+                                {{-- @if ($data->status == 'lulus') --}}
+                                <div class="form-group" id="tahun_lulus_div" style="display:{{ $data->status == 'lulus' ? 'block' : 'none' }};">
+                                    <label for="tahun_lulus">Tahun Lulus</label>
+                                    <input type="number" class="form-control" id="tahun_lulus" name="tahun_lulus" placeholder="Masukkan Tahun Lulus" value="{{ $data->tahun_lulus }}">
+                                </div>
+                                {{-- @endif --}}
                                 <div class="form-group">
                                     <label for="telp">No Telepon</label>
                                     <input type="text" class="form-control" id="telp" name="telp"
                                         placeholder="No Telepon" value="{{ $data->telp }}">
                                 </div>
+
                                 {{-- <div class="form-group">
                                     <label for="image">Image</label>
                                     <div class="custom-file">
@@ -110,6 +118,19 @@
 
 @section('script')
     <script>
+        $('#status').on('change', function () {
+        var status = $(this).val();  // Mengambil value dari Select2
+            console.log("Status selected: ", status); // Debugging
+
+            var tahunLulusDiv = document.getElementById('tahun_lulus_div');
+
+            if (status === 'lulus') {
+                tahunLulusDiv.style.display = 'block';
+            } else {
+                tahunLulusDiv.style.display = 'none';
+            }
+        });
+
         function editData(id){
             console.log(id);
             var form = $('#editDataForm');

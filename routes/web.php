@@ -207,6 +207,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('', [AdminPerkuliahanController::class, 'index'])->name('admin.kelaskuliah');
             Route::get('create', [AdminPerkuliahanController::class, 'create'])->name('admin.kelaskuliah.create');
             Route::get('create-kelas', [AdminPerkuliahanController::class, 'createKelas'])->name('admin.kelaskuliah.createKelas');
+            Route::get('excel-kelas', [AdminPerkuliahanController::class, 'downloadExcelKelas'])->name('admin.kelaskuliah.excelKelas');
+            Route::post('import-kelas', [AdminPerkuliahanController::class, 'importExcelKelas'])->name('admin.kelaskuliah.importKelas');
             Route::post('create', [AdminPerkuliahanController::class, 'store'])->name('admin.kelaskuliah.store');
             Route::post('update-koordinator/{id}', [AdminPerkuliahanController::class, 'updateKoordinator'])->name('admin.kelaskuliah.update-koordinator');
             Route::get('/{id}', [AdminPerkuliahanController::class, 'show'])->name('admin.kelaskuliah.show');
