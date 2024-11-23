@@ -22,12 +22,15 @@ class MahasiswaImportExcel implements ToModel, WithHeadingRow
 
         $id_auth = $auth->id;
 
+        // $defaultStatus = 'aktif';
+
         Mahasiswa::create([
             'id_auth' => $id_auth,
             'nama' => $row['nama_mahasiswa'],
             'nim' => $row['nim'],
             'telp' => $row['no_telp'],
             'angkatan' => $row['angkatan'],
+            'tahun_lulus' => '0000'
         ]);
     }
 }
