@@ -66,7 +66,8 @@ class KelasImportExcel implements ToModel, WithHeadingRow
                 'row' => $row
             ]);
 
-            throw new \Exception("Error di baris: " . json_encode($row) . ". Pesan: " . $e->getMessage());
+            // throw new \Exception("Error di baris: " . json_encode($row) . ". Pesan: " . $e->getMessage());
+            throw new \Exception($e->getMessage());
             // Jika ada error, kamu juga bisa melempar exception atau sekedar melanjutkan proses tanpa memasukkan baris yang error
             // Misalnya dengan return null atau skip
             // return null;
