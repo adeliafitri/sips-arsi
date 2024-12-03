@@ -50,7 +50,7 @@
               <div class="icon">
                 <i class="fas fa-book-reader"></i>
               </div>
-              <a href="{{ route('dosen.matakuliah.show', $datas->id_matkul) }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              <a href="{{ route('dosen.matakuliah.show', $datas->id_rps) }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
           </div>
           <!-- ./col -->

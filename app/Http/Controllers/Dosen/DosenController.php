@@ -23,7 +23,7 @@ class DosenController extends Controller
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.kode_matkul', 'semester.tahun_ajaran', 'semester.semester')
+        ->select('rps.id as id_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.kode_matkul', 'semester.tahun_ajaran', 'semester.semester')
         ->where('dosen.id_auth', Auth::user()->id)
         ->where('semester.is_active', '1')
         ->distinct()
