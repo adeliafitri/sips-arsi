@@ -19,7 +19,7 @@ class KelasImportExcel implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         try {
-            $kode_matkul = $row['kode_mata_kuliah'];
+        $kode_matkul = $row['kode_mata_kuliah'];
         $tahun_rps = $row['tahun_rps'];
 
         $rps = Rps::join('mata_kuliah as mk', 'rps.matakuliah_id', 'mk.id')
