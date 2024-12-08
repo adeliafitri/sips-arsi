@@ -36,7 +36,7 @@ class MahasiswaController extends Controller
             });
         }
 
-        $mahasiswa = $query->paginate(20);
+        $mahasiswa = $query->orderBy('angkatan', 'DESC')->paginate(20);
 
         $startNumber = ($mahasiswa->currentPage() - 1) * $mahasiswa->perPage() + 1;
 
