@@ -13,30 +13,51 @@ use Illuminate\Support\Facades\Auth;
 
 class DosenController extends Controller
 {
-    public function dashboard() {
+    public function dashboard(Request $request) {
         $mahasiswa = Mahasiswa::select('angkatan')->distinct()->orderBy('angkatan')->get();
         $getSemesterAktif = Semester::where('is_active', '1')->first();
         $semesters = Semester::all();
-        $matakuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
-        ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
-        ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
-        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
-        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('rps.id as id_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.kode_matkul', 'semester.tahun_ajaran', 'semester.semester')
-        ->where('dosen.id_auth', Auth::user()->id)
-        ->where('semester.is_active', '1')
-        ->distinct()
-        ->orderBy('mata_kuliah.id', 'asc')
-        ->get();
+        $mata_kuliah = MataKuliah::all();
 
-        return view('pages-dosen.dashboard',[
-            'data' => $matakuliah,
+        // Ambil nilai matkul_id dari request
+        $matkulId = $request->input('matkul_id');
+
+        // Query kelas_kuliah dengan filter matkul_id jika ada
+        $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
+            ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+            ->join('mata_kuliah', 'rps.matakuliah_id', '=', 'mata_kuliah.id')
+            ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+            ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+            ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
+            ->select(
+                'rps.id as id_rps', 'matakuliah_kelas.id as id_kelas', 'mata_kuliah.id as id_matkul',
+                'mata_kuliah.nama_matkul as nama_matkul', 'mata_kuliah.kode_matkul', 'semester.tahun_ajaran',
+                'semester.semester', 'kelas.nama_kelas'
+            )
+            ->where('dosen.id_auth', Auth::user()->id)
+            ->where('semester.is_active', '1');
+
+        // Tambahkan filter jika matkul_id ada
+        if ($matkulId) {
+            $kelas_kuliah = $kelas_kuliah->where('mata_kuliah.id', $matkulId);
+        }else{
+            $kelas_kuliah = $kelas_kuliah->where('mata_kuliah.id', 1);
+        }
+
+        $kelas_kuliah = $kelas_kuliah->distinct()
+            ->orderBy('mata_kuliah.id', 'asc')
+            ->get();
+
+        return view('pages-dosen.dashboard', [
+            'data' => $kelas_kuliah,
             'semester' => $getSemesterAktif,
             'mahasiswa' => $mahasiswa,
-            'semesters' =>$semesters
+            'semesters' => $semesters,
+            'mataKuliah' => $mata_kuliah,
+            'selectedMatkul' => $matkulId
         ]);
     }
+
 
     public function index()
     {
