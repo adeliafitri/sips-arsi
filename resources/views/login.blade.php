@@ -141,4 +141,11 @@
             }
         });
     }
+
+    $('#loginForm').on('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            login();
+        }
+    });
 </script>

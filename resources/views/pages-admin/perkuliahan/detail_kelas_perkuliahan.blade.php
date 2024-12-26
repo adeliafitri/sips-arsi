@@ -81,7 +81,7 @@
                              Tambah Data Mahasiswa
                         </button>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('admin.kelaskuliah.mahasiswa.download-excel') }}"><i class="fas fa-download mr-2"></i> Unduh Format Excel</a>
+                          <a class="dropdown-item" href="{{ route('admin.kelaskuliah.mahasiswa.download-excel', $data->id) }}"><i class="fas fa-download mr-2"></i> Unduh Format Excel</a>
                           <a class="dropdown-item" data-toggle="modal" data-target="#importExcelModal"><i class="fas fa-upload mr-2"></i> Impor Excel</a>
                           <div class="dropdown-divider"></div>
                           <a href="{{ route('admin.kelaskuliah.createmahasiswa', $data->id) }}" class="dropdown-item"><i class="fas fa-plus mr-2"></i>Tambah Data Manual</a>
