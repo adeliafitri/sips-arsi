@@ -218,7 +218,7 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'createMahasiswa'])->name('admin.kelaskuliah.createmahasiswa');
             Route::post('/{id}/mahasiswa', [AdminPerkuliahanController::class, 'storeMahasiswa'])->name('admin.kelaskuliah.storemahasiswa');
-            Route::get('mahasiswa/download-excel', [AdminPerkuliahanController::class, 'downloadExcel'])->name('admin.kelaskuliah.mahasiswa.download-excel');
+            Route::get('mahasiswa/download-excel/{id}', [AdminPerkuliahanController::class, 'downloadExcel'])->name('admin.kelaskuliah.mahasiswa.download-excel');
             Route::post('/{id}/mahasiswa/import-excel', [AdminPerkuliahanController::class, 'importExcel'])->name('admin.kelaskuliah.mahasiswa.import-excel');
             Route::delete('{id}/{id_mahasiswa}', [AdminPerkuliahanController::class, 'destroyMahasiswa'])->name('admin.kelaskuliah.destroymahasiswa');
             Route::get('{id}/nilai/{id_mahasiswa}', [AdminNilaiController::class, 'show'])->name('admin.kelaskuliah.nilaimahasiswa');
@@ -277,7 +277,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'createMahasiswa'])->name('dosen.kelaskuliah.createmahasiswa');
             Route::post('/{id}/mahasiswa', [DosenPerkuliahanController::class, 'storeMahasiswa'])->name('dosen.kelaskuliah.storemahasiswa');
             Route::delete('{id}/{id_mahasiswa}', [DosenPerkuliahanController::class, 'destroyMahasiswa'])->name('dosen.kelaskuliah.destroymahasiswa');
-            Route::get('mahasiswa/download-excel', [DosenPerkuliahanController::class, 'downloadExcel'])->name('dosen.kelaskuliah.mahasiswa.download-excel');
+            Route::get('mahasiswa/download-excel/{id}', [DosenPerkuliahanController::class, 'downloadExcel'])->name('dosen.kelaskuliah.mahasiswa.download-excel');
             Route::post('/{id}/mahasiswa/import-excel', [DosenPerkuliahanController::class, 'importExcel'])->name('dosen.kelaskuliah.mahasiswa.import-excel');
             Route::put('updateEvaluasi/{id}', [DosenPerkuliahanController::class, 'updateEvaluasi'])->name('dosen.kelaskuliah.updateEvaluasi');
             Route::get('{id}/pdf', [DosenPerkuliahanController::class, 'generatePdf'])->name('dosen.kelaskuliah.generateportof');

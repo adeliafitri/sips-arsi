@@ -548,9 +548,23 @@ class PerkuliahanController extends Controller
             //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
-    public function downloadExcel()
+    public function downloadExcel($id)
     {
-        return Excel::download(new DaftarMahasiswaFormatExcel(), 'daftar-mahasiswa-excel.xlsx');
+        $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
+        ->join('rps', 'matakuliah_kelas.rps_id', '=', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
+        ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
+        ->select(
+            // 'matakuliah_kelas.*',
+            'semester.tahun_ajaran',
+            'semester.semester',
+            'kelas.nama_kelas as kelas',
+            'mata_kuliah.nama_matkul as nama_matkul',
+        )
+        ->where('matakuliah_kelas.id', $id)
+        ->first();
+        return Excel::download(new DaftarMahasiswaFormatExcel(), 'daftar-mahasiswa-kelas '. $kelas_kuliah->kelas.'-'.$kelas_kuliah->nama_matkul.'.xlsx');
     }
 
     public function importExcel(Request $request, $id)
