@@ -548,6 +548,34 @@ class PerkuliahanController extends Controller
             //     ->with('error', 'Data gagal dihapus: ' . $e->getMessage());
         }
     }
+
+    public function destroyMahasiswaMultiple(Request $request, $id)
+    {
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? null; // Array ID mahasiswa
+
+        if (is_array($ids) && !empty($ids)) {
+            try {
+                foreach ($ids as $id_mahasiswa) {
+                    // Hapus data mahasiswa terkait
+                    NilaiMahasiswa::where('mahasiswa_id', $id_mahasiswa)
+                        ->where('matakuliah_kelasid', $id)
+                        ->delete();
+
+                    NilaiAkhirMahasiswa::where('mahasiswa_id', $id_mahasiswa)
+                        ->where('matakuliah_kelasid', $id)
+                        ->delete();
+                }
+
+                return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus.']);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'error', 'message' => 'Data gagal dihapus: ' . $e->getMessage()], 500);
+            }
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data. Data mahasiswa tidak valid atau kosong.']);
+        }
+    }
+
     public function downloadExcel($id)
     {
         $kelas_kuliah = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')

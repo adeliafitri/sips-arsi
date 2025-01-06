@@ -264,18 +264,18 @@
         }
     })
 
-          function deleteMahasiswa(id){
+        function deleteMahasiswa(id){
             console.log(id);
             Swal.fire({
-            title: "Konfirmasi Hapus",
-            text: "Apakah anda yakin ingin menghapus data ini?",
-            icon: "warning",
-            showCancelButton: true,
-            cancelButtonText: "Batal",
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Ya, hapus"
-          }).then((result) => {
+                title: "Konfirmasi Hapus",
+                text: "Apakah anda yakin ingin menghapus data ini?",
+                icon: "warning",
+                showCancelButton: true,
+                cancelButtonText: "Batal",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, hapus"
+            }).then((result) => {
             if (result.isConfirmed) {
                     $.ajax({
                     url: "{{ url('admin/mahasiswa') }}/" + id,
