@@ -34,6 +34,10 @@
                 </td>
             </tr>
             @endforeach
+            <tr>
+                <td colspan="5">Total Bobot</td>
+                <td colspan="3">{{ $total_bobot_rps }}%</td>
+            </tr>
         </tbody>
     </table>
     <div class="px-3 pt-3 d-flex justify-content-end">

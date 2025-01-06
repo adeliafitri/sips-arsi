@@ -192,6 +192,16 @@ class RpsController extends Controller
 
         $data['start_nosoalsubcpmk'] = ($data['data_soalsubcpmk']->currentPage() - 1) * $data['data_soalsubcpmk']->perPage() + 1;
 
+        $total_bobot = SoalSubCpmk::join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('cpmk.rps_id', $id)
+        ->sum('soal_sub_cpmk.bobot_soal');
+
+        // Membulatkan nilai total bobot
+        $data['total_bobot_rps'] = ceil($total_bobot);
+
         return view('pages-dosen.mata_kuliah.partials.tabel_rps.tabel_tugas', $data);
     }
 
