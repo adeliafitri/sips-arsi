@@ -3,13 +3,12 @@
         <thead>
             <tr>
                 <th style="width: 10px">No</th>
+                <th>Waktu Pelaksanaan</th>
                 <th>Kode CPL</th>
                 <th>Kode CPMK</th>
                 <th>Kode Sub CPMK</th>
                 <th>Bentuk Soal</th>
                 <th>Bobot Soal</th>
-                <th>Waktu Pelaksanaan</th>
-
             </tr>
         </thead>
         <tbody>
