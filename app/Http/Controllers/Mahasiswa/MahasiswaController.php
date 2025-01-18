@@ -15,7 +15,7 @@ class MahasiswaController extends Controller
 {
     public function dashboard() {
         $mahasiswa = Mahasiswa::where('id_auth', Auth::user()->id)->first();
-        $total_sks = MataKuliah::sum('sks');
+        $total_sks = 144;
         $total_kelas_kuliah = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
         ->where('mahasiswa.id_auth', Auth::user()->id)->count('matakuliah_kelasid');
         $data = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
@@ -36,6 +36,13 @@ class MahasiswaController extends Controller
                 $total_sks_lulus += $datas->sks;
             }
         }
+
+        // $total_sks_diambil = $count = NilaiAkhirMahasiswa::join('mahasiswa', 'nilaiakhir_mahasiswa.mahasiswa_id', '=', 'mahasiswa.id')
+        // ->join('matakuliah_kelas', 'nilaiakhir_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
+        // ->join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        // ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        // ->where('mahasiswa.id_auth', Auth::user()->id)
+        // ->sum('mata_kuliah.sks');
 
         $query = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('soal_sub_cpmk', 'nilai_mahasiswa.soal_id', 'soal_sub_cpmk.id')
@@ -82,6 +89,7 @@ class MahasiswaController extends Controller
         // dd($totalAverageCPL);
         return view('pages-mahasiswa.dashboard', [
             'total_sks' => $total_sks,
+            // 'total_sks_diambil' => $total_sks_diambil,
             'total_sks_lulus' => $total_sks_lulus,
             'total_kelas_kuliah' => $total_kelas_kuliah,
             'data' => $results,

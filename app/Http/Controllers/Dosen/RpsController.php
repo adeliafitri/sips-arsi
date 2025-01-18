@@ -7,6 +7,8 @@ use App\Models\Rps;
 use App\Models\Cpmk;
 use App\Models\Soal;
 use App\Models\SubCpmk;
+use App\Exports\RpsExcel;
+use App\Imports\RpsImport;
 use App\Models\MataKuliah;
 use App\Models\KelasKuliah;
 use App\Models\SoalSubCpmk;
@@ -14,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 
 class RpsController extends Controller
@@ -260,6 +263,33 @@ class RpsController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Data gagal ditambahkan: ' . $e->getMessage()], 500);
             // return redirect()->back()->withErrors(['errors' => 'Data Gagal Ditambahkan: '.$e->getMessage()])->withInput();
         }
+    }
+
+    public function export($id)
+    {
+        $rps = Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->select(
+            'rps.tahun_rps',
+            'mata_kuliah.nama_matkul',
+        )
+        ->where('rps.id', $id)
+        ->first();
+
+        return Excel::download(new RpsExcel($id), 'Data RPS '. $rps->nama_matkul.' ('.$rps->tahun_rps.').xlsx');
+    }
+
+    public function import(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        $file = $request->file('file');
+
+
+        Excel::import(new RpsImport($id), $file);
+
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil diimpor']);
     }
 
     public function destroyCpmk($id)
