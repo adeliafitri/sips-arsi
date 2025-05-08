@@ -261,11 +261,12 @@ class NilaiController extends Controller
                 'nilai' => $items->first()->nilai,
                 'bobot_soal' => $items->sum('bobot_soal'),
                 'waktu_pelaksanaan' => $items->first()->waktu_pelaksanaan,
+                'minggu_sort' => (int) filter_var($items->first()->waktu_pelaksanaan, FILTER_SANITIZE_NUMBER_INT),
                 'kode_cpl' => $items->pluck('kode_cpl')->unique()->implode(', '),
                 'kode_cpmk' => $items->pluck('kode_cpmk')->unique()->implode(', '),
                 'kode_subcpmk' => $items->pluck('kode_subcpmk')->unique()->implode(', '),
             ];
-        })->values();
+        })->sortBy('minggu_sort')->values();
 
         // Pagination manual setelah dikelompokkan
         $perPage = 20;
