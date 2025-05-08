@@ -348,8 +348,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('listsubcpmk/input/{id}', [DosenRpsController::class, 'listKodeSubCpmk'])->name('dosen.rps.listkodesubcpmk');
             Route::get('listcpmk/input/{id}', [DosenRpsController::class, 'listKodeCpmk'])->name('dosen.rps.listkodecpmk');
 
-            Route::get('create/{id}/download-excel', [RpsController::class, 'export'])->name('dosen.rps.download-excel');
-            Route::post('create/import-excel/{id}', [RpsController::class, 'import'])->name('dosen.rps.import-excel');
+            Route::get('create/{id}/download-excel', [DosenRpsController::class, 'export'])->name('dosen.rps.download-excel');
+            Route::post('create/import-excel/{id}', [DosenRpsController::class, 'import'])->name('dosen.rps.import-excel');
         });
     });
 
