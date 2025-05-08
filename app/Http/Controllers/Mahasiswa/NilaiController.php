@@ -251,25 +251,43 @@ class NilaiController extends Controller
             ->select('soal_sub_cpmk.*', 'soal.bentuk_soal as bentuk_soal', 'nilai_mahasiswa.nilai as nilai', 'nilai_mahasiswa.id as id_nilai', 'sub_cpmk.kode_subcpmk as kode_subcpmk', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
             ->where('nilai_mahasiswa.mahasiswa_id', $mahasiswa->id)
             ->where('nilai_mahasiswa.matakuliah_kelasid', $request->matakuliah_kelasid)
-            ->paginate(20);
+            ->get();
         // $startNumber = [];
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
-
-        $groupedData = collect($data->items())->groupBy('bentuk_soal')->map(function ($items) {
+        $groupedData = $data->groupBy(function ($item) {
+            return $item->bentuk_soal . '|' . $item->nilai;
+        })->map(function ($items, $key) {
             return [
-                'count' => $items->count(),
-                'items' => $items
+                'bentuk_soal' => $items->first()->bentuk_soal,
+                'nilai' => $items->first()->nilai,
+                'bobot_soal' => $items->sum('bobot_soal'),
+                'waktu_pelaksanaan' => $items->first()->waktu_pelaksanaan,
+                'kode_cpl' => $items->pluck('kode_cpl')->unique()->implode(', '),
+                'kode_cpmk' => $items->pluck('kode_cpmk')->unique()->implode(', '),
+                'kode_subcpmk' => $items->pluck('kode_subcpmk')->unique()->implode(', '),
             ];
-        });
+        })->values();
+
+        // Pagination manual setelah dikelompokkan
+        $perPage = 10;
+        $page = $request->get('page', 1);
+        $pagedData = new \Illuminate\Pagination\LengthAwarePaginator(
+            $groupedData->forPage($page, $perPage),
+            $groupedData->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $startNumber = ($pagedData->currentPage() - 1) * $pagedData->perPage() + 1;
 
         if ($request->ajax()) {
             return view('pages-mahasiswa.perkuliahan.partials.nilai_tugas', [
-                'groupedData' => $groupedData,
-                'data' => $data,
+                // 'groupedData' => $groupedData,
+                'data' => $pagedData,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
         }
-        return response()->json($data);
+        return response()->json($pagedData);
     }
 
     public function chartCPL(Request $request)
