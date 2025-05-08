@@ -258,6 +258,7 @@
                                                         {{-- <div id="slider"></div> --}}
                                                         <div id="sliderContainer">
                                                             <input id="waktu_pelaksanaan" type="text" class="slider"  />
+
                                                         </div>
                                                         <input id="waktu_pelaksanaan_edit" type="text" class="slider" style="display: none"/>
                                                         <p>Minggu
@@ -945,81 +946,69 @@
                 });
             }
 
+            // var currentSliderEdit = null;
+
             function editSoalSubCpmk(id){
-                document.getElementById('waktu_pelaksanaan').style.display = 'none';
+                document.getElementById('sliderContainer').style.display = 'none';
                 document.getElementById('waktu_pelaksanaan_edit').style.display = 'block';
-            $.ajax({
-                url: "{{ url('admin/rps/editsoalsubcpmk') }}/" + id,
-                type: 'GET',
-                success: function(response){
-                    document.querySelectorAll('input[name="pilih_subcpmk[]"]').forEach(function(checkbox) {
-                        checkbox.checked = false;
-                    });
 
-                    // Check the relevant checkboxes
-                    let subcpmkId = response.data.subcpmk_id;
-                    document.getElementById('subcpmk_' + subcpmkId).checked = true;
-                    $('#bentuk_soal').val(response.data.bentuk_soal).change();
-                    $('#bobot').val(response.data.bobot_soal);
-                    // $('#waktu_pelaksanaan').val(response.data.waktu_pelaksanaan);
-                    // var form = document.getElementById('myFormCpmk');
-                    // var hiddenInputId = '<input type="hidden" name="cpmk_id" value="' + response.data.id+ '">';
-                    // $("#waktu_pelaksanaan").hide();
-                    var sliderContainer = document.getElementById('sliderContainer');
-                    if (sliderContainer.style.display === 'none') {
-                        sliderContainer.style.display = 'block';
-                    } else {
-                        sliderContainer.style.display = 'none';
-                    }
-
-                    var form = document.getElementById('formSoal');
-                    // var sliderInput = document.createElement('input');
-                    // sliderInput.setAttribute('id', 'waktu_pelaksanaan_edit_' + response.data.id );
-                    // sliderInput.setAttribute('type', 'text');
-                    // sliderInput.classList.add('slider');
-                    // sliderInput.style.display = 'none';
-                    // form.appendChild(sliderInput);
-
-                    var startValue = parseInt(response.minggu_mulai);
-                    var endValue = parseInt(response.minggu_akhir);
-
-                    // initializeSlider(startValue, endValue);
-                    // initializeSlider(startValue,endValue);
-                    var slider = new Slider("#waktu_pelaksanaan_edit", {
-                        min: 1,
-                        max: 16,
-                        range: true,
-                        value: [startValue, endValue],
-                        tooltip_split: true
-                    });
-
-                    slider.on("slide", function(slideEvt) {
-                        $("#rangeValue1").text(slideEvt[0]);
-                        $("#rangeValue2").text(slideEvt[1]);
-                        $("#waktu_pelaksanaan_start").val(slideEvt[0]);
-                        $("#waktu_pelaksanaan_end").val(slideEvt[1]);
-                    });
-
-                    // // Atur nilai input terkait
-                    $("#rangeValue1").text(startValue);
-                    $("#rangeValue2").text(endValue);
-                    $("#waktu_pelaksanaan_start").val(startValue);
-                    $("#waktu_pelaksanaan_end").val(endValue);
-                    // // form.append(hiddenInputId);
-
-                    var hiddenInputId = document.createElement('input');
-                    hiddenInputId.type = 'hidden';
-                    hiddenInputId.name = 'soal_subcpmk_id';
-                    hiddenInputId.value = response.data.id;
-
-                    // <input id="waktu_pelaksanaan_edit" type="text" class="slider" style="display: none"/>
-
-                    form.appendChild(hiddenInputId);
-                },
-                error: function(xhr){
-                    console.log(xhr.responseText);
+                if (window.currentSliderEdit) {
+                    window.currentSliderEdit.destroy();
+                    window.currentSliderEdit = null; // Ensure the old slider instance is cleared
                 }
-            });
+
+                $.ajax({
+                    url: "{{ url('admin/rps/editsoalsubcpmk') }}/" + id,
+                    type: 'GET',
+                    success: function(response){
+                        document.querySelectorAll('input[name="pilih_subcpmk[]"]').forEach(function(checkbox) {
+                            checkbox.checked = false;
+                        });
+
+                        // Check the relevant checkboxes
+                        let subcpmkId = response.data.subcpmk_id;
+                        document.getElementById('subcpmk_' + subcpmkId).checked = true;
+                        $('#bentuk_soal').val(response.data.bentuk_soal).change();
+                        $('#bobot').val(response.data.bobot_soal);
+
+                        var startValue = parseInt(response.minggu_mulai);
+                        var endValue = parseInt(response.minggu_akhir);
+
+                        // Initialize the slider for editing
+                        window.currentSliderEdit = new Slider("#waktu_pelaksanaan_edit", {
+                            min: 1,
+                            max: 16,
+                            range: true,
+                            value: [startValue, endValue],
+                            tooltip_split: true
+                        });
+
+                        currentSliderEdit.on("slide", function(slideEvt) {
+                            $("#rangeValue1").text(slideEvt[0]);
+                            $("#rangeValue2").text(slideEvt[1]);
+                            $("#waktu_pelaksanaan_start").val(slideEvt[0]);
+                            $("#waktu_pelaksanaan_end").val(slideEvt[1]);
+                        });
+
+                        // Set the values for the slider
+                        $("#rangeValue1").text(startValue);
+                        $("#rangeValue2").text(endValue);
+                        $("#waktu_pelaksanaan_start").val(startValue);
+                        $("#waktu_pelaksanaan_end").val(endValue);
+
+                        // Add a hidden input for the ID
+                        var form = document.getElementById('formSoal');
+                        var hiddenInputId = document.createElement('input');
+                        hiddenInputId.type = 'hidden';
+                        hiddenInputId.name = 'soal_subcpmk_id';
+                        hiddenInputId.value = response.data.id;
+                        form.appendChild(hiddenInputId);
+                    },
+                    error: function(xhr){
+                        console.log(xhr.responseText);
+                    }
+                });
+
             document.getElementById('tambah-soalsubcpmk').style.display = 'none';
             document.getElementById('simpan-soalsubcpmk-edit').style.display = 'block';
             };
