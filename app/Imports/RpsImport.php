@@ -2,7 +2,7 @@
 namespace App\Imports;
 
 use App\Models\Cpl;
-use App\Models\CPMK;
+use App\Models\Cpmk;
 use App\Models\Soal;
 use App\Models\SubCpmk;
 use App\Models\SoalSubCpmk;
@@ -28,7 +28,7 @@ class RpsImport implements ToCollection
 
             $cpl = Cpl::select('id')->where('kode_cpl', $row[2])->first();
             // Tahap 2: Simpan data CPMK
-            $cpmk = CPMK::firstOrCreate(
+            $cpmk = Cpmk::firstOrCreate(
                 [
                     'cpl_id' => $cpl->id,
                     'rps_id' => $this->id,
