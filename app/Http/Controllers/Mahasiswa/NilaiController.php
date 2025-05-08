@@ -268,7 +268,7 @@ class NilaiController extends Controller
         })->values();
 
         // Pagination manual setelah dikelompokkan
-        $perPage = 10;
+        $perPage = 20;
         $page = $request->get('page', 1);
         $pagedData = new \Illuminate\Pagination\LengthAwarePaginator(
             $groupedData->forPage($page, $perPage),

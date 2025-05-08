@@ -7,8 +7,8 @@
                 <th>Kode CPL</th>
                 <th>Kode CPMK</th>
                 <th>Kode Sub CPMK</th>
-                <th>Bobot Soal</th>
                 <th>Bentuk Soal</th>
+                <th>Bobot Soal</th>
                 <th style="width: 75px">Nilai</th>
             </tr>
         </thead>
