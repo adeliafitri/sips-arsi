@@ -13,32 +13,26 @@
             </tr>
         </thead>
         <tbody>
-            {{-- @php
-                $nomor = 0;
-            @endphp --}}
-            @foreach ($data as $key => $datas)
-            <tr>
-                <td>{{ $startNumber++ }}</td>
-                <td>{{ $datas->waktu_pelaksanaan }}</td>
-                <td>{{ $datas->kode_cpl }}</td>
-                <td>{{ $datas->kode_cpmk }}</td>
-                <td>{{ $datas->kode_subcpmk }}</td>
-                <td>{{ $datas->bobot_soal }}%</td>
-                <td>{{ $datas->bentuk_soal }}</td>
-                <td>
-                    <div id="nilai-tugas-{{ $datas->id_nilai }}"> {{ $datas->nilai }}
-                        {{-- <i class="nav-icon fas fa-edit" onclick="editNilaiTugas({{ $datas->id_nilai }})" style="cursor: pointer"></i> --}}
-                    </div>
-                    {{-- <form action="{{ route('dosen.kelaskuliah.editnilaitugas') }}" method="POST" class="d-flex justify-content-end fit-content ">
-                        @csrf
-                        <input type="hidden" name="id_nilai" value="{{ $datas->id_nilai }}">
-                            <input type="hidden" class="form-control" type="number" name="nilai" value="{{ $datas->nilai }}">
-                            <input type="hidden" class="form-control" type="number" name="mahasiswa_id" value="{{ $datas->mahasiswa_id }}">
-                            <input type="number" id="edit-nilai-tugas-form-{{ $datas->id_nilai }}" class="form-control" name="matakuliah_kelasid" value="{{ $datas->matakuliah_kelasid }}" style="width: 75px; display: none;"> --}}
-                            {{-- <button style="display: none;" type="submit" id="edit-nilai-tugas-button-{{ $datas->id_nilai }}" class="ml-2 btn btn-sm btn-primary" onclick="editNilai({{ $datas->id_nilai })"><i class="fas fa-check"></i></button> --}}
-                    {{-- </form> --}}
-                </td>
-            </tr>
+            @php $no = $startNumber; @endphp
+            @foreach ($groupedData as $bentukSoal => $group)
+                @foreach ($group['items'] as $index => $datas)
+                    <tr>
+                        <td>{{ $no++ }}</td>
+                        <td>{{ $datas->waktu_pelaksanaan }}</td>
+                        <td>{{ $datas->kode_cpl }}</td>
+                        <td>{{ $datas->kode_cpmk }}</td>
+                        <td>{{ $datas->kode_subcpmk }}</td>
+                        <td>{{ $datas->bobot_soal }}%</td>
+
+                        @if ($index === 0)
+                            <td rowspan="{{ $group['count'] }}">{{ $bentukSoal }}</td>
+                        @endif
+
+                        <td>
+                            <div id="nilai-tugas-{{ $datas->id_nilai }}"> {{ $datas->nilai }} </div>
+                        </td>
+                    </tr>
+                @endforeach
             @endforeach
         </tbody>
     </table>

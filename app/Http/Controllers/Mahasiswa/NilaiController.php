@@ -255,8 +255,16 @@ class NilaiController extends Controller
         // $startNumber = [];
         $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
 
+        $groupedData = collect($data->items())->groupBy('bentuk_soal')->map(function ($items) {
+            return [
+                'count' => $items->count(),
+                'items' => $items
+            ];
+        });
+
         if ($request->ajax()) {
             return view('pages-mahasiswa.perkuliahan.partials.nilai_tugas', [
+                'groupedData' => $groupedData,
                 'data' => $data,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
