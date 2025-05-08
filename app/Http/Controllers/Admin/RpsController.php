@@ -18,7 +18,7 @@ use App\Models\NilaiMahasiswa;
 use Illuminate\Support\Collection;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
-use App\Imports\RPSImport;
+use App\Imports\RpsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
