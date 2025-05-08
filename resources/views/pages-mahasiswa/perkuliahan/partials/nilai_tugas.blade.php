@@ -14,25 +14,17 @@
         </thead>
         <tbody>
             @php $no = $startNumber; @endphp
-            @foreach ($groupedData as $bentukSoal => $group)
-                @foreach ($group['items'] as $index => $datas)
-                    <tr>
-                        <td>{{ $no++ }}</td>
-                        <td>{{ $datas->waktu_pelaksanaan }}</td>
-                        <td>{{ $datas->kode_cpl }}</td>
-                        <td>{{ $datas->kode_cpmk }}</td>
-                        <td>{{ $datas->kode_subcpmk }}</td>
-                        <td>{{ $datas->bobot_soal }}%</td>
-
-                        @if ($index === 0)
-                            <td rowspan="{{ $group['count'] }}">{{ $bentukSoal }}</td>
-                        @endif
-
-                        <td>
-                            <div id="nilai-tugas-{{ $datas->id_nilai }}"> {{ $datas->nilai }} </div>
-                        </td>
-                    </tr>
-                @endforeach
+            @foreach ($data as $item)
+                <tr>
+                    <td>{{ $no++ }}</td>
+                    <td>{{ $item['waktu_pelaksanaan'] }}</td>
+                    <td>{{ $item['kode_cpl'] }}</td>
+                    <td>{{ $item['kode_cpmk'] }}</td>
+                    <td>{{ $item['kode_subcpmk'] }}</td>
+                    <td>{{ $item['bentuk_soal'] }}</td>
+                    <td>{{ $item['bobot_soal'] }}%</td>
+                    <td>{{ $item['nilai'] }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
