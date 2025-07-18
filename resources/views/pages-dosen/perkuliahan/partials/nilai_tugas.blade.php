@@ -7,6 +7,7 @@
             <th>Kode Sub CPMK</th>
             <th>Bobot Soal</th>
             <th>Bentuk Soal</th>
+            <th>Jenis Tugas</th>
             <th style="width: 75px">Nilai</th>
 
 
@@ -21,6 +22,7 @@
             <td>{{ $datas->kode_subcpmk }}</td>
             <td>{{ $datas->bobot_soal }}%</td>
             <td>{{ $datas->bentuk_soal }}</td>
+            <td>{{ $datas->jenis_tugas ?? 'Tidak Ada' }}</td>
             <td > <div id="nilai-tugas-{{ $datas->id_nilai }}"> {{ $datas->nilai }}
                     <i class="nav-icon fas fa-edit" onclick="editNilaiTugas({{ $datas->id_nilai }})" style="cursor: pointer"></i>
                 </div>

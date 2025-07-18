@@ -140,13 +140,39 @@ class MataKuliahController extends Controller
             ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
             ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
             ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')->orderBy('sub_cpmk.id', 'asc');
-        $data = $query->paginate(20);
+        $data = $query->get();
 
-        $startNumber = ($data->currentPage() - 1) * $data->perPage() + 1;
+        $groupedData = $data->groupBy(function ($item) {
+            return $item->bentuk_soal . '|' . $item->nilai;
+        })->map(function ($items, $key) {
+            return [
+                'bentuk_soal' => $items->first()->bentuk_soal,
+                'nilai' => $items->first()->nilai,
+                'bobot_soal' => $items->sum('bobot_soal'),
+                'waktu_pelaksanaan' => $items->first()->waktu_pelaksanaan,
+                'minggu_sort' => (int) filter_var($items->first()->waktu_pelaksanaan, FILTER_SANITIZE_NUMBER_INT),
+                'kode_cpl' => $items->pluck('kode_cpl')->unique()->implode(', '),
+                'kode_cpmk' => $items->pluck('kode_cpmk')->unique()->implode(', '),
+                'kode_subcpmk' => $items->pluck('kode_subcpmk')->unique()->implode(', '),
+            ];
+        })->sortBy('minggu_sort')->values();
+
+        // Pagination manual setelah dikelompokkan
+        $perPage = 20;
+        $page = $request->get('page', 1);
+        $pagedData = new \Illuminate\Pagination\LengthAwarePaginator(
+            $groupedData->forPage($page, $perPage),
+            $groupedData->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $startNumber = ($pagedData->currentPage() - 1) * $pagedData->perPage() + 1;
 
         if ($request->ajax()) {
             return view('pages-mahasiswa.mata_kuliah.partials.detail.detail_rps', [
-                'data' => $data,
+                'data' => $pagedData,
                 'startNumber' => $startNumber,
             ])->with('success', 'Data Mata Kuliah Ditemukan');
             // return view('pages-mahasiswa.mata_kuliah.partials.detail.detail_rps', compact('data'));

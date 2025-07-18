@@ -142,6 +142,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('updatesubcpmk', [RpsController::class, 'updateSubCpmk'])->name('admin.rps.updatesubcpmk');
             Route::get('editsoalsubcpmk/{id}', [RpsController::class, 'editSoalSubCpmk'])->name('admin.rps.editsoalsubcpmk');
             Route::put('updatesoalsubcpmk', [RpsController::class, 'updateSoalSubCpmk'])->name('admin.rps.updatesoalsubcpmk');
+            Route::post('update-jenis-tugas-massal', [RpsController::class, 'updateJenisTugasMassal'])->name('soal.update-jenis-tugas-massal');
 
             Route::get('listsubcpmk/{id}', [RpsController::class, 'listSubCpmk'])->name('admin.rps.listsubcpmk');
             Route::get('listcpmk/{id}', [RpsController::class, 'listCpmk'])->name('admin.rps.listcpmk');
@@ -335,6 +336,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('updatesubcpmk', [DosenRpsController::class, 'updateSubCpmk'])->name('dosen.rps.updatesubcpmk');
             Route::get('editsoalsubcpmk/{id}', [DosenRpsController::class, 'editSoalSubCpmk'])->name('dosen.rps.editsoalsubcpmk');
             Route::put('updatesoalsubcpmk', [DosenRpsController::class, 'updateSoalSubCpmk'])->name('dosen.rps.updatesoalsubcpmk');
+            Route::post('update-jenis-tugas-massal', [DosenRpsController::class, 'updateJenisTugasMassal'])->name('dosen.rps.update-jenis-tugas-massal');
 
             Route::get('listsubcpmk/{id}', [DosenRpsController::class, 'listSubCpmk'])->name('dosen.rps.listsubcpmk');
             Route::get('listcpmk/{id}', [DosenRpsController::class, 'listCpmk'])->name('dosen.rps.listcpmk');
