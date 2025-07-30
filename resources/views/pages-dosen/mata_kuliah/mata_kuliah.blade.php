@@ -83,8 +83,42 @@
                               <td>{{ $datas->tahun_rps }}</td>
                               <td class="d-flex justify-content-center">
                                   @if ($datas->koordinator == $dosen->id && $datas->status == 'aktif')
-                                  <a href="{{ route('dosen.rps.create', $datas->id_rps) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a>
+                                  <a class="btn btn-primary mr-1 linkPustaka" id="" data-id="{{ $datas->id_rps }}" data-toggle="tooltip" data-placement="top" title="Tambah data RPS" data-target="#modalPustaka{{ $datas->id_rps }}"><i class="nav-icon fas fa-plus"></i></a>
+                                  {{-- <a href="{{ route('dosen.rps.create', $datas->id_rps) }}" class="btn btn-primary mr-1" data-toggle="tooltip" data-placement="top" title="Tambah data RPS"><i class="nav-icon fas fa-plus"></i></a> --}}
                                   @endif
+
+                                  <!-- modal pustaka -->
+                                  <div class="modal fade" id="modalPustaka{{ $datas->id_rps }}" tabindex="-1" role="dialog" aria-labelledby="modalPustakaLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalPustakaLabel">Input Bahan Kajian & Pustaka</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="formPustaka">
+                                                @csrf
+                                                {{-- <input type="hidden" name="rps_id" value="{{ $datas->id_rps }}"> --}}
+                                                <div class="form-group">
+                                                    <label for="bahan_kajian">Bahan Kajian</label>
+                                                    <textarea name="bahan_kajian" id="bahan_kajian_{{ $datas->id_rps }}" rows="5" class="form-control ckeditor">{{ old('bahan_kajian', $datas->bahan_kajian) }}</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="pustaka">Pustaka</label>
+                                                    <textarea name="pustaka" id="pustaka_{{ $datas->id_rps }}" rows="5" class="form-control ckeditor">{{ old('pustaka', $datas->pustaka) }}</textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer justify-content-start">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                            <button type="button" class="btn btn-success" onclick="savePustaka({{ $datas->id_rps }})">Simpan</button>
+                                            <a href="{{ route('dosen.rps.create', $datas->id_rps) }}" class="btn btn-warning">Lewati</a>
+                                        </div>
+                                        </div>
+                                    </div>
+                                   </div>
                                    <a href="{{ route('dosen.matakuliah.show', $datas->id_rps) }}" class="btn btn-info mr-1"><i class="nav-icon far fa-eye" ></i></a>
                               </td>
                           </tr>
@@ -112,9 +146,76 @@
     </section>
     <!-- /.content -->
 @endsection
-@section('JSMataKuliah')
+{{-- @section('JSMataKuliah') --}}
+@section('script')
 
   <script>
+    let editors = {};
+    $(document).ready(function () {
+        // Aktifkan tooltip
+        // $('[data-toggle="tooltip"]').tooltip();
+
+        // Handle klik secara manual untuk buka modal
+        $('.linkPustaka').on('click', function (e) {
+            e.preventDefault();
+            const rpsId = $(this).data('id');
+            $('#modalPustaka' + rpsId).modal('show');
+        });
+
+        // Inisialisasi CKEditor untuk semua textarea
+        document.querySelectorAll('.ckeditor').forEach(textarea => {
+            let id = textarea.id;
+            ClassicEditor
+                .create(textarea)
+                .then(editor => {
+                    editors[id] = editor;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+        // $('.ckeditor').each(function () {
+        //     ClassicEditor.create(this).catch(error => {
+        //         console.error(error);
+        //     });
+        // });
+    });
+
+    function savePustaka(rpsId) {
+        // const rpsId = $('input[name="rps_id"]').val();
+        let bahanKajianId = `bahan_kajian_${rpsId}`;
+        let pustakaId = `pustaka_${rpsId}`;
+
+        let bahanKajian = editors[bahanKajianId]?.getData() || '';
+        let pustaka = editors[pustakaId]?.getData() || '';
+
+        $.ajax({
+            url: "{{ url('dosen/rps/update-kajian-pustaka/') }}/" + rpsId,
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                bahan_kajian: bahanKajian,
+                pustaka: pustaka
+            },
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Data Bahan Kajian & Pustaka berhasil disimpan.',
+                }).then(() => {
+                    window.location.href = "{{ route('dosen.rps.create', ':id') }}".replace(':id', rpsId);
+                });
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat menyimpan data.',
+                });
+            }
+        });
+    }
+
     function tesload(){
               console.log('ted');
           }

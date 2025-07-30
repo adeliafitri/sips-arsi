@@ -352,6 +352,8 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('create/{id}/download-excel', [DosenRpsController::class, 'export'])->name('dosen.rps.download-excel');
             Route::post('create/import-excel/{id}', [DosenRpsController::class, 'import'])->name('dosen.rps.import-excel');
+
+            Route::post('update-kajian-pustaka/{id}', [DosenMataKuliahController::class, 'updateKajianPustaka'])->name('dosen.rps.updateKajianPustaka');
         });
     });
 

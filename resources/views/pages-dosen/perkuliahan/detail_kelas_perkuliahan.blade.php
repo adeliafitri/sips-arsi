@@ -301,13 +301,35 @@
       </div>
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Evaluasi dan Rencana Perbaikan</h3>
+                <h3 class="card-title">Catatan Kelas</h3>
             </div>
             <div class="card-body">
                 @if ($data->status == "non aktif")
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="kehadiran_dosen">Kehadiran Dosen (%)</label>
+                            <p>{{ $data->kehadiran_dosen }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label for="kehadiran_mahasiswa">Kehadiran Mahasiswa (%)</label>
+                            <p>{{ $data->kehadiran_mahasiswa }}</p>
+                        </div>
+                    </div>
                     <div class="col-12">
-                        <label for="evaluasi">Evaluasi</label>
+                        <label for="keterangan_kehadiran">Keterangan Kehadiran</label>
+                        <p>{{ $data->keterangan_kehadiran }}</p>
+                    </div>
+                    <div class="col-12">
+                        <label for="pengamatan_kelas">Pengamatan Kelas</label>
+                        <p>{{ $data->pengamatan_kelas }}</p>
+                    </div>
+                    <div class="col-12">
+                        <label for="evaluasi">Analisa Hasil Pembelajaran</label>
                         <p>{{ $data->evaluasi }}</p>
+                    </div>
+                    <div class="col-12">
+                        <label for="kesimpulan">Kesimpulan</label>
+                        <p>{{ $data->kesimpulan }}</p>
                     </div>
                     <div class="col-12">
                         <label for="rencana_perbaikan">Rencana Perbaikan</label>
@@ -317,9 +339,31 @@
                 <form id="dataForm">
                     @csrf
                     @method('PUT')
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="kehadiran_dosen">Kehadiran Dosen (%)</label>
+                            <input type="number" class="form-control" id="kehadiran_dosen" name="kehadiran_dosen" value="{{ $data->kehadiran_dosen }}" step="0.01">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="kehadiran_mahasiswa">Kehadiran Mahasiswa (%)</label>
+                            <input type="number" class="form-control" id="kehadiran_mahasiswa" name="kehadiran_mahasiswa" value="{{ $data->kehadiran_mahasiswa }}" step="0.01">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label for="evaluasi">Evaluasi</label>
+                        <label for="keterangan_kehadiran">Keterangan Kehadiran</label>
+                        <textarea class="form-control" id="keterangan_kehadiran" name="keterangan_kehadiran" rows="3">{{ $data->keterangan_kehadiran }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="pengamatan_kelas">Pengamatan Kelas</label>
+                        <textarea class="form-control" id="pengamatan_kelas" name="pengamatan_kelas" rows="3">{{ $data->pengamatan_kelas }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="evaluasi">Analisa Hasil Pembelajaran</label>
                         <textarea class="form-control" id="evaluasi" name="evaluasi" rows="3">{{ $data->evaluasi }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="kesimpulan">Kesimpulan</label>
+                        <textarea class="form-control" id="kesimpulan" name="kesimpulan" rows="3">{{ $data->kesimpulan }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="rencana_perbaikan">Rencana Perbaikan</label>

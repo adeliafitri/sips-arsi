@@ -256,4 +256,20 @@ class MataKuliahController extends Controller
 
         return response()->json($data);
     }
+
+    public function updateKajianPustaka(Request $request, $id)
+    {
+        $request->validate([
+            'bahan_kajian' => 'nullable|string',
+            'pustaka' => 'nullable|string',
+        ]);
+
+        $rps = Rps::findOrFail($id);
+        $rps->update([
+            'bahan_kajian' => $request->bahan_kajian,
+            'pustaka' => $request->pustaka,
+        ]);
+
+        return response()->json(['message' => 'Data berhasil diperbarui']);
+    }
 }
