@@ -40,7 +40,7 @@ class NilaiTugasImportExcel implements ToModel, WithHeadingRow
                                 $nilaiTotal = 0;
 
                                 foreach ($tugasGroup as $tugas) {
-                                    $minggu = preg_replace('/[&\s]+/', '_', strtolower($bentukSoal));
+                                    $minggu = preg_replace('/[^a-z0-9]+/', '_', strtolower($bentukSoal));
                                     $nilai = $row[$minggu];
 
                                     if ($nilai !== null) {

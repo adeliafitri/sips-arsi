@@ -7,6 +7,7 @@ use Dompdf\Options;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
+use setasign\Fpdi\Fpdi;
 use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
@@ -20,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\DaftarMahasiswaFormatExcel;
 use App\Imports\DaftarMahasiswaImportExcel;
+// use Symfony\Component\Console\Output\Output;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerkuliahanController extends Controller
@@ -540,8 +542,15 @@ class PerkuliahanController extends Controller
     public function updateEvaluasi(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
+            'pengamatan_kelas' => 'string',
+            'keterangan_kehadiran' => 'string',
+            'kehadiran_dosen' => 'required|numeric|min:0|max:100',
+            'kehadiran_mahasiswa' => 'required|numeric|min:0|max:100',
             'evaluasi' => 'string',
+            'kesimpulan' => 'string',
             'rencana_perbaikan' => 'string',
+            'lampiran2_path' => 'required|mimes:pdf|max:2048',
+            'lampiran4_path' => 'required|mimes:pdf|max:2048',
         ]);
 
         if($validate->fails()){
@@ -551,11 +560,21 @@ class PerkuliahanController extends Controller
             ], 422);
         }
 
+        $lampiran2Path = $request->file('lampiran2_path')->store('public/lampiran');
+        $lampiran4Path = $request->file('lampiran4_path')->store('public/lampiran');
+
         try {
             $evaluasi = KelasKuliah::find($id);
             $evaluasi->update([
+                'pengamatan_kelas' => $request->pengamatan_kelas,
+                'keterangan_kehadiran' => $request->keterangan_kehadiran,
+                'kehadiran_dosen' => $request->kehadiran_dosen,
+                'kehadiran_mahasiswa' => $request->kehadiran_mahasiswa,
+                'kesimpulan' => $request->kesimpulan,
                 'evaluasi' => $request->evaluasi,
                 'rencana_perbaikan' => $request->rencana_perbaikan,
+                'lampiran2_path' => $lampiran2Path,
+                'lampiran4_path' => $lampiran4Path,
             ]);
 
             // return redirect()->route('admin.cpl')->with([
@@ -572,17 +591,22 @@ class PerkuliahanController extends Controller
 
     public function generatePdf($id)
     {
+        set_time_limit(300);
         // Ambil data mata kuliah dari database
         $kelas_matkul = KelasKuliah::join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
         ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
         ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
         ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
+        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
         ->select(
-            'mata_kuliah.nama_matkul', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
-            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan')
+            'mata_kuliah.nama_matkul', 'mata_kuliah.kode_matkul','Mata_kuliah.sks', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
+            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan', 'matakuliah_kelas.kehadiran_dosen', 'matakuliah_kelas.kehadiran_mahasiswa', 'matakuliah_kelas.keterangan_kehadiran', 'matakuliah_kelas.pengamatan_kelas', 'matakuliah_kelas.kesimpulan', 'rps.koordinator', 'rps.bahan_kajian', 'rps.pustaka', 'rps.deskripsi_mk', 'rps.rumpun_mk', 'matakuliah_kelas.lampiran2_path', 'matakuliah_kelas.lampiran4_path')
+        ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
         ->where('matakuliah_kelas.id', $id)
         ->first();
+
+        $koordinator = Dosen::find($kelas_matkul->koordinator)?->nama;
 
         $nilai_mahasiswa = NilaiMahasiswa::join('mahasiswa', 'nilai_mahasiswa.mahasiswa_id', 'mahasiswa.id')
             ->join('matakuliah_kelas', 'nilai_mahasiswa.matakuliah_kelasid', 'matakuliah_kelas.id')
@@ -610,19 +634,24 @@ class PerkuliahanController extends Controller
         // ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
         ->where('rps_id', $rps->rps_id)
         ->select('cpl.*')
+        ->distinct()
         ->orderBy('cpl.kode_cpl', 'asc')
         ->get();
 
-        $cpmk = Cpmk::where('rps_id', $rps->rps_id)
-        ->select('cpmk.*')
+        $cpmk = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('cpmk.*', 'cpl.kode_cpl')
         ->orderBy('cpmk.kode_cpmk', 'asc')
         ->get();
 
         $subcpmk = Cpmk::join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->where('rps_id', $rps->rps_id)
-        ->select('sub_cpmk.*')
+        ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
         ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
         ->get();
+
+        $rowspanData = $cpl->count() + $cpmk->count() + $subcpmk->count() + 3;
 
         $tugas = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
@@ -632,6 +661,22 @@ class PerkuliahanController extends Controller
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
         ->orderBy('sub_cpmk.id', 'asc')
         ->get();
+
+        $groupedTugas = $tugas->groupBy(function ($item) {
+            return $item->bentuk_soal . '|' . $item->nilai;
+        })->map(function ($items, $key) {
+            return [
+                'bentuk_soal' => $items->first()->bentuk_soal,
+                'jenis_tugas' => $items->first()->jenis_tugas,
+                // 'nilai' => $items->first()->nilai,
+                'bobot_soal' => $items->sum('bobot_soal'),
+                'waktu_pelaksanaan' => $items->first()->waktu_pelaksanaan,
+                'minggu_sort' => (int) filter_var($items->first()->waktu_pelaksanaan, FILTER_SANITIZE_NUMBER_INT),
+                'kode_cpl' => $items->pluck('kode_cpl')->unique()->implode(', '),
+                'kode_cpmk' => $items->pluck('kode_cpmk')->unique()->implode(', '),
+                'kode_subcpmk' => $items->pluck('kode_subcpmk')->unique()->implode(', '),
+            ];
+        })->sortBy('minggu_sort')->values();
 
         $totalBobotKeseluruhan = 0; // Initialize a variable to store the overall total weight
 
@@ -728,7 +773,7 @@ class PerkuliahanController extends Controller
                 ];
             }
 
-            $charts[] = createChartConfig($labels, $values, 'Nilai rata-rata tugas');
+        $charts[] = createChartConfig($labels, $values, 'Nilai rata-rata tugas');
         $charts[] = createChartConfig($labelSubcpmk, $valueSubcpmk, 'Nilai rata-rata Sub CPMK');
         $charts[] = createChartConfig($labelCpmk, $valueCpmk, 'Nilai rata-rata CPMK');
         $charts[] = createChartConfig($labelCpl, $valueCpl, 'Nilai rata-rata CPL');
@@ -800,17 +845,25 @@ class PerkuliahanController extends Controller
             // $nilaiMhs = [];
 
             foreach ($nilai_mahasiswa as $nilai) {
-                $soal_id = $nilai->id;
+                // $soal_id = $nilai->id;
                 $mahasiswa_id = $nilai->nim;
+                $key = $nilai->bentuk_soal;
                 // $nilai_id = $nilai->id_nilai;
 
-                if (!isset($info_soal[$soal_id])) {
-                    $info_soal[$soal_id] = [
+                if (!isset($info_soal[$key])) {
+                    $info_soal[$key] = [
                         'waktu_pelaksanaan' => $nilai->waktu_pelaksanaan,
-                        'kode_subcpmk' => $nilai->kode_subcpmk,
+                        'kode_subcpmk' => [ $nilai->kode_subcpmk ],
+                        // 'kode_subcpmk' => $nilai->kode_subcpmk,
                         'bobot_soal' => $nilai->bobot_soal,
                         'bentuk_soal' => $nilai->bentuk_soal,
                     ];
+                } else {
+                     $kodeSub = is_array($nilai->kode_subcpmk) ? $nilai->kode_subcpmk : [ $nilai->kode_subcpmk ];
+                    $info_soal[$key]['kode_subcpmk'] = array_unique(array_merge($info_soal[$key]['kode_subcpmk'], $kodeSub));
+                    // $info_soal[$key]['kode_subcpmk'] = array_unique(array_merge($info_soal[$key]['kode_subcpmk'], $nilai->kode_subcpmk));
+                    $info_soal[$key]['bobot_soal'] += $nilai->bobot_soal;
+                    // $info_soal[$key]['minggu'][] = $item['minggu'];
                 }
 
                 if (!isset($mahasiswa_data[$mahasiswa_id])) {
@@ -826,8 +879,13 @@ class PerkuliahanController extends Controller
                     $nomor++;
                 }
 
-                $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
-                $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
+                if (!isset($mahasiswa_data[$mahasiswa_id]['nilai'][$key])) {
+                    $mahasiswa_data[$mahasiswa_id]['nilai'][$key] = $nilai->nilai;
+                    $mahasiswa_data[$mahasiswa_id]['id_nilai'][$key] = $nilai->id_nilai;
+                }
+
+                // $mahasiswa_data[$mahasiswa_id]['id_nilai'][] = $nilai->id_nilai;
+                // $mahasiswa_data[$mahasiswa_id]['nilai'][] = $nilai->nilai;
             }
 
             foreach ($nilai_akhir as $akhir) {
@@ -839,31 +897,148 @@ class PerkuliahanController extends Controller
                 }
             }
 
-        $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
-        // Mulai membuat laporan PDF
-        set_time_limit(300);
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('pages-dosen.perkuliahan.portfolio_perkuliahan_pdf', [
-            'kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal,
-            'jml_mhs' => $jumlah_mahasiswa, 'cpl' => $cpl, 'cpmk' => $cpmk, 'subcpmk' => $subcpmk, 'tugas' => $tugas, 'total_bobot'=> $totalBobotKeseluruhan,
-            'chartUrls' => $chartUrls]));
+        // dd($info_soal, $mahasiswa_data);
+        // $jumlah_mahasiswa = NilaiAkhirMahasiswa::selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->first();
+        $nilaiakhir_mahasiswa = NilaiAkhirMahasiswa::where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)->pluck('nilai_akhir');//
+
+        $totalMahasiswa = $kelas_matkul->jumlah_mahasiswa; // Mengambil jumlah mahasiswa dari kelas
+        $avgNilaiAkhir = round($nilaiakhir_mahasiswa->avg(), 2); // Menghitung rata-rata nilai akhir
+        $maxNilaiAkhir = $nilaiakhir_mahasiswa->max(); // Mengambil nilai akhir tertinggi
+        $minNilaiAkhir = $nilaiakhir_mahasiswa->min(); // Mengambil nilai akhir terendah
+
+        $gradeDistribusi = [
+            'A'  => 0,
+            'B+' => 0,
+            'B'  => 0,
+            'C+' => 0,
+            'C'  => 0,
+            'D'  => 0,
+            'E'  => 0,
+        ];
+
+        foreach ($nilaiakhir_mahasiswa as $nilai) {
+            $huruf = $this->convertNilaiToHuruf($nilai);
+            if (array_key_exists($huruf, $gradeDistribusi)) {
+                $gradeDistribusi[$huruf]++;
+            }
+        }
+
+        // Hitung persentase
+        foreach ($gradeDistribusi as $key => $val) {
+            $gradeDistribusi[$key] = round(($val / $totalMahasiswa) * 100, 2);
+        }
+
+        // chart bar
+        $labels_bar = array_keys($gradeDistribusi);
+        $persentase_bar = array_values($gradeDistribusi);
+
+        $barChartConfig = [
+            'type' => 'bar',
+            'data' => [
+                'labels' => $labels_bar,
+                'datasets' => [[
+                    'label' => 'Persentase Mahasiswa (%)',
+                    'data' => $persentase_bar,
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                    'borderWidth' => 1
+                ]]
+            ],
+            'options' => [
+                'scales' => [
+                    'y' => [
+                        'beginAtZero' => true,
+                        'max' => 100,
+                        'ticks' => [
+                            'callback' => 'function(value) { return value + "%" }'
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $url = 'https://quickchart.io/chart/create';
+        $payload = json_encode(['chart' => $barChartConfig]);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+        $barChartUrl = $responseData['url'];
+
+        //presentase terbesar
+        $persentaseTerbesar = max($gradeDistribusi);
+        $hurufTerbesar = array_search($persentaseTerbesar, $gradeDistribusi);
+
+         // Mulai membuat laporan PDF\
 
         // Atur opsi PDF
-        $options = new Options();
-        $options->set('isRemoteEnabled', true);
+        // $options = new Options();
+        // $options->set('isRemoteEnabled', true);
+
+        // $dompdf = new Dompdf($options);
+
+        $htmlMain = view('pages-dosen.perkuliahan.portof_perkuliahan', [
+            'kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'max_persentase' => $persentaseTerbesar, 'huruf_terbesar' => $hurufTerbesar,
+            'cpl' => $cpl, 'cpmk' => $cpmk, 'subcpmk' => $subcpmk, 'tugas' => $groupedTugas, 'total_bobot'=> $totalBobotKeseluruhan, 'rowspan' => $rowspanData, 'koordinator' => $koordinator,
+            'labels_bar' => $labels_bar, 'persentase_bar' => $persentase_bar,'avg_nilai_akhir'=> $avgNilaiAkhir, 'max_nilai_akhir' => $maxNilaiAkhir, 'min_nilai_akhir' => $minNilaiAkhir, 'chartUrls' => $chartUrls, 'barChartUrl' => $barChartUrl,])->render();
+        // $dompdf->loadHtml($);
+
+        $mainPdfPath = $this->renderPdfToTemp($htmlMain, 'main_'. $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas);
+
+        $htmlLampiran3 = view('pages-dosen.generate.pdf.portof_lampiran3', [
+            'kelas' => $kelas_matkul,
+            'mahasiswa_data' => $mahasiswa_data,
+            'info_soal' => $info_soal,
+        ])->render();
+
+        $lampiran3Path = $this->renderPdfToTemp($htmlLampiran3, 'lampiran3_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas);
+
+        $lampiran2Path = storage_path('app/' . $kelas_matkul->lampiran2_path);
+        $lampiran4Path = storage_path('app/' . $kelas_matkul->lampiran4_path);
         // define("DOMPDF_ENABLE_REMOTE", false);
 
-        $dompdf->setPaper('A4', 'landscape');
+        $pdf = new Fpdi();
+        $files = [$mainPdfPath, $lampiran2Path, $lampiran3Path, $lampiran4Path];
+
+        foreach ($files as $file) {
+            // if (!file_exists($file)) continue;
+            if (!file_exists($file)) {
+                dd("File tidak ditemukan: " . $file);
+            }
+            $pageCount = $pdf->setSourceFile($file);
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $tpl = $pdf->importPage($pageNo);
+                $size = $pdf->getTemplateSize($tpl);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($tpl);
+            }
+        }
+
+        $filename = 'Portfolio Perkuliahan_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+        $finalPath = storage_path('app/public/lampiran/' . $filename);
+        $pdf->Output($filename, 'D');
+
+        unlink($mainPdfPath);
+        unlink($lampiran3Path);
+        // $dompdf->setPaper('A4', 'potrait');
 
         // Render PDF
-        $dompdf->setOptions($options);
-        $dompdf->render();
+        // $dompdf->setOptions($options);
+        // $dompdf->render();
 
         // Menghasilkan nama file unik untuk laporan
-        $filename = 'Portfolio Perkuliahan_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+
+
 
         // Mengirimkan laporan PDF sebagai respons
-        return $dompdf->stream($filename);
+        // return $dompdf->stream($filename);
     }
 
     private function convertNilaiToHuruf($nilai)
@@ -892,5 +1067,23 @@ class PerkuliahanController extends Controller
         } else {
             return "Tidak Lulus";
         }
+    }
+
+    // === Helper bikin PDF dari HTML ===
+    function renderPdfToTemp($html, $filename)
+    {
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        // $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $path = storage_path("app/public/lampiran/{$filename}.pdf");
+        file_put_contents($path, $dompdf->output());
+
+        return $path;
     }
 }

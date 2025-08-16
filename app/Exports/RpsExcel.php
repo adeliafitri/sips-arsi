@@ -26,7 +26,7 @@ class RpsExcel implements FromView, ShouldAutoSize
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
             ->join('rps', 'cpmk.rps_id', 'rps.id')
             ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'cpmk.deskripsi', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.deskripsi', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
+            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'cpmk.deskripsi', 'sub_cpmk.kode_subcpmk', 'sub_cpmk.deskripsi', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan', 'soal_sub_cpmk.jenis_tugas')
             ->where('rps.id', $this->id)
             ->get();
 

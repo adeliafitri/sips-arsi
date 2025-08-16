@@ -369,7 +369,28 @@ class RpsController extends Controller
         // $data_subcpmk = SubCpmk::where('cpmk_id', '=', $id)->paginate(5);
         // dd($data_cpmk);
         $data_soal = Soal::pluck('bentuk_soal', 'id');
-        return view('pages-admin.rps.tambah_detail_rps', compact('cpl','rps', 'data_soal'));
+
+        $defaultJenisTugas = collect([
+            'Progres Asistensi',
+            'Logbook',
+            'Sketsa Arsitektur',
+            'Analisis Tapak',
+            'Studi Preseden',
+            'Project Desain',
+            'Gambar Arsitektural',
+            'Gambar Kerja',
+            'Architectural Presentation Board',
+            'Maket',
+            'Kuis',
+            'Analisis',
+            'Karya Tulis',
+            'Presentasi',
+        ]);
+
+        $dbJenisTugas = SoalSubCpmk::distinct()->pluck('jenis_tugas')->filter();
+        $jenisTugasList = $defaultJenisTugas->merge($dbJenisTugas)->unique()->values();
+        // $jenisTugasList = SoalSubCpmk::distinct()->pluck('jenis_tugas')->filter()->values();
+        return view('pages-admin.rps.tambah_detail_rps', compact('cpl','rps', 'data_soal', 'jenisTugasList'));
     }
 
     public function listKodeCpmk($id)
@@ -477,7 +498,7 @@ class RpsController extends Controller
             ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
             ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
             ->where('cpmk.rps_id', $id)
-            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan')
+            ->select('cpl.kode_cpl', 'cpmk.kode_cpmk', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan', 'soal_sub_cpmk.jenis_tugas')
             ->paginate(20);
             // ->toSql();
             // dd($data_soalsubcpmk);
@@ -508,6 +529,8 @@ class RpsController extends Controller
             'waktu_pelaksanaan_end' => 'required|numeric|min:1|max:16',
             // 'waktu_pelaksanaan' => 'required',
             'bentuk_soal' => 'required',
+            'jenis_tugas_select' => 'required|string',
+            'jenis_tugas' => 'nullable|string',
         ]);
 
         if($validate->fails()){
@@ -533,6 +556,10 @@ class RpsController extends Controller
             } else {
                 $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
             }
+
+            $finalJenisTugas = $request->jenis_tugas_select === 'lainnya'
+            ? $request->jenis_tugas
+            : $request->jenis_tugas_select;
             // dd($bentukSoal);
             // Membuat dan menyimpan data ke dalam tabel SoalSubCpmk
             // $soalSubCpmkData = $request->except('soal_id');
@@ -541,7 +568,8 @@ class RpsController extends Controller
                     'subcpmk_id' => $subcpmkid,
                     'bobot_soal' => $request->bobot,
                     'waktu_pelaksanaan' => $minggu,
-                    'soal_id' => $soal->id
+                    'soal_id' => $soal->id,
+                    'jenis_tugas' => $finalJenisTugas,
                 ]);
             }
 
@@ -774,7 +802,7 @@ class RpsController extends Controller
                 ->join('sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
                 ->join('cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
                 ->where('soal_sub_cpmk.id', $id)
-                ->select('sub_cpmk.id as subcpmk_id', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
+                ->select('sub_cpmk.id as subcpmk_id', 'soal_sub_cpmk.id', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'soal_sub_cpmk.bobot_soal', 'soal_sub_cpmk.waktu_pelaksanaan', 'soal_sub_cpmk.jenis_tugas') // Sesuaikan dengan kolom-kolom yang Anda butuhkan dari tabel auth
                 ->first();
             // dd($soalsubcpmk);
 
@@ -803,6 +831,11 @@ class RpsController extends Controller
     public function updateSoalSubCpmk(Request $request)
     {
         try{
+            $request->validate([
+                'jenis_tugas_select' => 'required|string',
+                'jenis_tugas' => 'nullable|string',
+            ]);
+
             $bentukSoal = request()->input('bentuk_soal');
             $existingUnit = Soal::where('bentuk_soal', $bentukSoal)->first();
             if (!$existingUnit) {
@@ -819,6 +852,11 @@ class RpsController extends Controller
                 $minggu = "Minggu " . $request->waktu_pelaksanaan_start . " - " . $request->waktu_pelaksanaan_end;
             }
 
+            // Ambil nilai jenis_tugas
+            $finalJenisTugas = $request->jenis_tugas_select === 'lainnya'
+                ? $request->jenis_tugas
+                : $request->jenis_tugas_select;
+
             $subcpmkId = is_array($request->pilih_subcpmk) ? $request->pilih_subcpmk[0] : $request->pilih_subcpmk;
             $soalsubcpmk = SoalSubCpmk::where('id', $request->soal_subcpmk_id)->first();
 
@@ -827,6 +865,7 @@ class RpsController extends Controller
                 'soal_id' => $soal->id,
                 'bobot_soal' => $request->bobot,
                 'waktu_pelaksanaan' => $minggu,
+                'jenis_tugas' => $finalJenisTugas,
             ]);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate','data' => $soalsubcpmk]);
@@ -835,6 +874,30 @@ class RpsController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Data gagal diupdate: ' . $e->getMessage()], 500);
         }
     }
+
+    public function updateJenisTugasMassal(Request $request)
+    {
+        $request->validate([
+            'selected_ids' => 'required|array',
+            'selected_ids.*' => 'exists:soal_sub_cpmk,id',
+            'jenis_tugas_select' => 'required|string',
+            'jenis_tugas' => 'nullable|string',
+        ]);
+
+        $finalJenisTugas = $request->jenis_tugas_select === 'lainnya'
+            ? $request->jenis_tugas
+            : $request->jenis_tugas_select;
+
+        SoalSubCpmk::whereIn('id', $request->selected_ids)->update([
+            'jenis_tugas' => $finalJenisTugas,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Jenis tugas berhasil diperbarui pada data terpilih.'
+        ]);
+    }
+
 
 }
 

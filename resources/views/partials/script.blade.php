@@ -46,6 +46,8 @@
 <script src="{{ asset('plugins/bootstrap-slider/bootstrap-slider.min.js') }}"></script>
 <!-- noUiSlider JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
+<!-- CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
 <script src="/js/app.js"></script>
 

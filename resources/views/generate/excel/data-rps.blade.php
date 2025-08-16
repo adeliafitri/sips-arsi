@@ -9,6 +9,7 @@
         <th style="width: 200px;" class="align-middle">Kode Sub CPMK</th>
         <th style="width: 200px;" class="align-middle">Deskripsi Sub CPMK</th>
         <th style="width: 200px;" class="align-middle">Bentuk Soal</th>
+        <th style="width: 200px;" class="align-middle">Jenis Soal</th>
         <th style="width: 200px;" class="align-middle">Bobot</th>
       </tr>
     </thead>
@@ -23,6 +24,7 @@
             <td>{{ $rps['kode_subcpmk'] }}</td>
             <td>{{ $rps['deskripsi'] }}</td>
             <td>{{ $rps['bentuk_soal'] }}</td>
+            <td>{{ $rps['jenis_tugas'] }}</td>
             <td>{{ $rps['bobot_soal'] }}</td>
         </tr>
     @endforeach
