@@ -17,11 +17,12 @@ use App\Models\NilaiMahasiswa;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\DaftarMahasiswaFormatExcel;
-use App\Imports\DaftarMahasiswaImportExcel;
 // use Symfony\Component\Console\Output\Output;
+use App\Imports\DaftarMahasiswaImportExcel;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerkuliahanController extends Controller
@@ -1003,6 +1004,15 @@ class PerkuliahanController extends Controller
         $lampiran2Path = storage_path('app/' . $kelas_matkul->lampiran2_path);
         $lampiran4Path = storage_path('app/' . $kelas_matkul->lampiran4_path);
         // define("DOMPDF_ENABLE_REMOTE", false);
+
+        if (!$kelas_matkul->lampiran2_path || !File::exists($lampiran2Path)) {
+            return back()->with('error', 'Lampiran 2 tidak ditemukan, silakan upload ulang.');
+        }
+
+        // cek lampiran 4
+        if (!$kelas_matkul->lampiran4_path || !File::exists($lampiran4Path)) {
+            return back()->with('error', 'Lampiran 4 tidak ditemukan, silakan upload ulang.');
+        }
 
         $pdf = new Fpdi();
         $files = [$mainPdfPath, $lampiran2Path, $lampiran3Path, $lampiran4Path];
