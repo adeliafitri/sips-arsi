@@ -24,6 +24,8 @@ class KelasKuliah extends Model
         'kehadiran_dosen',
         'kehadiran_mahasiswa',
         'kesimpulan',
+        'lampiran2_path',   
+        'lampiran4_path',
     ];
 
     public function kelas()

@@ -157,7 +157,7 @@
   </tr>
   <tr>
     <td>{{ $kelas->nama_matkul }}</td><td>{{ $kelas->kode_matkul }}</td>
-    <td>Sains</td><td>{{ $kelas->sks }}</td><td>{{ $kelas->semester }}</td>
+    <td>{{ $kelas->rumpun_mk }}</td><td>{{ $kelas->sks }}</td><td>{{ $kelas->semester }}</td>
   </tr>
   <tr class="section-title">
     <td>Tahun Ajaran</td><td>Koordinator MK</td>
@@ -241,7 +241,8 @@
     <tr>
         <td></td>
         <td colspan="3">
-            Fokus perkuliahan ini adalah memberikan pengetahuan tentang iklim dan lingkungan bangunan...
+            {!! $kelas->deskripsi_mk !!}
+            {{-- <p class="indent">Mata kuliah ini membahas tentang iklim, karakteristiknya, dan pengaruhnya terhadap desain arsitektur. Mata kuliah ini juga membahas tentang lingkungan penghawaan.</p> --}}
         </td>
     </tr>
 {{-- </table> --}}
@@ -645,29 +646,29 @@
 <p>Lampiran 2: Mingguan perkuliahan</p>
 <p></p>
 
-<p>Lampiran 3: Nilai mahasiswa</p>
-<table id="" class="bordered">
+{{-- <p>Lampiran 3: Nilai mahasiswa</p> --}}
+{{-- <table id="" class="bordered">
         <thead>
           <tr>
             <th class="no-column" rowspan="3" width="5%">No</th>
             <th rowspan="3" class="no-column">NIM</th>
             <th rowspan="3" class="no-column nama-column">Nama</th>
-            @foreach ($info_soal as $data)
+            @foreach ($info_soal as $data) --}}
             {{-- @foreach ($data['waktu_pelaksanaan'] as $waktu) --}}
-                <th class="info-soal">{{$data['waktu_pelaksanaan']}}</th>
+                {{-- <th class="info-soal">{{$data['waktu_pelaksanaan']}}</th> --}}
             {{-- @endforeach --}}
-            @endforeach
+            {{-- @endforeach
             <th rowspan="3" class="no-column">Nilai Akhir</th>
             <th rowspan="3" class="no-column">Huruf</th>
             <th rowspan="3" class="no-column">Keterangan</th>
           </tr>
           <tr>
-              @foreach ($info_soal as $data)
+              @foreach ($info_soal as $data) --}}
                   {{-- @foreach ($data['kode_subcpmk'] as $kode) --}}
-                      <th class="info-soal">{{ implode(', ', $data['kode_subcpmk']) }}</th>
+                      {{-- <th class="info-soal">{{ implode(', ', $data['kode_subcpmk']) }}</th> --}}
                   {{-- @endforeach --}}
-              @endforeach
-          </tr>
+              {{-- @endforeach
+          </tr> --}}
           {{-- <tr>
               @foreach ($info_soal as $data) --}}
                   {{-- @foreach ($data['bobot_soal'] as $bobot) --}}
@@ -675,43 +676,42 @@
                   {{-- @endforeach --}}
               {{-- @endforeach
           </tr> --}}
-          <tr>
-              @foreach ($info_soal as $data)
+          {{-- <tr>
+              @foreach ($info_soal as $data) --}}
                   {{-- @foreach ($data['bentuk_soal'] as $bentuk) --}}
-                      <th class="info-soal">{{$data['bentuk_soal'] }}</th>
+                      {{-- <th class="info-soal">{{$data['bentuk_soal'] }}</th> --}}
                   {{-- @endforeach --}}
-              @endforeach
+              {{-- @endforeach
           </tr>
         </thead>
         <tbody>
-          @foreach ($mahasiswa_data as $key => $mhs)
+          @foreach ($mahasiswa_data as $key => $mhs) --}}
           {{-- @foreach ($data['mahasiswa'] as $mahasiswa) --}}
-            <tr>
+            {{-- <tr>
                 <td class="no-column">{{ $mhs['nomor'] }}</td>
                 <td class="no-column">{{ $mhs['nim'] }}</td>
-                <td class="no-column nama-column">{{ $mhs['nama'] }}</td>
+                <td class="no-column nama-column">{{ $mhs['nama'] }}</td> --}}
                   {{-- @foreach ($mhs['id_nilai'] as $id_nilai) --}}
-                  @foreach($mhs['nilai'] as $key => $nilai)
+                  {{-- @foreach($mhs['nilai'] as $key => $nilai)
                   <td class="info-soal">
-                      <div id="nilai-tugas-{{ $mhs['id_nilai'][$key] }}">
+                      <div id="nilai-tugas-{{ $mhs['id_nilai'][$key] }}"> --}}
                           {{-- @php
                               $nilai =  $mhs['nilai'][$loop->index];
                           @endphp --}}
-                          {{ $nilai }}
+                          {{-- {{ $nilai }} --}}
                           {{-- <i class="nav-icon fas fa-edit" onclick="editNilaiTugas({{ $id_nilai }})" style="cursor: pointer"></i> --}}
-                      </div>
+                      {{-- </div>
                   </td>
                   @endforeach
                 <td class="no-column">{{ $mhs['nilai_akhir'] ?? '-' }}</td>
                 <td class="no-column">{{ $mhs['nilai_huruf'] ?? '-' }}</td>
                 <td class="no-column">{{ $mhs['keterangan'] ?? '-' }}</td>
-            </tr>
+            </tr> --}}
           {{-- @endforeach --}}
-        @endforeach
+        {{-- @endforeach
         </tbody>
-    </table>
+    </table> --}}
 
-<p>Lampiran 4: Absen</p>
 <!-- Tambah bagian lain dengan pola yang sama -->
 
 </body>

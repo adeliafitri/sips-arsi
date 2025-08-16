@@ -27,7 +27,7 @@ class MataKuliahController extends Controller
         ->join('dosen', 'matakuliah_kelas.dosen_id', '=', 'dosen.id')
         ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
-        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'rps.koordinator', 'dosen.status')
+        ->select('rps.id as id_rps','rps.semester', 'rps.tahun_rps','mata_kuliah.id as id_matkul', 'mata_kuliah.kode_matkul', 'mata_kuliah.nama_matkul', 'mata_kuliah.sks', 'rps.koordinator', 'dosen.status', 'rps.bahan_kajian', 'rps.pustaka', 'rps.rumpun_mk', 'rps.deskripsi_mk')
         ->where('dosen.id_auth', Auth::user()->id)
         ->distinct();
 
@@ -262,12 +262,16 @@ class MataKuliahController extends Controller
         $request->validate([
             'bahan_kajian' => 'nullable|string',
             'pustaka' => 'nullable|string',
+            'deskripsi_mk' => 'nullable|string',
+            'rumpun_mk' => 'nullable|string',
         ]);
 
         $rps = Rps::findOrFail($id);
         $rps->update([
             'bahan_kajian' => $request->bahan_kajian,
             'pustaka' => $request->pustaka,
+            'deskripsi_mk' => $request->deskripsi_mk,
+            'rumpun_mk' => $request->rumpun_mk,
         ]);
 
         return response()->json(['message' => 'Data berhasil diperbarui']);

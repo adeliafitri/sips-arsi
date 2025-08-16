@@ -18,6 +18,8 @@ class Rps extends Model
         'koordinator',
         'bahan_kajian',
         'pustaka',
+        'rumpun_mk',
+        'deskripsi_mk',
     ];
 
     public function cpmk()

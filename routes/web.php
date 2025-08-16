@@ -14,26 +14,29 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\JenisCplController;
 use App\Http\Controllers\Admin\SemesterController;
 use App\Http\Controllers\Admin\MataKuliahController;
-use App\Http\Controllers\Mahasiswa\MahasiswaController;
+use App\Http\Controllers\Admin\SurveyFormController;
 
 // use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Mahasiswa\MahasiswaController;
+use App\Http\Controllers\Admin\SurveyQuestionController;
 use App\Http\Controllers\Admin\CplController as AdminCplController;
 use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
+
 use App\Http\Controllers\Admin\CpmkController as AdminCpmkController;
 use App\Http\Controllers\Admin\DosenController as AdminDosenController;
-
 use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
 use App\Http\Controllers\Dosen\NilaiController as DosenNilaiController;
 use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
+
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
-
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
 use App\Http\Controllers\Dosen\MataKuliahController as DosenMataKuliahController;
 use App\Http\Controllers\Admin\PerkuliahanController as AdminPerkuliahanController;
 use App\Http\Controllers\Dosen\PerkuliahanController as DosenPerkuliahanController;
 use App\Http\Controllers\Mahasiswa\ProfileController as MahasiswaProfileController;
 use App\Http\Controllers\Mahasiswa\MataKuliahController as MahasiswaMataKuliahController;
+use App\Http\Controllers\Mahasiswa\SurveyAnswerController as MahasiswaSurveyAnswerController;
 // use App\Http\Controllers\DashboardController;
 // use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 
@@ -255,6 +258,26 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('edit/{id}', [SemesterController::class, 'update'])->name('admin.semester.update');
             Route::delete('{id}', [SemesterController::class, 'destroy'])->name('admin.semester.destroy');
         });
+
+        Route::prefix('admin/survey-form')->group(function () {
+            Route::get('', [SurveyFormController::class, 'index'])->name('admin.surveyForm');
+            Route::get('create', [SurveyFormController::class, 'create'])->name('admin.surveyForm.create');
+            Route::post('store', [SurveyFormController::class, 'store'])->name('admin.surveyForm.store');
+            // Route::post('update-active/{id}', [SurveyFormController::class, 'updateIsActive'])->name('admin.surveyForm.update-active');
+            Route::get('edit/{id}', [SurveyFormController::class, 'edit'])->name('admin.surveyForm.edit');
+            Route::put('edit/{id}', [SurveyFormController::class, 'update'])->name('admin.surveyForm.update');
+            Route::delete('{id}', [SurveyFormController::class, 'destroy'])->name('admin.surveyForm.destroy');
+        });
+
+        Route::prefix('admin/survey-question')->group(function () {
+            Route::get('', [SurveyQuestionController::class, 'index'])->name('admin.surveyQuestion');
+            Route::get('create', [SurveyQuestionController::class, 'create'])->name('admin.surveyQuestion.create');
+            Route::post('store', [SurveyQuestionController::class, 'store'])->name('admin.surveyQuestion.store');
+            // Route::post('update-active/{id}', [SurveyQuestionController::class, 'updateIsActive'])->name('admin.surveyQuestion.update-active');
+            Route::get('edit/{id}', [SurveyQuestionController::class, 'edit'])->name('admin.surveyQuestion.edit');
+            Route::put('edit/{id}', [SurveyQuestionController::class, 'update'])->name('admin.surveyQuestion.update');
+            Route::delete('{id}', [SurveyQuestionController::class, 'destroy'])->name('admin.surveyQuestion.destroy');
+        });
     });
 
 
@@ -394,6 +417,12 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/nilai/cpl', [MahasiswaNilaiController::class, 'nilaiCpl'])->name('mahasiswa.kelaskuliah.nilaicpl');
             Route::get('/nilai/chart-cpl', [MahasiswaNilaiController::class, 'chartCpl'])->name('mahasiswa.kelaskuliah.chartcpl');
             Route::get('/nilai/chart-cpmk', [MahasiswaNilaiController::class, 'chartCpmk'])->name('mahasiswa.kelaskuliah.chartcpmk');
+        });
+
+        Route::prefix('mahasiswa/survey')->group(function () {
+            Route::get('', [MahasiswaSurveyAnswerController::class, 'create'])->name('mahasiswa.kuisioner.create');
+            Route::post('kepuasan-mahasiswa', [MahasiswaSurveyAnswerController::class, 'storeKepuasan'])->name('mahasiswa.kuisioner.storeKepuasan');
+            Route::post('kinerja-dosen', [MahasiswaSurveyAnswerController::class, 'storeKinerja'])->name('mahasiswa.kuisioner.storeKinerja');
         });
     });
 });

@@ -369,6 +369,16 @@
                         <label for="rencana_perbaikan">Rencana Perbaikan</label>
                         <textarea class="form-control" id="rencana_perbaikan" name="rencana_perbaikan" rows="3">{{ $data->rencana_perbaikan }}</textarea>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="lampiran2_path">Lampiran 2 - Minggu Perkuliahan (PDF)</label>
+                            <input type="file" class="form-control" id="lampiran2_path" name="lampiran2_path" value="{{ $data->lampiran2_path }}" step="0.01">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lampiran4_path">Lampiran 4 - Absen (PDF)</label>
+                            <input type="file" class="form-control" id="lampiran4_path" name="lampiran4_path" value="{{ $data->lampiran4_path }}" step="0.01">
+                        </div>
+                    </div>
                     <div class="card-footer clearfix">
                         <button type="button" class="btn btn-primary" onclick="saveData({{$data->id}})">Simpan</button>
                     </div>
@@ -748,15 +758,22 @@
             });
         }
         function saveData(id) {
-        var form = $('#dataForm');
+        // var form = $('#dataForm');
+        var form = $('#dataForm')[0]; // ambil element form, bukan jQuery object
+        var formData = new FormData(form);
+        formData.append('_method', 'PUT');
+
         $.ajax({
-            type: 'PUT',
+            type: 'POST',
             url: "{{ url('dosen/kelas-kuliah/updateEvaluasi') }}/" + id,
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            contentType: 'application/x-www-form-urlencoded',
-            data: form.serialize(),
+            processData: false, // wajib: biar jQuery nggak ubah FormData jadi string
+            contentType: false,
+            data: formData,
+            // contentType: 'application/x-www-form-urlencoded',
+            // data: form.serialize(),
             success: function(response) {
                 if (response.status == "success") {
                     Swal.fire({

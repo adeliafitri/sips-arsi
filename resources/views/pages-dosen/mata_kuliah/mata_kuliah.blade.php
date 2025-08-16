@@ -92,7 +92,7 @@
                                     <div class="modal-dialog modal-lg" role="document">
                                         <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="modalPustakaLabel">Input Bahan Kajian & Pustaka</h5>
+                                            <h5 class="modal-title" id="modalPustakaLabel">Form Data RPS (Informasi Tambahan)</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                                             <span aria-hidden="true">&times;</span>
                                             </button>
@@ -101,6 +101,14 @@
                                             <form id="formPustaka">
                                                 @csrf
                                                 {{-- <input type="hidden" name="rps_id" value="{{ $datas->id_rps }}"> --}}
+                                                <div class="form-group">
+                                                    <label for="rumpun_mk">Rumpun Mata Kuliah</label>
+                                                    <input type="text" name="rumpun_mk" id="rumpun_mk" class="form-control" value="{{ old('rumpun_mk', $datas->rumpun_mk) }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="deskripsi_mk">Deskripsi Mata Kuliah</label>
+                                                    <textarea name="deskripsi_mk" id="deskripsi_mk_{{ $datas->id_rps }}" rows="5" class="form-control ckeditor">{{ old('deskripsi_mk', $datas->deskripsi_mk) }}</textarea>
+                                                </div>
                                                 <div class="form-group">
                                                     <label for="bahan_kajian">Bahan Kajian</label>
                                                     <textarea name="bahan_kajian" id="bahan_kajian_{{ $datas->id_rps }}" rows="5" class="form-control ckeditor">{{ old('bahan_kajian', $datas->bahan_kajian) }}</textarea>
@@ -185,9 +193,11 @@
         // const rpsId = $('input[name="rps_id"]').val();
         let bahanKajianId = `bahan_kajian_${rpsId}`;
         let pustakaId = `pustaka_${rpsId}`;
+        let deskripsiMkId = `deskripsi_mk_${rpsId}`;
 
         let bahanKajian = editors[bahanKajianId]?.getData() || '';
         let pustaka = editors[pustakaId]?.getData() || '';
+        let deskripsiMk = editors[deskripsiMkId]?.getData() || '';
 
         $.ajax({
             url: "{{ url('dosen/rps/update-kajian-pustaka/') }}/" + rpsId,
@@ -195,13 +205,15 @@
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 bahan_kajian: bahanKajian,
-                pustaka: pustaka
+                pustaka: pustaka,
+                deskripsi_mk: deskripsiMk,
+                rumpun_mk: $('#rumpun_mk').val()
             },
             success: function (response) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
-                    text: 'Data Bahan Kajian & Pustaka berhasil disimpan.',
+                    text: 'Data berhasil disimpan.',
                 }).then(() => {
                     window.location.href = "{{ route('dosen.rps.create', ':id') }}".replace(':id', rpsId);
                 });

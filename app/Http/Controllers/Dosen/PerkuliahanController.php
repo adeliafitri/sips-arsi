@@ -7,6 +7,7 @@ use Dompdf\Options;
 use App\Models\Cpmk;
 use App\Models\Dosen;
 use App\Models\Kelas;
+use setasign\Fpdi\Fpdi;
 use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
@@ -20,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\DaftarMahasiswaFormatExcel;
 use App\Imports\DaftarMahasiswaImportExcel;
+// use Symfony\Component\Console\Output\Output;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PerkuliahanController extends Controller
@@ -547,6 +549,8 @@ class PerkuliahanController extends Controller
             'evaluasi' => 'string',
             'kesimpulan' => 'string',
             'rencana_perbaikan' => 'string',
+            'lampiran2_path' => 'required|mimes:pdf|max:2048',
+            'lampiran4_path' => 'required|mimes:pdf|max:2048',
         ]);
 
         if($validate->fails()){
@@ -555,6 +559,9 @@ class PerkuliahanController extends Controller
                 'message' => $validate->errors()->first(),
             ], 422);
         }
+
+        $lampiran2Path = $request->file('lampiran2_path')->store('public/lampiran');
+        $lampiran4Path = $request->file('lampiran4_path')->store('public/lampiran');
 
         try {
             $evaluasi = KelasKuliah::find($id);
@@ -566,6 +573,8 @@ class PerkuliahanController extends Controller
                 'kesimpulan' => $request->kesimpulan,
                 'evaluasi' => $request->evaluasi,
                 'rencana_perbaikan' => $request->rencana_perbaikan,
+                'lampiran2_path' => $lampiran2Path,
+                'lampiran4_path' => $lampiran4Path,
             ]);
 
             // return redirect()->route('admin.cpl')->with([
@@ -592,7 +601,7 @@ class PerkuliahanController extends Controller
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
         ->select(
             'mata_kuliah.nama_matkul', 'mata_kuliah.kode_matkul','Mata_kuliah.sks', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
-            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan', 'matakuliah_kelas.kehadiran_dosen', 'matakuliah_kelas.kehadiran_mahasiswa', 'matakuliah_kelas.keterangan_kehadiran', 'matakuliah_kelas.pengamatan_kelas', 'matakuliah_kelas.kesimpulan', 'rps.koordinator', 'rps.bahan_kajian', 'rps.pustaka')
+            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan', 'matakuliah_kelas.kehadiran_dosen', 'matakuliah_kelas.kehadiran_mahasiswa', 'matakuliah_kelas.keterangan_kehadiran', 'matakuliah_kelas.pengamatan_kelas', 'matakuliah_kelas.kesimpulan', 'rps.koordinator', 'rps.bahan_kajian', 'rps.pustaka', 'rps.deskripsi_mk', 'rps.rumpun_mk', 'matakuliah_kelas.lampiran2_path', 'matakuliah_kelas.lampiran4_path')
         ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
         ->where('matakuliah_kelas.id', $id)
         ->first();
@@ -967,30 +976,69 @@ class PerkuliahanController extends Controller
         $persentaseTerbesar = max($gradeDistribusi);
         $hurufTerbesar = array_search($persentaseTerbesar, $gradeDistribusi);
 
-         // Mulai membuat laporan PDF
-
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('pages-dosen.perkuliahan.portof_perkuliahan', [
-            'kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'max_persentase' => $persentaseTerbesar, 'huruf_terbesar' => $hurufTerbesar,
-            'cpl' => $cpl, 'cpmk' => $cpmk, 'subcpmk' => $subcpmk, 'tugas' => $groupedTugas, 'total_bobot'=> $totalBobotKeseluruhan, 'rowspan' => $rowspanData, 'koordinator' => $koordinator,
-            'labels_bar' => $labels_bar, 'persentase_bar' => $persentase_bar,'avg_nilai_akhir'=> $avgNilaiAkhir, 'max_nilai_akhir' => $maxNilaiAkhir, 'min_nilai_akhir' => $minNilaiAkhir, 'chartUrls' => $chartUrls, 'barChartUrl' => $barChartUrl,]));
+         // Mulai membuat laporan PDF\
 
         // Atur opsi PDF
-        $options = new Options();
-        $options->set('isRemoteEnabled', true);
+        // $options = new Options();
+        // $options->set('isRemoteEnabled', true);
+
+        // $dompdf = new Dompdf($options);
+
+        $htmlMain = view('pages-dosen.perkuliahan.portof_perkuliahan', [
+            'kelas' => $kelas_matkul, 'mahasiswa_data' => $mahasiswa_data, 'info_soal' => $info_soal, 'max_persentase' => $persentaseTerbesar, 'huruf_terbesar' => $hurufTerbesar,
+            'cpl' => $cpl, 'cpmk' => $cpmk, 'subcpmk' => $subcpmk, 'tugas' => $groupedTugas, 'total_bobot'=> $totalBobotKeseluruhan, 'rowspan' => $rowspanData, 'koordinator' => $koordinator,
+            'labels_bar' => $labels_bar, 'persentase_bar' => $persentase_bar,'avg_nilai_akhir'=> $avgNilaiAkhir, 'max_nilai_akhir' => $maxNilaiAkhir, 'min_nilai_akhir' => $minNilaiAkhir, 'chartUrls' => $chartUrls, 'barChartUrl' => $barChartUrl,])->render();
+        // $dompdf->loadHtml($);
+
+        $mainPdfPath = $this->renderPdfToTemp($htmlMain, 'main_'. $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas);
+
+        $htmlLampiran3 = view('pages-dosen.generate.pdf.portof_lampiran3', [
+            'kelas' => $kelas_matkul,
+            'mahasiswa_data' => $mahasiswa_data,
+            'info_soal' => $info_soal,
+        ])->render();
+
+        $lampiran3Path = $this->renderPdfToTemp($htmlLampiran3, 'lampiran3_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas);
+
+        $lampiran2Path = storage_path('app/' . $kelas_matkul->lampiran2_path);
+        $lampiran4Path = storage_path('app/' . $kelas_matkul->lampiran4_path);
         // define("DOMPDF_ENABLE_REMOTE", false);
 
-        $dompdf->setPaper('A4', 'potrait');
+        $pdf = new Fpdi();
+        $files = [$mainPdfPath, $lampiran2Path, $lampiran3Path, $lampiran4Path];
+
+        foreach ($files as $file) {
+            // if (!file_exists($file)) continue;
+            if (!file_exists($file)) {
+                dd("File tidak ditemukan: " . $file);
+            }
+            $pageCount = $pdf->setSourceFile($file);
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $tpl = $pdf->importPage($pageNo);
+                $size = $pdf->getTemplateSize($tpl);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($tpl);
+            }
+        }
+
+        $filename = 'Portfolio Perkuliahan_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+        $finalPath = storage_path('app/public/lampiran/' . $filename);
+        $pdf->Output($filename, 'D');
+
+        unlink($mainPdfPath);
+        unlink($lampiran3Path);
+        // $dompdf->setPaper('A4', 'potrait');
 
         // Render PDF
-        $dompdf->setOptions($options);
-        $dompdf->render();
+        // $dompdf->setOptions($options);
+        // $dompdf->render();
 
         // Menghasilkan nama file unik untuk laporan
-        $filename = 'Portfolio Perkuliahan_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas . '.pdf';
+
+
 
         // Mengirimkan laporan PDF sebagai respons
-        return $dompdf->stream($filename);
+        // return $dompdf->stream($filename);
     }
 
     private function convertNilaiToHuruf($nilai)
@@ -1019,5 +1067,23 @@ class PerkuliahanController extends Controller
         } else {
             return "Tidak Lulus";
         }
+    }
+
+    // === Helper bikin PDF dari HTML ===
+    function renderPdfToTemp($html, $filename)
+    {
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        // $options->set('defaultFont', 'DejaVu Sans');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $path = storage_path("app/public/lampiran/{$filename}.pdf");
+        file_put_contents($path, $dompdf->output());
+
+        return $path;
     }
 }

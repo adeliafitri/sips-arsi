@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\Dosen;
 
-use App\Http\Controllers\Controller;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\NilaiTugasFormatExcel;
-use App\Exports\NilaiAkhirFormatExcel;
-use App\Imports\NilaiAkhirImportExcel;
-use App\Imports\NilaiTugasImportExcel;
-use App\Models\KelasKuliah;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Models\KelasKuliah;
+use Illuminate\Http\Request;
+use App\Models\NilaiMahasiswa;
+use Illuminate\Support\Facades\DB;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use App\Imports\NilaiAkhirImportNew;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\NilaiAkhirFormatExcel;
+use App\Exports\NilaiTugasFormatExcel;
+use App\Imports\NilaiAkhirImportExcel;
+use App\Imports\NilaiTugasImportExcel;
+use App\Exports\NilaiAkhirDownloadExcel;
+use Illuminate\Support\Facades\Validator;
 
 class NilaiController extends Controller
 {
@@ -378,7 +380,7 @@ class NilaiController extends Controller
         )
         ->where('matakuliah_kelas.id', $id)
         ->first();
-        return Excel::download(new NilaiAkhirFormatExcel($id), 'nilai-akhir-kelas '. $kelas_kuliah->kelas.'-'.$kelas_kuliah->nama_matkul.'.xlsx');
+        return Excel::download(new NilaiAkhirDownloadExcel($id), 'nilai-akhir-kelas '. $kelas_kuliah->kelas.'-'.$kelas_kuliah->nama_matkul.'.xlsx');
     }
 
     public function importExcelNilaiAkhir(Request $request, $id)
@@ -390,7 +392,7 @@ class NilaiController extends Controller
         $file = $request->file('file');
 
 
-        Excel::import(new NilaiAkhirImportExcel($id), $file);
+        Excel::import(new NilaiAkhirImportNew($id), $file);
 
         return redirect()->back()->with('success', 'Data imported successfully.');
     }
