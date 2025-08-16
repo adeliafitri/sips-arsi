@@ -601,7 +601,7 @@ class PerkuliahanController extends Controller
         ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
         ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
         ->select(
-            'mata_kuliah.nama_matkul', 'mata_kuliah.kode_matkul','Mata_kuliah.sks', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
+            'mata_kuliah.nama_matkul', 'mata_kuliah.kode_matkul','mata_kuliah.sks', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
             'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'matakuliah_kelas.evaluasi', 'matakuliah_kelas.rencana_perbaikan', 'matakuliah_kelas.kehadiran_dosen', 'matakuliah_kelas.kehadiran_mahasiswa', 'matakuliah_kelas.keterangan_kehadiran', 'matakuliah_kelas.pengamatan_kelas', 'matakuliah_kelas.kesimpulan', 'rps.koordinator', 'rps.bahan_kajian', 'rps.pustaka', 'rps.deskripsi_mk', 'rps.rumpun_mk', 'matakuliah_kelas.lampiran2_path', 'matakuliah_kelas.lampiran4_path')
         ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
         ->where('matakuliah_kelas.id', $id)
