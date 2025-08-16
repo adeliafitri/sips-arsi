@@ -15,7 +15,11 @@ class Rps extends Model
         'matakuliah_id',
         'semester',
         'tahun_rps',
-        'koordinator'
+        'koordinator',
+        'bahan_kajian',
+        'pustaka',
+        'rumpun_mk',
+        'deskripsi_mk',
     ];
 
     public function cpmk()

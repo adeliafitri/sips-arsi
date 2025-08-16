@@ -8,6 +8,7 @@
                 <th>Kode CPMK</th>
                 <th>Kode Sub CPMK</th>
                 <th>Bentuk Soal</th>
+                <th>Jenis Tugas</th>
                 <th>Bobot Soal</th>
                 <th style="width: 75px">Nilai</th>
             </tr>
@@ -22,6 +23,7 @@
                     <td>{{ $item['kode_cpmk'] }}</td>
                     <td>{{ $item['kode_subcpmk'] }}</td>
                     <td>{{ $item['bentuk_soal'] }}</td>
+                    <td>{{ $item['jenis_tugas'] ?? 'Tidak Ada' }}</td>
                     <td>{{ $item['bobot_soal'] }}%</td>
                     <td>{{ $item['nilai'] }}</td>
                 </tr>

@@ -240,6 +240,21 @@
                                                     </select>
                                                     {{-- <textarea id="bentuk_soal" name="bentuk_soal" style="resize: none; height: 100px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required></textarea> --}}
                                                 </div>
+                                                <!-- Dropdown untuk jenis_tugas -->
+                                                <div class="textinput" style="margin-bottom: 1rem">
+                                                    <label for="jenis_tugas_select">Jenis Tugas</label>
+                                                    <select name="jenis_tugas_select" id="jenis_tugas_select" onchange="toggleInput()" class="form-control select2bs4" style="resize: none; width: 100%; border: 1px solid #ced4da; border-radius: 4px; color: #939ba2; padding: 6px 12px" required>
+                                                        <option value="">-- Pilih Jenis Tugas --</option>
+                                                        @foreach ($jenisTugasList as $jenis)
+                                                            <option value="{{ $jenis }}">{{ $jenis }}</option>
+                                                        @endforeach
+                                                        <option value="lainnya">Lainnya...</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Input tambahan jika user memilih "lainnya" -->
+                                                <input type="text" name="jenis_tugas" id="jenis_tugas_input" placeholder="Tulis jenis tugas baru" class="form-control my-2" style="display: none;">
+
                                                 <div class="row">
                                                     <div class="col-lg-6">
                                                         <label for="bobot">Bobot</label>
@@ -283,11 +298,56 @@
                                                     <button class="btn btn-primary" type="button" id="simpan-soalsubcpmk-edit" style="display: none" onclick="saveEditedSoalSubCpmk()"><i class="nav-icon fas fa-plus mr-2"></i>Simpan Data</button>
                                                 </div>
                                             </form>
+                                            <!-- Tombol Buka Modal -->
+                                            <button type="button" class="btn btn-primary mb-2" id="openModalUpdateJenisTugas">
+                                                Edit Jenis Tugas (Massal)
+                                            </button>
                                             <div id="tabel-tugas"></div>
                                             <button class="btn btn-primary"
                                                 onclick="stepper1.previous()">Sebelumnya</button>
                                             <button type="button" class="btn btn-primary"
                                                 onclick="simpan()">Simpan</button>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="editJenisTugasModal" tabindex="-1" role="dialog" aria-labelledby="editJenisTugasModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <form id="formUpdateJenisTugas" method="POST">
+                                                        @csrf
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="editJenisTugasModalLabel">Edit Jenis Tugas (Massal)</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <!-- isi form -->
+                                                                <div class="mb-3">
+                                                                    <label>Pilih Jenis Tugas</label>
+                                                                    <select name="jenis_tugas_select" class="form-control" onchange="toggleJenisTugasInput(this)" required>
+                                                                        <option value="">-- Pilih Jenis Tugas--</option>
+                                                                        @foreach ($jenisTugasList as $jenis)
+                                                                            <option value="{{ $jenis }}">{{ $jenis }}</option>
+                                                                        @endforeach
+                                                                        <option value="lainnya">Lainnya</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3" id="jenis_tugas_lainnya" style="display: none;">
+                                                                    <label>Jenis Tugas (Lainnya)</label>
+                                                                    <input type="text" name="jenis_tugas" class="form-control" placeholder="Masukkan jenis tugas">
+                                                                </div>
+                                                                <div id="selected_ids_container"></div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-success">Simpan</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <!-- End Modal -->
+
                                         </div>
                                     </div>
                                 </div>
@@ -970,6 +1030,7 @@
                         document.getElementById('subcpmk_' + subcpmkId).checked = true;
                         $('#bentuk_soal').val(response.data.bentuk_soal).change();
                         $('#bobot').val(response.data.bobot_soal);
+                        $('#jenis_tugas_select').val(response.data.jenis_tugas).change();
 
                         var startValue = parseInt(response.minggu_mulai);
                         var endValue = parseInt(response.minggu_akhir);
@@ -1186,6 +1247,29 @@
                     // if (response.status === 'success') {
                         console.log(data);
                         $('#tabel-tugas').html(data);
+
+                        // ✅ CHECK ALL
+                        $(document).off('change', '#checkAll').on('change', '#checkAll', function () {
+                            $('.soal-checkbox').prop('checked', this.checked);
+                        });
+
+                        // ✅ OPEN MODAL + inject ID terpilih
+                        $(document).off('click', '#openModalUpdateJenisTugas').on('click', '#openModalUpdateJenisTugas', function () {
+                            const selected = $('.soal-checkbox:checked');
+                            const container = $('#selected_ids_container');
+                            container.html('');
+
+                            selected.each(function () {
+                                container.append(`<input type="hidden" name="selected_ids[]" value="${$(this).val()}">`);
+                            });
+
+                            if (selected.length === 0) {
+                                alert('Silakan pilih tugas terlebih dahulu.');
+                                return;
+                            }
+
+                            $('#editJenisTugasModal').modal('show');
+                        });
                     // }
                     },
                     error: function(xhr, status, error) {
@@ -1194,6 +1278,53 @@
                     }
                 });
             }
+
+        $(document).on('submit', '#formUpdateJenisTugas', function(e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let formData = form.serialize();
+
+            $.ajax({
+                url: "{{ route('soal.update-jenis-tugas-massal') }}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Tutup modal
+                    $('#editJenisTugasModal').modal('hide');
+
+                    setTimeout(() => {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                    }, 300);
+
+                    // Tampilkan SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: response.message || 'Jenis tugas berhasil diperbarui.',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                    // Refresh tabel
+                    getListTugas();
+                },
+                error: function(xhr) {
+                    let message = 'Terjadi kesalahan.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: message,
+                    });
+                }
+            });
+        });
 
         $(document).on('click', '#tabel-data-tugas .pagination a', function(e) {
             e.preventDefault();
@@ -1302,5 +1433,46 @@
                 }
             });
         }
+
+        function toggleInput() {
+            const select = document.getElementById("jenis_tugas_select");
+            const input = document.getElementById("jenis_tugas_input");
+
+            if (select.value === "lainnya") {
+                input.style.display = "block";
+                input.value = ''; // kosongkan jika sebelumnya ada
+            } else {
+                input.style.display = "none";
+                input.value = select.value; // supaya tetap dikirim via 'jenis_tugas'
+            }
+        }
+
+        // Jika halaman reload karena validasi gagal, tetap tampilkan input manual jika sebelumnya pilih "lainnya"
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleInput();
+        });
+
+        // Saat tombol modal diklik, isi hidden input berdasarkan checkbox yang dicentang
+        document.querySelector('[data-bs-target="#editJenisTugasModal"]').addEventListener('click', function () {
+            const selected = document.querySelectorAll('.soal-checkbox:checked');
+            const container = document.getElementById('selected_ids_container');
+            container.innerHTML = ''; // clear isi lama
+
+            selected.forEach(checkbox => {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'selected_ids[]';
+            hiddenInput.value = checkbox.value;
+            container.appendChild(hiddenInput);
+            });
+        });
+
+        // Tombol "Check All"
+        document.getElementById('checkAll').addEventListener('change', function () {
+            const isChecked = this.checked;
+            document.querySelectorAll('.soal-checkbox').forEach(cb => {
+                cb.checked = isChecked;
+            });
+        });
 </script>
 @endsection

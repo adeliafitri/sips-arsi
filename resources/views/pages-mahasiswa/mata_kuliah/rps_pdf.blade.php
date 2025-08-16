@@ -54,6 +54,7 @@
                 <th>CPMK</th>
                 <th>Sub-CPMK</th>
                 <th>Bentuk Soal</th>
+                <th>Jenis Tugas</th>
                 <th>Bobot Sub-CPMK</th>
             </tr>
         </thead>
@@ -65,11 +66,12 @@
                     <td>{{ $data->kode_cpmk }}</td>
                     <td>{{ $data->kode_subcpmk }}</td>
                     <td>{{ $data->bentuk_soal }}</td>
+                    <td>{{ $data->jenis_tugas ?? 'Tidak Ada' }}</td>
                     <td>{{ $data->bobot_soal }}%</td>
                 </tr>
             @endforeach
                 <tr>
-                    <td colspan="5">Total Bobot</td>
+                    <td colspan="6">Total Bobot</td>
                     <td>{{ $total_bobot }}%</td>
                 </tr>
         </tbody>

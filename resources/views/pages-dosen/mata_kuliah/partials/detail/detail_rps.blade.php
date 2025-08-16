@@ -8,6 +8,7 @@
                 <th>Kode CPMK</th>
                 <th>Kode Sub CPMK</th>
                 <th>Bentuk Soal</th>
+                <th>Jenis Tugas</th>
                 <th>Bobot Soal</th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td>{{ $datas->kode_cpmk }}</td>
                 <td>{{ $datas->kode_subcpmk }}</td>
                 <td>{{ $datas->bentuk_soal }}</td>
+                <td>{{ $datas->jenis_tugas ?? 'Tidak ada'}}</td>
                 <td>{{ $datas->bobot_soal }}%</td>
             </tr>
             @endforeach

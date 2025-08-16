@@ -61,7 +61,8 @@ class RpsImport implements ToCollection
                 [
                     'subcpmk_id' => $subCpmk->id,
                     'soal_id' => $soal->id,
-                    'bobot_soal' => $row[8],
+                    'bobot_soal' => $row[9],
+                    'jenis_tugas' => $row[8],
                     'waktu_pelaksanaan' => $row[1]
                 ],
             );

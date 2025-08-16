@@ -2,11 +2,13 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th><input type="checkbox" id="checkAll"></th>
                 <th style="width: 10px">No</th>
                 <th>Kode CPL</th>
                 <th>Kode CPMK</th>
                 <th>Kode Sub CPMK</th>
                 <th>Bentuk Soal</th>
+                <th>Jenis Tugas</th>
                 <th>Bobot</th>
                 <th>Waktu Pelaksanaan</th>
                 <th style="width: 150px;">Action</th>
@@ -15,11 +17,13 @@
         <tbody>
             @foreach ($data_soalsubcpmk as $unique => $contents)
             <tr>
+                <td><input type="checkbox" class="soal-checkbox" value="{{ $contents->id }}"></td>
                 <td>{{ $start_nosoalsubcpmk++ }}</td>
                 <td>{{ $contents->kode_cpl }}</td>
                 <td>{{ $contents->kode_cpmk}}</td>
                 <td>{{ $contents->kode_subcpmk }}</td>
                 <td>{{ $contents->bentuk_soal }}</td>
+                <td>{{ $contents->jenis_tugas ?? 'Tidak ada' }}</td>
                 <td>{{ $contents->bobot_soal }}%</td>
                 <td>{{ $contents->waktu_pelaksanaan }}</td>
                 <td class="d-flex justify-content-center">
@@ -35,8 +39,8 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="5">Total Bobot</td>
-                <td colspan="3">{{ $total_bobot_rps }}%</td>
+                <td colspan="6">Total Bobot</td>
+                <td colspan="4">{{ $total_bobot_rps }}%</td>
             </tr>
         </tbody>
     </table>

@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers\Mahasiswa;
 
-use App\Http\Controllers\Controller;
-use App\Models\KelasKuliah;
+use App\Models\Semester;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\NilaiAkhirMahasiswa;
-use App\Models\NilaiMahasiswa;
-use App\Models\Semester;
+use App\Models\SurveyForm;
+use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\NilaiMahasiswa;
+use App\Models\SurveyResponse;
 use Illuminate\Support\Facades\DB;
+use App\Models\NilaiAkhirMahasiswa;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class NilaiController extends Controller
 {
     public function index(Request $request)
     {
+        $mahasiswa_id = Auth::user()->id;
         $semester = Semester::all();
         $activeSemester = $semester->where('is_active', true)->first();
         $query = KelasKuliah::join('kelas', 'matakuliah_kelas.kelas_id', '=', 'kelas.id')
@@ -70,6 +73,33 @@ class NilaiController extends Controller
         $nilai = $query->paginate(20);
         // dd($nilai);
         $startNumber = ($nilai->currentPage() - 1) * $nilai->perPage() + 1;
+
+        $formKepuasan = SurveyForm::where('nama_formulir', 'LIKE', '%IKM%')->first();
+        $formKinerja  = SurveyForm::where('nama_formulir',  'LIKE', '%IKD%')->first();
+
+        // Cek jika ditemukan
+        if (!$formKepuasan || !$formKinerja) {
+            abort(404, 'Formulir tidak ditemukan');
+        }
+
+        $idFormKepuasan = $formKepuasan->id;
+        $idFormKinerja  = $formKinerja->id;
+
+        $nilaiTransformed = $nilai->getCollection()->map(function ($item) use ($mahasiswa_id, $idFormKepuasan, $idFormKinerja) {
+            $item->sudah_isi_kuisioner = SurveyResponse::sudahMengisiKuisioner(
+                $mahasiswa_id,
+                $item->id_kelas,    // matakuliah_kelas_id
+                $item->dosen_id,
+                $idFormKepuasan,
+                $idFormKinerja   // dosen_id
+            );
+            return $item;
+        });
+        $nilai->setCollection($nilaiTransformed);
+        // foreach ($nilai as $item) {
+        //     $sudahMengisiKuisioner = $this->sudahMengisiKuisioner($mahasiswa_id, $matakuliah_kelas_id, $dosen_id);
+        // }
+
 
         return view('pages-mahasiswa.perkuliahan.nilai', [
             'data' => $nilai,

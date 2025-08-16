@@ -15,7 +15,8 @@ class SoalSubCpmk extends Model
         'subcpmk_id',
         'soal_id',
         'bobot_soal',
-        'waktu_pelaksanaan'
+        'waktu_pelaksanaan',
+        'jenis_tugas',
     ];
 
     public function sub_cpmk()

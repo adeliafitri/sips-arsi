@@ -110,7 +110,19 @@
                                 </form>
                             </div>
                         </td> --}}
-                        <td>{{ $datas->nilai_akhir }}</td>
+                        {{-- <td>{{ $datas->nilai_akhir }}</td> --}}
+                        <td>
+                            @if ($datas->sudah_isi_kuisioner)
+                                {{ $datas->nilai_akhir }}
+                            @else
+                                <a href="{{ route('mahasiswa.kuisioner.create', [
+                                    'matakuliah_kelas_id' => $datas->id_kelas,
+                                    'dosen_id' => $datas->dosen_id,
+                                ]) }}" class="btn btn-warning btn-sm">
+                                    Isi Kuisioner
+                                </a>
+                            @endif
+                        </td>
                         <td>
                             <div class="d-flex">
                                 <a href="{{ route('mahasiswa.kelaskuliah.nilaimahasiswa', $datas->id_kelas) }}" class="btn btn-info mr-2"><i class="nav-icon far fa-eye"></i></a>
