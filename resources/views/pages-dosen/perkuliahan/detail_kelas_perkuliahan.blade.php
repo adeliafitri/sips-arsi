@@ -46,6 +46,11 @@
                     <p><span class="text-bold">Jumlah Mahasiswa(Aktif) :</span> {{ $jumlah_mahasiswa->jumlah_mahasiswa }}</p>
                 </div>
                 <div class="col-sm-3">
+                    @if(session('error'))
+                        <div class="alert alert-danger mb-2">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <a href="{{ route('dosen.kelaskuliah.generateportof', $data->id) }}" class="btn btn-sm btn-primary"><i class="nav-icon fas fa-download mr-2"></i> Download Portfolio Perkuliahan</a>
                 </div>
             </div>
@@ -122,7 +127,7 @@
               </div>
               <div class="card-body">
               <div class="col-sm-12 mt-3">
-                @if (session('success'))
+                {{-- @if (session('success'))
                     <div class="alert alert-success bg-success" role="alert">
                         {{ session('success') }}
                     </div>
@@ -130,7 +135,7 @@
                     <div class="alert alert-danger bg-danger" role="alert">
                         {{ session('error') }}
                     </div>
-                @endif
+                @endif --}}
               </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">

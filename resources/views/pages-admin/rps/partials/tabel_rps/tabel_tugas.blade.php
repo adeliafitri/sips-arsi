@@ -39,8 +39,8 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="6">Total Bobot</td>
-                <td colspan="4">{{ $total_bobot_rps }}%</td>
+                <td colspan="7">Total Bobot</td>
+                <td colspan="3">{{ $total_bobot_rps }}%</td>
             </tr>
         </tbody>
     </table>
