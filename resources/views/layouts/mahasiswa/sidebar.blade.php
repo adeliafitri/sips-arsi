@@ -58,6 +58,42 @@
                 <p>Data Kelas Perkuliahan</p>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link {{ request()->routeIs(['mahasiswa.kuisioner.create', 'mahasiswa.kuisioner.createPerwalian']) ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-contract"></i>
+                <p>
+                    Kuisioner
+                    <i class="fas fa-angle-left right"></i>
+                    <!-- <span class="badge badge-info right">6</span> -->
+                </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Survey Proses Pembelajaran (IKM & IKD)</p>
+                        </a>
+                    </li>
+                    {{-- <li class="nav-item">
+                        <a href="{{ route('mahasiswa.kuisioner.createSarprasTendikProdi') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Survey Sarpras, Tendik, dan Prodi</p>
+                        </a>
+                    </li> --}}
+                    <li class="nav-item">
+                        <a href="{{ route('mahasiswa.kuisioner.createPerwalian') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Survey Perwalian</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('mahasiswa.kuisioner.createPembimbingan') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Survey Pembimbingan TA</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             @endif
             <li class="nav-item">
                 <a href="#" onclick="logout()" class="nav-link">

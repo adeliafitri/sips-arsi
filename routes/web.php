@@ -423,6 +423,16 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('', [MahasiswaSurveyAnswerController::class, 'create'])->name('mahasiswa.kuisioner.create');
             Route::post('kepuasan-mahasiswa', [MahasiswaSurveyAnswerController::class, 'storeKepuasan'])->name('mahasiswa.kuisioner.storeKepuasan');
             Route::post('kinerja-dosen', [MahasiswaSurveyAnswerController::class, 'storeKinerja'])->name('mahasiswa.kuisioner.storeKinerja');
+
+            Route::get('perwalian', [MahasiswaSurveyAnswerController::class, 'createPerwalian'])->name('mahasiswa.kuisioner.createPerwalian');
+            Route::post('simpan-perwalian', [MahasiswaSurveyAnswerController::class, 'storePerwalian'])->name('mahasiswa.kuisioner.storePerwalian');
+
+            Route::get('pembimbingan-ta', [MahasiswaSurveyAnswerController::class, 'createPembimbingan'])->name('mahasiswa.kuisioner.createPembimbingan');
+            Route::post('simpan-pembimbingan', [MahasiswaSurveyAnswerController::class, 'storePembimbingan'])->name('mahasiswa.kuisioner.storePembimbingan');
+            Route::post('simpan-pembimbingan-2', [MahasiswaSurveyAnswerController::class, 'storePembimbingan2'])->name('mahasiswa.kuisioner.storePembimbingan2');
+
+            Route::get('sarpras-tendik-dan-manajemen-prodi', [MahasiswaSurveyAnswerController::class, 'createSarprasTendikProdi'])->name('mahasiswa.kuisioner.createSarprasTendikProdi');
+            Route::post('simpan-sarpras-tendik-dan-manajemen-prodi', [MahasiswaSurveyAnswerController::class, 'storeSarprasTendikProdi'])->name('mahasiswa.kuisioner.storeSarprasTendikProdi');
         });
     });
 });
