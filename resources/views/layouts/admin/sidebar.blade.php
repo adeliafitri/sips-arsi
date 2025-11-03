@@ -101,6 +101,42 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="#" class="nav-link {{ request()->routeIs(['admin.surveyForm', 'admin.surveyQuestion']) ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file-contract"></i>
+                <p>
+                    Data Kuisioner
+                    <i class="fas fa-angle-left right"></i>
+                    <!-- <span class="badge badge-info right">6</span> -->
+                </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.surveyForm') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data Formulir Kuisioner</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.surveyQuestion') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Pertanyaan Kuisioner</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Hasil Kuisioner</p>
+                        </a>
+                    </li>
+                    {{-- <li class="nav-item">
+                        <a href="{{ route('admin.cpl') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data CPL</p>
+                        </a>
+                    </li> --}}
+                </ul>
+            </li>
+            <li class="nav-item">
                 <a href="#" class="nav-link {{ request()->routeIs(['admin.semester', 'admin.kelas', 'admin.cpl']) ? 'active' : '' }}">
                 <i class="nav-icon fas fa-database"></i>
                 <p>

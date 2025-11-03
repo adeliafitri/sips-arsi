@@ -8,11 +8,20 @@ use App\Models\MataKuliah;
 use App\Models\KelasKuliah;
 use Illuminate\Http\Request;
 use App\Models\NilaiMahasiswa;
+use App\Services\SurveyService;
 use App\Http\Controllers\Controller;
+use App\Models\Dosen;
 use Illuminate\Support\Facades\Auth;
 
 class DosenController extends Controller
 {
+    protected $surveyService;
+
+    public function __construct(SurveyService $surveyService)
+    {
+        $this->surveyService = $surveyService;
+    }
+
     public function dashboard(Request $request) {
         $mahasiswa = Mahasiswa::select('angkatan')->distinct()->orderBy('angkatan')->get();
         $getSemesterAktif = Semester::where('is_active', '1')->first();
@@ -48,13 +57,23 @@ class DosenController extends Controller
             ->orderBy('mata_kuliah.id', 'asc')
             ->get();
 
+        $dosen_id = Dosen::where('id_auth', Auth::user()->id)->first()->id;
+        // dd($dosen_id);
+
+        $dataSurvey = $this->surveyService->getSurveyData($dosen_id, $getSemesterAktif->is_active);
+        // dd($dataSurvey, auth()->id());
+
         return view('pages-dosen.dashboard', [
             'data' => $kelas_kuliah,
             'semester' => $getSemesterAktif,
             'mahasiswa' => $mahasiswa,
             'semesters' => $semesters,
             'mataKuliah' => $mata_kuliah,
-            'selectedMatkul' => $matkulId
+            'selectedMatkul' => $matkulId,
+            'ikm_total'      => $dataSurvey['ikm_total'],
+            'perPertanyaan'  => $dataSurvey['per_pertanyaan'],
+            'ikd_total'      => $dataSurvey['ikd_total'],
+            'ikd_pertanyaan' => $dataSurvey['ikd_pertanyaan'],
         ]);
     }
 
