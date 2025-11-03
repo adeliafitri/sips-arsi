@@ -145,6 +145,33 @@
     </div>
       <!-- /.row -->
       <!-- Main row -->
+    <!-- Chart IKM -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 mb-4">
+                <h5 class="card-title">Indeks Kepuasan Mahasiswa (IKM)</h5>
+                <h3>{{ $ikm_total }}</h3>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 mb-4">
+                <h5 class="card-title">Indeks Kinerja Dosen (IKD)</h5>
+                <h3>{{ $ikd_total }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart IKD -->
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Hasil Survei IKM per Pertanyaan</h5>
+            <canvas id="ikmChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h5>Hasil Survei IKD per Pertanyaan</h5>
+            <canvas id="ikdChart"></canvas>
+        </div>
+    </div>
 
       <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
@@ -154,6 +181,101 @@
 @section('script')
 <script>
     $(document).ready(function() {
+    // Survey Chart
+    const ikmLabels = @json(array_column($perPertanyaan, 'pertanyaan'));
+    const ikmScores = @json(array_column($perPertanyaan, 'skor'));
+
+    const ikdLabels = @json(array_column($ikd_pertanyaan, 'pertanyaan'));
+    const ikdScores = @json(array_column($ikd_pertanyaan, 'skor'));
+
+    // Fungsi untuk potong label panjang
+    function shortenLabel(label, maxLength = 30) {
+        return label.length > maxLength ? label.substr(0, maxLength) + '…' : label;
+    }
+
+    // Chart IKM
+    new Chart(document.getElementById('ikmChart'), {
+        type: 'bar',
+        data: {
+            labels: ikmLabels,
+            datasets: [{
+                label: 'Skor IKM',
+                data: ikmScores,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            // tooltip full pertanyaan
+                            return context[0].label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: function(value, index) {
+                            let label = this.getLabelForValue(value);
+                            return shortenLabel(label, 20);
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            }
+        }
+    });
+
+    // Chart IKD
+    new Chart(document.getElementById('ikdChart'), {
+        type: 'bar',
+        data: {
+            labels: ikdLabels,
+            datasets: [{
+                label: 'Skor IKD',
+                data: ikdScores,
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        callback: function(value, index) {
+                            let label = this.getLabelForValue(value);
+                            return shortenLabel(label, 20);
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            }
+        }
+    });
+
     // Fetch data from the controller
     function chartSmtData(semesterId) {
         $.ajax({
