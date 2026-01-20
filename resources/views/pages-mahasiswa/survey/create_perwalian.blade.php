@@ -39,7 +39,7 @@
                             @endif
                         </div>
                         <div class="card-header d-flex justify-content-end">
-                            <h3 class="card-title col align-self-center">Survey Kepuasan Mahasiswa Terhadap Perwalian</h3>
+                            <h3 class="card-title col align-self-center">Survey Kepuasan Mahasiswa Terhadap Perwalian Tahun {{ $tahunAkademik }} {{ $semester }}</h3>
                         </div>
                         <div class="card-body">
                             <div class="container">
@@ -52,21 +52,25 @@
 
                                         <div class="form-group">
                                             <label for="dosen_id">Dosen Wali</label>
-                                            <select class="form-control select2bs4" id="dosen_id" name="dosen_id">
+                                            <select class="form-control select2bs4" id="dosen_id" name="dosen_id" {{ $isFormDisabled ? 'disabled' : '' }}>
                                                 <option value="">- Pilih Dosen -</option>
                                                 @foreach ($dosen as $id => $name)
-                                                      <option value="{{ $id }}">{{ $name }}</option>
+                                                      <option value="{{ $id }}" {{ $dosenWaliId == $id ? 'selected' : '' }}>{{ $name }}</option>
                                                   @endforeach
                                             </select>
                                         </div>
 
                                         @foreach ($perwalianQuestions as $index => $question)
+                                            @php
+                                                $answer = $existingAnswers->get($question->id);
+                                                $skor_jawaban = $answer ? $answer->skor_jawaban : null;
+                                            @endphp
                                             <div class="mb-3">
                                                 <label><strong>{{ $index + 1 }}. {{ $question->pertanyaan }}</strong></label><br>
                                                 @foreach ($options as $key => $label)
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio"
-                                                            name="jawaban_perwalian[{{ $question->id }}]" value="{{ $key }}" required>
+                                                            name="jawaban_perwalian[{{ $question->id }}]" value="{{ $key }}" required {{ $skor_jawaban == $key ? 'checked' : '' }} {{ $isFormDisabled ? 'disabled' : '' }}>
                                                         <label class="form-check-label">{{ $label }}</label>
                                                     </div>
                                                  @endforeach
@@ -75,11 +79,11 @@
 
                                         <div class="mb-3">
                                             <label for="saran_perwalian"><strong>Saran</strong></label>
-                                            <textarea name="saran_perwalian" class="form-control" rows="3"></textarea>
+                                            <textarea name="saran_perwalian" class="form-control" rows="3" {{ $isFormDisabled ? 'disabled' : '' }}>{{ $existingSuggestion ?? '' }}</textarea>
                                         </div>
 
                                         <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPerwalian()">Kirim Kuisioner</button>
+                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPerwalian()" {{ $isFormDisabled ? 'disabled' : '' }}>Kirim Kuisioner</button>
                                         </div>
                                     </form>
                                 </div>

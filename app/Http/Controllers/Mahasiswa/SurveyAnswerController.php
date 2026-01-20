@@ -11,9 +11,27 @@ use App\Models\SurveyResponse;
 use App\Models\SurveySuggestion;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class SurveyAnswerController extends Controller
 {
+    protected function getCurrentSemesterData()
+    {
+        $submissionTime = Carbon::now();
+        $bulan = $submissionTime->month;
+        $tahun = $submissionTime->year;
+
+        if ($bulan >= 8 || $bulan <= 1) {
+            $semester = 'Ganjil';
+            // Menentukan Tahun Akademik (misal: 2024/2025)
+            $tahunAkademik = $bulan >= 8 ? $tahun . '/' . ($tahun + 1) : ($tahun - 1) . '/' . $tahun;
+        } else {
+            $semester = 'Genap';
+            $tahunAkademik = $tahun . '/' . $tahun;
+        }
+
+        return ['semester' => $semester, 'tahun_akademik' => $tahunAkademik];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -137,6 +155,8 @@ class SurveyAnswerController extends Controller
 
     public function createPerwalian(Request $request)
     {
+        $semesterData = $this->getCurrentSemesterData();
+
         // Ambil semua data dosen
         $dosen = Dosen::pluck('nama', 'id');
 
@@ -149,7 +169,6 @@ class SurveyAnswerController extends Controller
         }
 
         $perwalianQuestions = SurveyQuestion::where('survey_form_id', $formPerwalian->id)->get();
-        // dd($perwalianQuestions, $kinerjaQuestions);
 
         $options = [
             1 => 'Kurang',
@@ -158,6 +177,27 @@ class SurveyAnswerController extends Controller
             4 => 'Sangat Baik',
         ];
 
+        $semester = $semesterData['semester'];
+        $tahunAkademik = $semesterData['tahun_akademik'];
+
+        $responseSudahIsi = SurveyResponse::where('mahasiswa_id', auth()->id())
+            ->where('survey_form_id', $formPerwalian->id)
+            ->where('semester', $semester)
+            ->where('tahun_akademik', $tahunAkademik)
+            ->first();
+
+        $existingAnswers = collect();
+        $existingSuggestion = $responseSudahIsi->saran ?? '';
+        $isFormDisabled = false;
+
+        if ($responseSudahIsi) {
+            $isFormDisabled = true;
+
+            // Ambil jawaban dan atur kunci berdasarkan ID pertanyaan
+            $existingAnswers = SurveyAnswer::where('survey_response_id', $responseSudahIsi->id)
+                ->get()
+                ->keyBy('survey_question_id');
+        }
 
         // Tampilkan form untuk mengisi survey
         return view('pages-mahasiswa.survey.create_perwalian', [
@@ -165,6 +205,12 @@ class SurveyAnswerController extends Controller
             'id_form_perwalian' => $formPerwalian->id,
             'dosen' => $dosen,
             'options' => $options,
+            'isFormDisabled' => $isFormDisabled,
+            'existingAnswers' => $existingAnswers,
+            'existingSuggestion' => $existingSuggestion,
+            'dosenWaliId' => $responseSudahIsi->dosen_id ?? null,
+            'tahunAkademik' => $tahunAkademik,
+            'semester' => $semester,
         ]);
     }
 
@@ -176,32 +222,73 @@ class SurveyAnswerController extends Controller
         ]);
 
         try{
+
+            $semesterData = $this->getCurrentSemesterData();
+            $semester = $semesterData['semester'];
+            $tahunAkademik = $semesterData['tahun_akademik'];
             // Simpan ke survey_responses (header)
-        $surveyResponse = SurveyResponse::create([
-            'survey_form_id' => $request->survey_form_id,
-            'mahasiswa_id' => auth()->id(),
-            // 'matakuliah_kelasid' => $request->matakuliah_kelas_id,
-            'dosen_id' => $request->dosen_id,
-            'saran' => $request->saran_perwalian, // boleh null
-        ]);
-
-        // Simpan setiap jawaban ke survey_answers
-        foreach ($request->jawaban_perwalian as $questionId => $answer) {
-            SurveyAnswer::create([
-                'survey_response_id' => $surveyResponse->id,
-                'survey_question_id' => $questionId,
-                'skor_jawaban' => $answer,
+            $surveyResponse = SurveyResponse::create([
+                'survey_form_id' => $request->survey_form_id,
+                'mahasiswa_id' => auth()->id(),
+                'dosen_id' => $request->dosen_id,
+                'tahun_akademik' => $tahunAkademik,
+                'semester' => $semester,
+                'saran' => $request->saran_perwalian, // boleh null
             ]);
-        }
 
-        return response()->json(['status' => 'success', 'message' => 'Kuisioner Perwalian berhasil disimpan']);
+            // Simpan setiap jawaban ke survey_answers
+            foreach ($request->jawaban_perwalian as $questionId => $answer) {
+                SurveyAnswer::create([
+                    'survey_response_id' => $surveyResponse->id,
+                    'survey_question_id' => $questionId,
+                    'skor_jawaban' => $answer,
+                ]);
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Kuisioner Perwalian berhasil disimpan']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan kuisioner: ' . $e->getMessage()], 500);
         }
     }
 
+    protected function loadExistingData($response) {
+        if (!$response) {
+            return [
+                'isFilled' => false,
+                'answers' => collect(),
+                'suggestion' => null, // Default
+                'kendala_skripsi' => '',
+                'tanggal_sempro' => null,
+                'tanggal_sidang' => null,
+                'dosen_id' => null,
+            ];
+        }
+
+        $answers = SurveyAnswer::where('survey_response_id', $response->id)
+            ->get()
+            ->keyBy('survey_question_id');
+
+        $suggestion = $response->saran ?? null;
+
+        // Ambil data lain yang mungkin Anda perlukan untuk ditampilkan (dari SurveyResponse)
+        // $kendalaSkripsi = $response->kendala_skripsi ? explode(',', $response->kendala_skripsi) : [];
+
+        return [
+            'isFilled' => true,
+            'answers' => $answers,
+            'suggestion' => $suggestion, // Data Saran diambil dari sini
+            'kendala_skripsi' => $response->kendala_skripsi,
+            'tanggal_sempro' => $response->tanggal_sempro,
+            'tanggal_sidang' => $response->tanggal_sidang,
+            'dosen_id' => $response->dosen_id,
+        ];
+    }
+
     public function createPembimbingan(Request $request)
     {
+        $semesterData = $this->getCurrentSemesterData();
+        $semester = $semesterData['semester'];
+        $tahunAkademik = $semesterData['tahun_akademik'];
         // Ambil semua data dosen
         $dosen = Dosen::pluck('nama', 'id');
 
@@ -214,7 +301,30 @@ class SurveyAnswerController extends Controller
         }
 
         $pembimbinganQuestions = SurveyQuestion::where('survey_form_id', $formPembimbingan->id)->get();
-        // dd($pembimbinganQuestions, $kinerjaQuestions);
+
+        $response_dospem1 = SurveyResponse::where('mahasiswa_id', auth()->id())
+            ->where('survey_form_id', $formPembimbingan->id)
+            ->where('semester', $semester)
+            ->where('tahun_akademik', $tahunAkademik)
+            ->whereNotNull('dosen_id') // Asumsi: Pembimbing 1 dan 2 dibedakan dari dosen_id
+            ->first(); // Atau cari berdasarkan dosen_id khusus jika Anda membedakannya
+        // dd($response_dospem1);
+
+        $data_dospem1 = $this->loadExistingData($response_dospem1);
+        // dd($data_dospem1);
+
+        $response_dospem2 = SurveyResponse::where('mahasiswa_id', auth()->id())
+            ->where('survey_form_id', $formPembimbingan->id)
+            ->where('semester', $semester)
+            ->where('tahun_akademik', $tahunAkademik)
+            // Tambahkan kondisi unik untuk Dosen Pembimbing 2 jika ada
+            ->where('id', '!=', $response_dospem1->id ?? 0)
+            ->first();
+
+        $data_dospem2 = $this->loadExistingData($response_dospem2);
+
+        // Tentukan apakah SEMUA survei pembimbingan sudah diisi
+        $isFormDisabled = $data_dospem1['isFilled'] && $data_dospem2['isFilled'];
 
         $options = [
             1 => 'Kurang',
@@ -229,6 +339,25 @@ class SurveyAnswerController extends Controller
             'id_form_pembimbingan' => $formPembimbingan->id,
             'dosen' => $dosen,
             'options' => $options,
+            'isFormDisabled' => $isFormDisabled,
+            'semester' => $semester,
+            'tahunAkademik' => $tahunAkademik,
+
+            'dospem1_isFilled' => $data_dospem1['isFilled'],
+            'dospem1_answers' => $data_dospem1['answers'],
+            'dospem1_suggestion' => $data_dospem1['suggestion'],
+            'dospem1_kendala_skripsi' => $data_dospem1['kendala_skripsi'],
+            'dospem1_tanggal_sempro' => $data_dospem1['tanggal_sempro'],
+            'dospem1_tanggal_sidang' => $data_dospem1['tanggal_sidang'],
+            'dospem1_dosen_id' => $data_dospem1['dosen_id'],
+
+            'dospem2_isFilled' => $data_dospem2['isFilled'],
+            'dospem2_answers' => $data_dospem2['answers'],
+            'dospem2_suggestion' => $data_dospem2['suggestion'],
+            'dospem2_kendala_skripsi' => $data_dospem2['kendala_skripsi'],
+            'dospem2_tanggal_sempro' => $data_dospem2['tanggal_sempro'],
+            'dospem2_tanggal_sidang' => $data_dospem2['tanggal_sidang'],
+            'dospem2_dosen_id' => $data_dospem2['dosen_id'],
         ]);
     }
 
@@ -247,6 +376,9 @@ class SurveyAnswerController extends Controller
         DB::beginTransaction();
 
         try{
+            $semesterData = $this->getCurrentSemesterData();
+            $semester = $semesterData['semester'];
+            $tahunAkademik = $semesterData['tahun_akademik'];
             // Simpan jawaban untuk Pembimbing 1
             if (!empty($validated['dosen_pembimbing1_id'])) {
                 $response1 = SurveyResponse::create([
@@ -256,6 +388,8 @@ class SurveyAnswerController extends Controller
                     'tanggal_sempro'      => $validated['pelaksanaan_seminar'],
                     'tanggal_sidang'      => $validated['pelaksanaan_sidang'],
                     'kendala_skripsi'     => !empty($validated['kendala'])? implode(',', (array) $validated['kendala']): null,
+                    'tahun_akademik'      => $tahunAkademik,
+                    'semester'            => $semester,
                     'saran'               => $validated['saran_pembimbingan'],
                 ]);
 
@@ -292,6 +426,9 @@ class SurveyAnswerController extends Controller
         DB::beginTransaction();
 
         try{
+            $semesterData = $this->getCurrentSemesterData();
+            $semester = $semesterData['semester'];
+            $tahunAkademik = $semesterData['tahun_akademik'];
             // Simpan jawaban untuk Pembimbing 2// Simpan jawaban untuk Pembimbing 2
             if (!empty($validated['dosen_pembimbing2_id'])) {
                 $response2 = SurveyResponse::create([
@@ -301,6 +438,8 @@ class SurveyAnswerController extends Controller
                     'tanggal_sempro'      => $validated['pelaksanaan_seminar2'],
                     'tanggal_sidang'      => $validated['pelaksanaan_sidang2'],
                     'kendala_skripsi'     => !empty($validated['kendala'])? implode(',', (array) $validated['kendala2']): null,
+                    'tahun_akademik'      => $tahunAkademik,
+                    'semester'            => $semester,
                     'saran'               => $validated['saran_pembimbingan2'],
                 ]);
 
@@ -349,10 +488,10 @@ class SurveyAnswerController extends Controller
 
             $kategoriList = [
                 'Laboran' => 'Laboran',
-                'Staf Administrasi' => 'Administrasi',
-                'Manajemen Prodi' => 'Manajemen Prodi',
-                'Visi Misi' => 'Visi Misi',
-                'Roadmap Penelitian' => 'Roadmap Penelitian',
+                'Staf Administrasi' => 'staf_admin',
+                'Manajemen Prodi' => 'manajemen_prodi',
+                'Visi Misi' => 'visi_misi',
+                'Roadmap Penelitian' => 'roadmap_penelitian',
                 'Sarpras' => 'Sarpras',
             ];
 
@@ -419,7 +558,8 @@ class SurveyAnswerController extends Controller
             'nama_staff_admin' => $sudahIsi->nama_staf_administrasi ?? null,
             'tanggal_sempro' => $sudahIsi->tanggal_sempro ?? null,
             'tanggal_sidang' => $sudahIsi->tanggal_sidang ?? null,
-            'kendala_skripsi' => $sudahIsi->kendala_skripsi ? explode(',', $sudahIsi->kendala_skripsi) : [],
+            'kendala_skripsi' => $sudahIsi?->kendala_skripsi ? explode(',', $sudahIsi->kendala_skripsi) : [],
+            // 'kendala_skripsi' => $sudahIsi->kendala_skripsi ? explode(',', $sudahIsi->kendala_skripsi) : [],
             // 'jawabanLaboran' => $jawabanLaboran ?? [],
         ]);
     }
