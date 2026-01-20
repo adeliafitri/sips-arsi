@@ -19,6 +19,8 @@ class SurveyResponse extends Model
         'tanggal_sempro',
         'tanggal_sidang',
         'kendala_skripsi',
+        'tahun_akademik',
+        'semester',
         'saran'
     ];
 
