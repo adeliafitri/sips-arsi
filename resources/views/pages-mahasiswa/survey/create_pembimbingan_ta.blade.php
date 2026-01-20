@@ -39,7 +39,7 @@
                             @endif
                         </div>
                         <div class="card-header d-flex justify-content-end">
-                            <h3 class="card-title col align-self-center">Penilaian Kinerja Pembimbingan Tugas Akhir</h3>
+                            <h3 class="card-title col align-self-center">Penilaian Kinerja Pembimbingan Tugas Akhir Tahun Ajaran {{ $tahunAkademik }} {{ $semester }}</h3>
                         </div>
                         <div class="card-body">
                             <div class="container">
@@ -77,21 +77,25 @@
 
                                                         <div class="form-group">
                                                             <label for="dosen_pembimbing1_id">Dosen Pembimbing 1</label>
-                                                            <select class="form-control select2bs4" id="dosen_pembimbing1_id" name="dosen_pembimbing1_id">
+                                                            <select class="form-control select2bs4" id="dosen_pembimbing1_id" name="dosen_pembimbing1_id" {{ $dospem1_isFilled ? 'disabled' : '' }}>
                                                                 <option value="">- Pilih Dosen -</option>
                                                                 @foreach ($dosen as $id => $name)
-                                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                                    <option value="{{ $id }}" {{ $dospem1_dosen_id == $id ? 'selected' : '' }}>{{ $name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
 
                                                         @foreach ($pembimbinganQuestions as $index => $question)
+                                                            @php
+                                                                $answer = $dospem1_answers->get($question->id);
+                                                                $skor_jawaban = $answer ? $answer->skor_jawaban : null;
+                                                            @endphp
                                                             <div class="mb-3">
                                                                 <label><strong>{{ $index + 1 }}. {{ $question->pertanyaan }}</strong></label><br>
                                                                 @foreach ($options as $key => $label)
                                                                     <div class="form-check form-check-inline">
                                                                         <input class="form-check-input" type="radio"
-                                                                            name="jawaban_pembimbingan[{{ $question->id }}]" value="{{ $key }}" required>
+                                                                            name="jawaban_pembimbingan[{{ $question->id }}]" value="{{ $key }}" required {{ $skor_jawaban == $key ? 'checked' : '' }} {{ $dospem1_isFilled ? 'disabled' : '' }}>
                                                                         <label class="form-check-label">{{ $label }}</label>
                                                                     </div>
                                                                 @endforeach
@@ -100,32 +104,46 @@
 
                                                         <div class="form-group mt-3">
                                                             <label>Pelaksanaan Seminar Proposal</label>
-                                                            <input type="date" name="pelaksanaan_seminar" class="form-control" required>
+                                                            @if ($dospem1_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">{{ $dospem1_tanggal_sempro ?? 'N/A' }}</p>
+                                                            @else
+                                                                <input type="date" name="pelaksanaan_seminar" class="form-control" required>
+                                                            @endif
                                                         </div>
 
                                                         <div class="form-group mt-3">
                                                             <label>Pelaksanaan Sidang</label>
-                                                            <input type="date" name="pelaksanaan_sidang" class="form-control" required>
+                                                            @if ($dospem1_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">{{ $dospem1_tanggal_sidang ?? 'N/A' }}</p>
+                                                            @else
+                                                                <input type="date" name="pelaksanaan_sidang" class="form-control" required>
+                                                            @endif
                                                         </div>
 
                                                         <div class="form-group mt-3">
                                                             <label>Kendala Skripsi</label><br>
-                                                            @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lain-lain'] as $option)
-                                                                <label>
-                                                                    <input type="checkbox" name="kendala[]" value="{{ $option }}"
-                                                                        {{ in_array($option, old('kendala', $kendala ?? [])) ? 'checked' : '' }}>
-                                                                    {{ $option }}
-                                                                </label><br>
-                                                            @endforeach
+                                                            @if ($dospem1_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">
+                                                                    {{ $dospem1_kendala_skripsi ?: 'Tidak ada kendala yang dipilih.' }}
+                                                                </p>
+                                                            @else
+                                                                @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lain-lain'] as $option)
+                                                                    <label>
+                                                                        <input type="checkbox" name="kendala[]" value="{{ $option }}"
+                                                                            {{ in_array($option, old('kendala', [])) ? 'checked' : '' }}>
+                                                                        {{ $option }}
+                                                                    </label><br>
+                                                                @endforeach
+                                                            @endif
                                                         </div>
 
                                                         <div class="mb-3">
                                                             <label for="saran_pembimbingan"><strong>Saran</strong></label>
-                                                            <textarea name="saran_pembimbingan" class="form-control" rows="3"></textarea>
+                                                            <textarea name="saran_pembimbingan" class="form-control" rows="3" {{ $dospem1_isFilled ? 'disabled' : '' }}>{{ $dospem1_suggestion }}</textarea>
                                                         </div>
 
                                                         <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPembimbingan()">Kirim Kuisioner</button>
+                                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPembimbingan()" {{ $dospem1_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -146,21 +164,25 @@
 
                                                         <div class="form-group">
                                                             <label for="dosen_pembimbing2_id">Dosen Pembimbing 2</label><br>
-                                                            <select class="form-control select2bs4" id="dosen_pembimbing2_id" name="dosen_pembimbing2_id">
+                                                            <select class="form-control select2bs4" id="dosen_pembimbing2_id" name="dosen_pembimbing2_id" {{ $dospem2_isFilled ? 'disabled' : '' }}>
                                                                 <option value="">- Pilih Dosen -</option>
                                                                 @foreach ($dosen as $id => $name)
-                                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                                    <option value="{{ $id }}" {{ $dospem1_dosen_id == $id ? 'selected' : '' }}>{{ $name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
 
                                                         @foreach ($pembimbinganQuestions as $index => $question)
+                                                            @php
+                                                                $answer = $dospem2_answers->get($question->id);
+                                                                $skor_jawaban = $answer ? $answer->skor_jawaban : null;
+                                                            @endphp
                                                             <div class="mb-3">
                                                                 <label><strong>{{ $index + 1 }}. {{ $question->pertanyaan }}</strong></label><br>
                                                                 @foreach ($options as $key => $label)
                                                                     <div class="form-check form-check-inline">
                                                                         <input class="form-check-input" type="radio"
-                                                                            name="jawaban_pembimbingan2[{{ $question->id }}]" value="{{ $key }}" required>
+                                                                            name="jawaban_pembimbingan2[{{ $question->id }}]" value="{{ $key }}" required {{ $skor_jawaban == $key ? 'checked' : '' }} {{ $dospem2_isFilled ? 'disabled' : '' }}>
                                                                         <label class="form-check-label">{{ $label }}</label>
                                                                     </div>
                                                                 @endforeach
@@ -169,32 +191,46 @@
 
                                                         <div class="form-group mt-3">
                                                             <label>Pelaksanaan Seminar Proposal</label>
-                                                            <input type="date" name="pelaksanaan_seminar2" class="form-control" required>
+                                                            @if ($dospem2_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">{{ $dospem2_tanggal_sempro ?? 'N/A' }}</p>
+                                                            @else
+                                                                <input type="date" name="pelaksanaan_seminar2" class="form-control" required>
+                                                            @endif
                                                         </div>
 
                                                         <div class="form-group mt-3">
                                                             <label>Pelaksanaan Sidang</label>
-                                                            <input type="date" name="pelaksanaan_sidang2" class="form-control" required>
+                                                            @if ($dospem1_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">{{ $dospem2_tanggal_sidang ?? 'N/A' }}</p>
+                                                            @else
+                                                                <input type="date" name="pelaksanaan_sidang2" class="form-control" required>
+                                                            @endif
                                                         </div>
 
                                                         <div class="form-group mt-3">
                                                             <label>Kendala Skripsi</label><br>
-                                                            @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lainnya'] as $option)
-                                                                <label>
-                                                                    <input type="checkbox" name="kendala2[]" value="{{ $option }}"
-                                                                        {{ in_array($option, old('kendala', $kendala ?? [])) ? 'checked' : '' }}>
-                                                                    {{ $option }}
-                                                                </label><br>
-                                                            @endforeach
+                                                            @if ($dospem2_isFilled)
+                                                                <p class="form-control-static p-2 border rounded bg-light">
+                                                                    {{ $dospem2_kendala_skripsi ?: 'Tidak ada kendala yang dipilih.' }}
+                                                                </p>
+                                                            @else
+                                                                @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lain-lain'] as $option)
+                                                                    <label>
+                                                                        <input type="checkbox" name="kendala2[]" value="{{ $option }}"
+                                                                            {{ in_array($option, old('kendala2', [])) ? 'checked' : '' }}>
+                                                                        {{ $option }}
+                                                                    </label><br>
+                                                                @endforeach
+                                                            @endif
                                                         </div>
 
                                                         <div class="form-group mt-3">
                                                             <label>Saran</label>
-                                                            <textarea name="saran_pembimbingan2" class="form-control" rows="3" required></textarea>
+                                                            <textarea name="saran_pembimbingan2" class="form-control" rows="3" required {{ $dospem2_isFilled ? 'disabled' : '' }}>{{ $dospem2_suggestion }}</textarea>
                                                         </div>
                                                         {{-- <div class="row justify-content-end"> --}}
                                                             <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                                <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addPembimbingan2()">Kirim Kuisioner</button>
+                                                                <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addPembimbingan2()" {{ $dospem2_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
                                                             </div>
                                                         {{-- </div> --}}
                                                     </form>
@@ -204,7 +240,7 @@
                                             <button class="btn btn-primary"
                                                 onclick="stepper1.previous()">Sebelumnya</button>
                                             <button type="button" class="btn btn-primary"
-                                                onclick="simpan()">Simpan</button>
+                                                onclick="simpan()" {{ $dospem1_isFilled && $dospem2_isFilled ? 'disabled' : '' }}>Simpan</button>
                                         </div>
                                     </div>
                                 </div>
