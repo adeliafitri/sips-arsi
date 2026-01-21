@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Mahasiswa;
 
+use Carbon\Carbon;
 use App\Models\Dosen;
+use App\Models\Mahasiswa;
 use App\Models\SurveyForm;
 use App\Models\SurveyAnswer;
 use Illuminate\Http\Request;
@@ -11,7 +13,6 @@ use App\Models\SurveyResponse;
 use App\Models\SurveySuggestion;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 
 class SurveyAnswerController extends Controller
 {
@@ -95,10 +96,11 @@ class SurveyAnswerController extends Controller
         ]);
 
         try{
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
             // Simpan ke survey_responses (header)
         $surveyResponse = SurveyResponse::create([
             'survey_form_id' => $request->survey_form_id,
-            'mahasiswa_id' => auth()->id(),
+            'mahasiswa_id' => $mahasiswa->id,
             'matakuliah_kelasid' => $request->matakuliah_kelas_id,
             'dosen_id' => $request->dosen_id,
             'saran' => $request->saran_kepuasan, // boleh null
@@ -129,14 +131,15 @@ class SurveyAnswerController extends Controller
         ]);
 
         try{
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
             // Simpan ke survey_responses (header)
-        $surveyResponse = SurveyResponse::create([
-            'survey_form_id' => $request->survey_form_id,
-            'mahasiswa_id' => auth()->id(),
-            'matakuliah_kelasid' => $request->matakuliah_kelas_id,
-            'dosen_id' => $request->dosen_id,
-            'saran' => $request->saran_kinerja, // boleh null
-        ]);
+            $surveyResponse = SurveyResponse::create([
+                'survey_form_id' => $request->survey_form_id,
+                'mahasiswa_id' => $mahasiswa->id,
+                'matakuliah_kelasid' => $request->matakuliah_kelas_id,
+                'dosen_id' => $request->dosen_id,
+                'saran' => $request->saran_kinerja, // boleh null
+            ]);
 
         // Simpan setiap jawaban ke survey_answers
         foreach ($request->jawaban_kinerja as $questionId => $answer) {
@@ -180,7 +183,9 @@ class SurveyAnswerController extends Controller
         $semester = $semesterData['semester'];
         $tahunAkademik = $semesterData['tahun_akademik'];
 
-        $responseSudahIsi = SurveyResponse::where('mahasiswa_id', auth()->id())
+        $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
+
+        $responseSudahIsi = SurveyResponse::where('mahasiswa_id', $mahasiswa->id)
             ->where('survey_form_id', $formPerwalian->id)
             ->where('semester', $semester)
             ->where('tahun_akademik', $tahunAkademik)
@@ -226,10 +231,12 @@ class SurveyAnswerController extends Controller
             $semesterData = $this->getCurrentSemesterData();
             $semester = $semesterData['semester'];
             $tahunAkademik = $semesterData['tahun_akademik'];
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
+
             // Simpan ke survey_responses (header)
             $surveyResponse = SurveyResponse::create([
                 'survey_form_id' => $request->survey_form_id,
-                'mahasiswa_id' => auth()->id(),
+                'mahasiswa_id' => $mahasiswa->id,
                 'dosen_id' => $request->dosen_id,
                 'tahun_akademik' => $tahunAkademik,
                 'semester' => $semester,
@@ -302,7 +309,9 @@ class SurveyAnswerController extends Controller
 
         $pembimbinganQuestions = SurveyQuestion::where('survey_form_id', $formPembimbingan->id)->get();
 
-        $response_dospem1 = SurveyResponse::where('mahasiswa_id', auth()->id())
+        $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
+
+        $response_dospem1 = SurveyResponse::where('mahasiswa_id', $mahasiswa->id)
             ->where('survey_form_id', $formPembimbingan->id)
             ->where('semester', $semester)
             ->where('tahun_akademik', $tahunAkademik)
@@ -313,7 +322,9 @@ class SurveyAnswerController extends Controller
         $data_dospem1 = $this->loadExistingData($response_dospem1);
         // dd($data_dospem1);
 
-        $response_dospem2 = SurveyResponse::where('mahasiswa_id', auth()->id())
+        $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
+
+        $response_dospem2 = SurveyResponse::where('mahasiswa_id', $mahasiswa->id)
             ->where('survey_form_id', $formPembimbingan->id)
             ->where('semester', $semester)
             ->where('tahun_akademik', $tahunAkademik)
@@ -379,11 +390,12 @@ class SurveyAnswerController extends Controller
             $semesterData = $this->getCurrentSemesterData();
             $semester = $semesterData['semester'];
             $tahunAkademik = $semesterData['tahun_akademik'];
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
             // Simpan jawaban untuk Pembimbing 1
             if (!empty($validated['dosen_pembimbing1_id'])) {
                 $response1 = SurveyResponse::create([
                     'survey_form_id'      => $validated['survey_form_id'],
-                    'mahasiswa_id'        => auth()->id(), // atau dari sesi
+                    'mahasiswa_id'        => $mahasiswa->id, // atau dari sesi
                     'dosen_id'            => $validated['dosen_pembimbing1_id'],
                     'tanggal_sempro'      => $validated['pelaksanaan_seminar'],
                     'tanggal_sidang'      => $validated['pelaksanaan_sidang'],
@@ -429,11 +441,12 @@ class SurveyAnswerController extends Controller
             $semesterData = $this->getCurrentSemesterData();
             $semester = $semesterData['semester'];
             $tahunAkademik = $semesterData['tahun_akademik'];
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
             // Simpan jawaban untuk Pembimbing 2// Simpan jawaban untuk Pembimbing 2
             if (!empty($validated['dosen_pembimbing2_id'])) {
                 $response2 = SurveyResponse::create([
                     'survey_form_id'      => $validated['survey_form_id'],
-                    'mahasiswa_id'        => auth()->id(),
+                    'mahasiswa_id'        => $mahasiswa->id, // atau dari sesi
                     'dosen_id'            => $validated['dosen_pembimbing2_id'],
                     'tanggal_sempro'      => $validated['pelaksanaan_seminar2'],
                     'tanggal_sidang'      => $validated['pelaksanaan_sidang2'],
@@ -475,8 +488,10 @@ class SurveyAnswerController extends Controller
             abort(404, 'Formulir tidak ditemukan');
         }
 
+        $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
+
         $sudahIsi = SurveyResponse::where('survey_form_id', $form->id)
-            ->where('mahasiswa_id', auth()->id())
+            ->where('mahasiswa_id', $mahasiswa->id)
             ->whereYear('created_at', now()->year)
             ->first();
 
@@ -568,10 +583,11 @@ class SurveyAnswerController extends Controller
     {
          DB::beginTransaction();
         try {
+            $mahasiswa = Mahasiswa::where('id_auth', auth()->id())->first();
             // simpan response utama
             $response = SurveyResponse::create([
                 'survey_form_id' => $request->survey_form_id,
-                'mahasiswa_id'   => auth()->id(),
+                'mahasiswa_id'   => $mahasiswa->id,
                 'nama_laboran' => $request->input('nama_laboran'),
                 'nama_staf_administrasi' => $request->input('nama_staf_administrasi'),
             ]);

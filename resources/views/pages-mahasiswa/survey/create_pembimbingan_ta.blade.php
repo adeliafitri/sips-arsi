@@ -127,8 +127,8 @@
                                                                     {{ $dospem1_kendala_skripsi ?: 'Tidak ada kendala yang dipilih.' }}
                                                                 </p>
                                                             @else
-                                                                @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lain-lain'] as $option)
-                                                                    <label>
+                                                                @foreach (['komunikasi','sarana prasarana','keuangan','motivasi','tidak ada kendala','lainnya'] as $option)
+                                                                    <label class="text-capitalize">
                                                                         <input type="checkbox" name="kendala[]" value="{{ $option }}"
                                                                             {{ in_array($option, old('kendala', [])) ? 'checked' : '' }}>
                                                                         {{ $option }}
@@ -214,7 +214,7 @@
                                                                     {{ $dospem2_kendala_skripsi ?: 'Tidak ada kendala yang dipilih.' }}
                                                                 </p>
                                                             @else
-                                                                @foreach (['Komunikasi','Sarana Prasarana','Keuangan','Motivasi','Tidak ada kendala','Lain-lain'] as $option)
+                                                                @foreach (['komunikasi','sarana prasarana','keuangan','motivasi','tidak ada kendala','lainnya'] as $option)
                                                                     <label>
                                                                         <input type="checkbox" name="kendala2[]" value="{{ $option }}"
                                                                             {{ in_array($option, old('kendala2', [])) ? 'checked' : '' }}>
