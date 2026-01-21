@@ -81,7 +81,8 @@
                                         <div id="test-l-1" class="content" role="tabpanel" aria-labelledby="stepper1trigger1">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <form enctype="multipart/form-data" id="formSarprasTendikProdi">
+                                                    <form enctype="multipart/form-data" id="formSarprasTendikProdi" method="POST"
+    action="{{ route('mahasiswa.kuisioner.storeSarprasTendikProdi') }}">
                                                         @CSRF
                                                         {{-- <input type="hidden" name="matakuliah_kelas_id" value="{{ $matakuliah_kelas_id }}">
                                                         <input type="hidden" name="dosen_id" value="{{ $dosen_id }}"> --}}
@@ -370,8 +371,9 @@
                                             <div id="tabel-subcpmk"></div>
                                             <button class="btn btn-primary"
                                                 onclick="stepper1.previous()">Sebelumnya</button>
-                                                <button type="button" class="btn btn-primary" {{ $sudahIsi ? 'disabled' : '' }}
-                                                onclick="simpan()">Simpan</button>
+                                                {{-- <button type="button" class="btn btn-primary" {{ $sudahIsi ? 'disabled' : '' }}
+                                                onclick="simpan()">Simpan</button> --}}
+                                                <button type="submit" class="btn btn-primary" {{ $sudahIsi ? 'disabled' : '' }}>Simpan</button>
                                             </form>
                                         </div>
                                     </div>
@@ -400,152 +402,14 @@
     //content goes here
     });
 
-    function initializeSlider(startValue, endValue) {
-        var slider = new Slider("#waktu_pelaksanaan", {
-            min: 1,
-            max: 16,
-            range: true,
-            value: [startValue, endValue],
-            tooltip_split: true
-        });
+    $('#formSarprasTendikProdi').on('submit', function (e) {
+        e.preventDefault();
 
-        slider.on("slide", function(slideEvt) {
-            $("#rangeValue1").text(slideEvt[0]);
-            $("#rangeValue2").text(slideEvt[1]);
-            $("#waktu_pelaksanaan_start").val(slideEvt[0]);
-            $("#waktu_pelaksanaan_end").val(slideEvt[1]);
-        });
-    }
-    $(document).ready(function() {
-        initializeSlider(1, 16);
-        // slider.setValue()
-    });
+        const form = $(this);
 
-    function addKepuasan() {
-        var form = $('#formSarprasTendikProdi');
         $.ajax({
             type: 'POST',
-            url: "{{ url('mahasiswa/survey/kepuasan-mahasiswa') }}/",
-            data: form.serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status == "success") {
-                    Swal.fire({
-                    title: "Success!",
-                    text: response.message,
-                    icon: "success"
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        form.find('input, textarea, button').prop('disabled', true);
-                    };
-                });
-                }
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status == 422) {
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Validation Error",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                else{
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Error!",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                // Handle error here
-                console.error(xhr.responseText);
-            }
-        });
-    }
-
-    function addKinerja() {
-        var form = $('#formKinerja');
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('mahasiswa/survey/kinerja-dosen') }}/",
-            data: form.serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status == "success") {
-                    Swal.fire({
-                    title: "Success!",
-                    text: response.message,
-                    icon: "success"
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        form.find('input, textarea, button').prop('disabled', true);
-                    };
-                });
-                }
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status == 422) {
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Validation Error",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                else{
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Error!",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                // Handle error here
-                console.error(xhr.responseText);
-            }
-        });
-    }
-
-    function simpan(){
-        var form = $('#formSarprasTendikProdi');
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('mahasiswa/survey/simpan-sarpras-tendik-dan-manajemen-prodi') }}/",
+            url: form.attr('action'),
             data: form.serialize(),
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -600,7 +464,8 @@
                 console.error(xhr.responseText);
             }
         });
-    }
+    });
+
 
         function toggleInput() {
             const select = document.getElementById("jenis_tugas_select");
