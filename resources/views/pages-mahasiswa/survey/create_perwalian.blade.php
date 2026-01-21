@@ -44,7 +44,8 @@
                         <div class="card-body">
                             <div class="container">
                                 <div class="col-md-12">
-                                    <form enctype="multipart/form-data" id="formPerwalian">
+                                    <form enctype="multipart/form-data" id="formPerwalian" method="POST"
+    action="{{ route('mahasiswa.kuisioner.storePerwalian') }}">
                                         @CSRF
                                         {{-- <input type="hidden" name="matakuliah_kelas_id" value="{{ $matakuliah_kelas_id }}">
                                         <input type="hidden" name="dosen_id" value="{{ $dosen_id }}"> --}}
@@ -83,7 +84,8 @@
                                         </div>
 
                                         <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPerwalian()" {{ $isFormDisabled ? 'disabled' : '' }}>Kirim Kuisioner</button>
+                                            {{-- <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPerwalian()" {{ $isFormDisabled ? 'disabled' : '' }}>Kirim Kuisioner</button> --}}
+                                            <button class="btn btn-primary" type="submit" id="tambah-cpmk" {{ $isFormDisabled ? 'disabled' : '' }}>Kirim Kuisioner</button>
                                         </div>
                                     </form>
                                 </div>
@@ -103,11 +105,14 @@
     //content goes here
     });
 
-    function addPerwalian() {
-        var form = $('#formPerwalian');
+    $('#formPerwalian').on('submit', function (e) {
+        e.preventDefault();
+
+        var form = $(this);
+
         $.ajax({
             type: 'POST',
-            url: "{{ url('mahasiswa/survey/simpan-perwalian') }}/",
+            url: "{{ route('mahasiswa.kuisioner.storePerwalian') }}",
             data: form.serialize(),
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -163,6 +168,6 @@
                 console.error(xhr.responseText);
             }
         });
-    }
+    });
 </script>
 @endsection
