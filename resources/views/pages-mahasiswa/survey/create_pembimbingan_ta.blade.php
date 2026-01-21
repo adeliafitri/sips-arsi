@@ -71,7 +71,7 @@
                                         <div id="test-l-1" class="content" role="tabpanel" aria-labelledby="stepper1trigger1">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <form enctype="multipart/form-data" id="formPembimbingan">
+                                                    <form enctype="multipart/form-data" id="formPembimbingan" method="POST" action="{{ route('mahasiswa.kuisioner.storePembimbingan') }}">
                                                         @CSRF
                                                         <input type="hidden" name="survey_form_id" value="{{ $id_form_pembimbingan }}">
 
@@ -143,7 +143,8 @@
                                                         </div>
 
                                                         <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                            <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPembimbingan()" {{ $dospem1_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
+                                                            <button class="btn btn-primary" type="submit" id="tambah-cpmk" {{ $dospem1_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
+                                                            {{-- <button class="btn btn-primary" type="button" id="tambah-cpmk" onclick="addPembimbingan()" {{ $dospem1_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button> --}}
                                                         </div>
                                                     </form>
                                                 </div>
@@ -156,7 +157,8 @@
                                         <div id="test-l-2" class="content" role="tabpanel" aria-labelledby="stepper1trigger2">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <form enctype="multipart/form-data" id="formPembimbingan2">
+                                                    <form enctype="multipart/form-data" id="formPembimbingan2" method="POST"
+    action="{{ route('mahasiswa.kuisioner.storePembimbingan2') }}">
                                                         @csrf
                                                         {{-- <input type="hidden" name="matakuliah_kelas_id" value="{{ $matakuliah_kelas_id }}">
                                                         <input type="hidden" name="dosen_id" value="{{ $dosen_id }}"> --}}
@@ -215,7 +217,7 @@
                                                                 </p>
                                                             @else
                                                                 @foreach (['komunikasi','sarana prasarana','keuangan','motivasi','tidak ada kendala','lainnya'] as $option)
-                                                                    <label>
+                                                                    <label class="text-capitalize">
                                                                         <input type="checkbox" name="kendala2[]" value="{{ $option }}"
                                                                             {{ in_array($option, old('kendala2', [])) ? 'checked' : '' }}>
                                                                         {{ $option }}
@@ -230,7 +232,8 @@
                                                         </div>
                                                         {{-- <div class="row justify-content-end"> --}}
                                                             <div class="col-md-12 d-flex justify-content-end" style="margin-bottom: 1rem">
-                                                                <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addPembimbingan2()" {{ $dospem2_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
+                                                                <button class="btn btn-primary" type="submit" id="tambah-subcpmk" {{ $dospem2_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button>
+                                                                {{-- <button class="btn btn-primary" type="button" id="tambah-subcpmk" onclick="addPembimbingan2()" {{ $dospem2_isFilled ? 'disabled' : '' }}>Kirim Kuisioner</button> --}}
                                                             </div>
                                                         {{-- </div> --}}
                                                     </form>
@@ -268,71 +271,20 @@
     //content goes here
     });
 
-    function addPembimbingan() {
-        var form = $('#formPembimbingan');
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('mahasiswa/survey/simpan-pembimbingan') }}/",
-            data: form.serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.status == "success") {
-                    Swal.fire({
-                    title: "Success!",
-                    text: response.message,
-                    icon: "success"
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        form.find('input, textarea, button').prop('disabled', true);
-                    };
-                });
-                }
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status == 422) {
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Validation Error",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                else{
-                    var errorMessage = xhr.responseJSON.message;
-                    Swal.fire({
-                    icon: "error",
-                    title:"Error!",
-                    text: errorMessage,
-                }).then((result) => {
-                    // Check if the user clicked "OK"
-                    if (result.isConfirmed) {
-                        // Redirect to the desired URL
-                        // window.location.reload();
-                    };
-                });
-                }
-                // Handle error here
-                console.error(xhr.responseText);
-            }
-        });
-    }
+    $('#formPembimbingan').on('submit', function (e) {
+        e.preventDefault();
+        submitAjax($(this));
+    });
 
-    function addPembimbingan2() {
-        var form = $('#formPembimbingan2');
+    $('#formPembimbingan2').on('submit', function (e) {
+        e.preventDefault();
+        submitAjax($(this));
+    });
+
+    function submitAjax(form) {
         $.ajax({
             type: 'POST',
-            url: "{{ url('mahasiswa/survey/simpan-pembimbingan-2') }}/",
+            url: form.attr('action'),
             data: form.serialize(),
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
