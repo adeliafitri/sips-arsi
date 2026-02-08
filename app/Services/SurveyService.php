@@ -9,13 +9,16 @@ use Illuminate\Support\Facades\DB;
 
 class SurveyService
 {
-    private function calculateSurvey($dosenId, $formId, $semesterAktif)
+    private function calculateSurvey($dosenId, $formId, $tahun, $semester)
     {
+        $semesterDb = ucfirst(strtolower($semester));
+
         $data = SurveyAnswer::join('survey_questions', 'survey_answers.survey_question_id', '=', 'survey_questions.id')
             ->join('survey_responses', 'survey_answers.survey_response_id', '=', 'survey_responses.id')
             ->join('matakuliah_kelas', 'survey_responses.matakuliah_kelasid', '=', 'matakuliah_kelas.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-            ->where('semester.is_active', $semesterAktif)
+            ->where('semester.tahun_ajaran', $tahun)
+            ->where('semester.semester', $semesterDb)
             ->where('survey_responses.dosen_id', $dosenId)
             ->where('survey_responses.survey_form_id', $formId)
             ->select('survey_questions.indikator', DB::raw('AVG(survey_answers.skor_jawaban) as skor'))
@@ -26,7 +29,8 @@ class SurveyService
         $totalSkor = SurveyAnswer::join('survey_responses', 'survey_answers.survey_response_id', '=', 'survey_responses.id')
             ->join('matakuliah_kelas', 'survey_responses.matakuliah_kelasid', '=', 'matakuliah_kelas.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-            ->where('semester.is_active', $semesterAktif)
+            ->where('semester.tahun_ajaran', $tahun)
+            ->where('semester.semester', $semesterDb)
             ->where('survey_responses.dosen_id', $dosenId)
             ->where('survey_responses.survey_form_id', $formId)
             ->sum('survey_answers.skor_jawaban');
@@ -34,7 +38,8 @@ class SurveyService
         $jumlahResponden = SurveyAnswer::join('survey_responses', 'survey_answers.survey_response_id', '=', 'survey_responses.id')
             ->join('matakuliah_kelas', 'survey_responses.matakuliah_kelasid', '=', 'matakuliah_kelas.id')
             ->join('semester', 'matakuliah_kelas.semester_id', '=', 'semester.id')
-            ->where('semester.is_active', $semesterAktif)
+            ->where('semester.tahun_ajaran', $tahun)
+            ->where('semester.semester', $semesterDb)
             ->where('survey_responses.dosen_id', $dosenId)
             ->where('survey_responses.survey_form_id', $formId)
             ->distinct('survey_responses.id')
@@ -59,10 +64,10 @@ class SurveyService
     /**
      * Ambil data survei untuk IKM & IKD sekaligus
      */
-    public function getSurveyData($dosenId, $semesterAktif)
+    public function getSurveyData($dosenId, $tahun, $semester)
     {
-        $ikm = $this->calculateSurvey($dosenId, 1, $semesterAktif); // survey_form_id 2 = IKM
-        $ikd = $this->calculateSurvey($dosenId, 2, $semesterAktif); // survey_form_id 3 = IKD
+        $ikm = $this->calculateSurvey($dosenId, 1, $tahun, $semester); // survey_form_id 2 = IKM
+        $ikd = $this->calculateSurvey($dosenId, 2, $tahun, $semester); // survey_form_id 3 = IKD
 
         return [
             'ikm_total'      => $ikm['ikm_total'],

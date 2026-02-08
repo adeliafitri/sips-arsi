@@ -145,14 +145,51 @@
     </div>
       <!-- /.row -->
       <!-- Main row -->
-    <!-- Chart IKM -->
-    <div class="row mt-4">
+
+    <div class="row align-items-center mb-3">
+        {{-- LEFT : TITLE --}}
+        <div class="col-md-6">
+            <h4 class="mb-0 fw-bold">Hasil Survei IKM & IKD</h4>
+            <h6 class="text-muted">
+                Tahun Ajaran {{ $tahun }} - {{ $semesterSelected }}
+            </h6>
+        </div>
+
+        {{-- RIGHT : FILTER --}}
+        <div class="col-md-6 d-flex justify-content-end">
+            <form method="GET" class="mb-3">
+                <div class="row align-items-end">
+                    <div class="mr-3">
+                        <label>Tahun Ajaran</label>
+                        <select name="tahun_akademik" class="form-control" onchange="this.form.submit()">
+                            @foreach($listTahun as $t)
+                                <option value="{{ $t }}" {{ $t == $tahun ? 'selected' : '' }}>
+                                    {{ $t }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mr-3">
+                        <label>Semester</label>
+                        <select name="semester" class="form-control" onchange="this.form.submit()">
+                            <option value="Ganjil" {{ $semesterSelected=='Ganjil' ? 'selected' : '' }}>Ganjil</option>
+                            <option value="Genap" {{ $semesterSelected=='Genap' ? 'selected' : '' }}>Genap</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3">
         <div class="col-md-6">
             <div class="card shadow-sm p-3 mb-4">
                 <h5 class="card-title">Indeks Kepuasan Mahasiswa (IKM)</h5>
                 <h3>{{ $ikm_total }}</h3>
             </div>
         </div>
+
         <div class="col-md-6">
             <div class="card shadow-sm p-3 mb-4">
                 <h5 class="card-title">Indeks Kinerja Dosen (IKD)</h5>
@@ -161,15 +198,14 @@
         </div>
     </div>
 
-    <!-- Chart IKD -->
     <div class="row">
         <div class="col-md-6">
             <h5>Hasil Survei IKM per Pertanyaan</h5>
-            <canvas id="ikmChart"></canvas>
+            <canvas id="ikmChart" height="150"></canvas>
         </div>
         <div class="col-md-6">
             <h5>Hasil Survei IKD per Pertanyaan</h5>
-            <canvas id="ikdChart"></canvas>
+            <canvas id="ikdChart" height="150"></canvas>
         </div>
     </div>
 
