@@ -60,7 +60,16 @@ class DosenController extends Controller
         $dosen_id = Dosen::where('id_auth', Auth::user()->id)->first()->id;
         // dd($dosen_id);
 
-        $dataSurvey = $this->surveyService->getSurveyData($dosen_id, $getSemesterAktif->is_active);
+        // List tahun ajaran untuk dropdown
+        $listTahun = Semester::select('tahun_ajaran')
+            ->distinct()
+            ->orderBy('tahun_ajaran', 'desc')
+            ->pluck('tahun_ajaran');
+
+        $tahun = $request->tahun_akademik ?? $getSemesterAktif->tahun_ajaran;
+        $semester = $request->semester ?? $getSemesterAktif->semester;
+
+        $dataSurvey = $this->surveyService->getSurveyData($dosen_id, $tahun, $semester);
         // dd($dataSurvey, auth()->id());
 
         return view('pages-dosen.dashboard', [
@@ -74,6 +83,9 @@ class DosenController extends Controller
             'perPertanyaan'  => $dataSurvey['per_pertanyaan'],
             'ikd_total'      => $dataSurvey['ikd_total'],
             'ikd_pertanyaan' => $dataSurvey['ikd_pertanyaan'],
+            'listTahun' => $listTahun,
+            'tahun' => $tahun,
+            'semesterSelected' => ucfirst($semester),
         ]);
     }
 

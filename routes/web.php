@@ -19,15 +19,16 @@ use App\Http\Controllers\Admin\SurveyFormController;
 // use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Mahasiswa\MahasiswaController;
 use App\Http\Controllers\Admin\SurveyQuestionController;
+use App\Http\Controllers\Admin\SurveyEvaluationController;
 use App\Http\Controllers\Admin\CplController as AdminCplController;
-use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
 
+use App\Http\Controllers\Dosen\RpsController as DosenRpsController;
 use App\Http\Controllers\Admin\CpmkController as AdminCpmkController;
 use App\Http\Controllers\Admin\DosenController as AdminDosenController;
 use App\Http\Controllers\Admin\NilaiController as AdminNilaiController;
 use App\Http\Controllers\Dosen\NilaiController as DosenNilaiController;
-use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 
+use App\Http\Controllers\Admin\SubCpmkController as AdminSubCpmkController;
 use App\Http\Controllers\Dosen\ProfileController as DosenProfileController;
 use App\Http\Controllers\Admin\MahasiswaController as AdminMahasiswaController;
 use App\Http\Controllers\Mahasiswa\NilaiController as MahasiswaNilaiController;
@@ -277,6 +278,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('edit/{id}', [SurveyQuestionController::class, 'edit'])->name('admin.surveyQuestion.edit');
             Route::put('edit/{id}', [SurveyQuestionController::class, 'update'])->name('admin.surveyQuestion.update');
             Route::delete('{id}', [SurveyQuestionController::class, 'destroy'])->name('admin.surveyQuestion.destroy');
+        });
+
+        Route::prefix('admin/survey-evaluation')->group(function () {
+            Route::get('perwalian', [SurveyEvaluationController::class, 'evaluasiPerwalian'])->name('admin.evaluasiPerwalian');
         });
     });
 
