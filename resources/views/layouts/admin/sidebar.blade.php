@@ -122,10 +122,46 @@
                         <p>Pertanyaan Kuisioner</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a href="" class="nav-link">
                         <i class="far fa-circle nav-icon"></i>
                         <p>Hasil Kuisioner</p>
+                        </a>
+                    </li> --}}
+                    {{-- <li class="nav-item">
+                        <a href="{{ route('admin.cpl') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Data CPL</p>
+                        </a>
+                    </li> --}}
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link {{ request()->routeIs(['admin.evaluasiPerwalian']) ? 'active' : '' }}">
+                <i class="nav-icon fas fa-chart-pie"></i>
+                <p>
+                    Hasil Kuisioner
+                    <i class="fas fa-angle-left right"></i>
+                    <!-- <span class="badge badge-info right">6</span> -->
+                </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.evaluasiPerwalian') }}" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Perwalian</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Pembimbingan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="" class="nav-link {{ request()->routeIs('admin.matakuliah') ? 'active' : '' }}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Sarpras</p>
                         </a>
                     </li>
                     {{-- <li class="nav-item">
