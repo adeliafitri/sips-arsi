@@ -68,6 +68,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/dashboard/chart-cpl', [AdminController::class, 'chartCplDashboard'])->name('admin.dashboard.chartcpl');
         Route::get('/admin/dashboard/chart-cpl-smt', [AdminController::class, 'chartCplSmtDashboard'])->name('admin.dashboard.chartcplsmt');
+        Route::get('/admin/dashboard/chart-cpl-smt-mk', [AdminController::class, 'chartCplSmtMkDashboard'])->name('admin.dashboard.chartcplsmtmk');
+        Route::get('/admin/dashboard/matkul-by-semester', [AdminController::class, 'getMatkulBySemester'])->name('admin.dashboard.matkul-by-semester');
 
         Route::prefix('admin/user')->group(function () {
             Route::get('/{id}', [ProfileController::class, 'show'])->name('admin.user');
@@ -290,6 +292,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/dosen/dashboard', [DosenController::class, 'dashboard'])->name('dosen.dashboard');
         Route::get('/dosen/dashboard/chart-cpl', [DosenController::class, 'chartCplDashboard'])->name('dosen.dashboard.chartcpl');
         Route::get('/dosen/dashboard/chart-cpl-smt', [DosenController::class, 'chartCplSmtDashboard'])->name('dosen.dashboard.chartcplsmt');
+        Route::get('/dosen/dashboard/chart-cpl-smt-mk', [DosenController::class, 'chartCplSmtMkDashboard'])->name('dosen.dashboard.chartcplsmtmk');
+        Route::get('/dosen/dashboard/matkul-by-semester', [DosenController::class, 'getMatkulBySemester'])->name('dosen.dashboard.matkul-by-semester');
 
         Route::prefix('dosen/user')->group(function () {
             Route::get('/{id}', [DosenProfileController::class, 'show'])->name('dosen.user');
