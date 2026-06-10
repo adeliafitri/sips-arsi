@@ -46,7 +46,7 @@
                              Lihat RPS
                         </button>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('mahasiswa.matakuliah.generatepdf', $data->id_rps) }}"><i class="fas fa-download mr-2"></i> Download PDF</a>
+                          <a class="dropdown-item" href="{{ route('mahasiswa.matakuliah.generatepdf', $data->matakuliah_kelasid) }}"><i class="fas fa-download mr-2"></i> Download PDF</a>
                           <div class="dropdown-divider"></div>
                           <a href="{{ route('mahasiswa.matakuliah.show', $data->id_rps) }}" class="dropdown-item"><i class="fas fa-eye mr-2"></i>Hanya Lihat</a>
                         </div>

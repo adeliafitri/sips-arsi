@@ -120,7 +120,7 @@ class NilaiController extends Controller
             ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
             ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
             ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
-            ->select( 'rps.id as id_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul', 'dosen.nama', 'kelas.nama_kelas', 'semester.tahun_ajaran', 'semester.semester', 'nilaiakhir_mahasiswa.*')
+            ->select('matakuliah_kelas.id as matakuliah_kelasid', 'rps.id as id_rps', 'mata_kuliah.id as id_matkul', 'mata_kuliah.nama_matkul', 'dosen.nama', 'kelas.nama_kelas', 'semester.tahun_ajaran', 'semester.semester', 'nilaiakhir_mahasiswa.*')
             // ->distinct()
             ->where('nilaiakhir_mahasiswa.matakuliah_kelasid', $id)
             ->where('nilaiakhir_mahasiswa.mahasiswa_id', $id_mahasiswa->id)

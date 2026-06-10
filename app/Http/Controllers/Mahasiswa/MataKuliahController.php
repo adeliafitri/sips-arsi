@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Cpl;
 use App\Models\Cpmk;
+use App\Models\Dosen;
 use App\Models\KelasKuliah;
 use App\Models\MataKuliah;
 use App\Models\NilaiAkhirMahasiswa;
 use App\Models\Rps;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 class MataKuliahController extends Controller
 {
@@ -184,30 +185,112 @@ class MataKuliahController extends Controller
     public function generatePdf($id)
     {
         // Ambil data mata kuliah dari database
-        $mata_kuliah= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
-        ->where('rps.id', $id)
+        $kelas_matkul = KelasKuliah::join('rps', 'matakuliah_kelas.rps_id', 'rps.id')
+        ->join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        ->join('kelas', 'matakuliah_kelas.kelas_id', 'kelas.id')
+        ->join('dosen', 'matakuliah_kelas.dosen_id', 'dosen.id')
+        ->join('semester', 'matakuliah_kelas.semester_id', 'semester.id')
+        ->leftJoin('nilaiakhir_mahasiswa', 'matakuliah_kelas.id', '=', 'nilaiakhir_mahasiswa.matakuliah_kelasid')
+        ->select(
+            'mata_kuliah.nama_matkul', 'mata_kuliah.kode_matkul','mata_kuliah.sks', 'kelas.nama_kelas', 'dosen.nama as nama_dosen',
+            'matakuliah_kelas.id as id_kelas', 'semester.tahun_ajaran', 'semester.semester', 'rps.koordinator', 'rps.bahan_kajian', 'rps.pustaka', 'rps.deskripsi_mk', 'rps.rumpun_mk')
+        ->selectRaw('COUNT(nilaiakhir_mahasiswa.mahasiswa_id) as jumlah_mahasiswa')
+        ->where('matakuliah_kelas.id', $id)
         ->first();
 
-        $rps = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        $koordinator = Dosen::find($kelas_matkul->koordinator)?->nama;
+
+        $rps = KelasKuliah::where('id', $id)->select('rps_id')->first();
+
+        $cpl = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        // ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        // ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        // ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('cpl.*')
+        ->distinct()
+        ->orderBy('cpl.kode_cpl', 'asc')
+        ->get();
+
+        $cpmk = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('cpmk.*', 'cpl.kode_cpl')
+        ->orderBy('cpmk.kode_cpmk', 'asc')
+        ->get();
+
+        $subcpmk = Cpmk::join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        ->join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        ->where('rps_id', $rps->rps_id)
+        ->select('sub_cpmk.*', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+        ->orderBy('sub_cpmk.kode_subcpmk', 'asc')
+        ->get();
+
+        $rowspanData = $cpl->count() + $cpmk->count() + $subcpmk->count() + 3;
+
+        $tugas = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
         ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
         ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
         ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
-        ->where('rps_id', $id)
+        ->where('rps_id', $rps->rps_id)
         ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
-        ->orderBy('soal_sub_cpmk.waktu_pelaksanaan', 'asc')
+        ->orderBy('sub_cpmk.id', 'asc')
         ->get();
+
+        $groupedTugas = $tugas->groupBy(function ($item) {
+            return $item->bentuk_soal . '|' . $item->nilai;
+        })->map(function ($items, $key) {
+            return [
+                'bentuk_soal' => $items->first()->bentuk_soal,
+                'jenis_tugas' => $items->first()->jenis_tugas,
+                // 'nilai' => $items->first()->nilai,
+                'bobot_soal' => $items->sum('bobot_soal'),
+                'waktu_pelaksanaan' => $items->first()->waktu_pelaksanaan,
+                'minggu_sort' => (int) filter_var($items->first()->waktu_pelaksanaan, FILTER_SANITIZE_NUMBER_INT),
+                'kode_cpl' => $items->pluck('kode_cpl')->unique()->implode(', '),
+                'kode_cpmk' => $items->pluck('kode_cpmk')->unique()->implode(', '),
+                'kode_subcpmk' => $items->pluck('kode_subcpmk')->unique()->implode(', '),
+            ];
+        })->sortBy('minggu_sort')->values();
 
         $totalBobotKeseluruhan = 0; // Initialize a variable to store the overall total weight
 
-        foreach ($rps as $rpsItem) {
-            $totalBobot = $rpsItem->bobot_soal; // Access the calculated total weight for the current RPS
+        foreach ($tugas as $tugasItem) {
+            $totalBobot = $tugasItem->bobot_soal; // Access the calculated total weight for the current RPS
             $totalBobotKeseluruhan += $totalBobot; // Add the current RPS weight to the overall total
         }
+        // $mata_kuliah= Rps::join('mata_kuliah', 'rps.matakuliah_id', 'mata_kuliah.id')
+        // ->where('rps.id', $id)
+        // ->first();
+
+        // $rps = Cpmk::join('cpl', 'cpmk.cpl_id', 'cpl.id')
+        // ->join('sub_cpmk', 'sub_cpmk.cpmk_id', 'cpmk.id')
+        // ->join('soal_sub_cpmk', 'soal_sub_cpmk.subcpmk_id', 'sub_cpmk.id')
+        // ->join('soal', 'soal_sub_cpmk.soal_id', 'soal.id')
+        // ->where('rps_id', $id)
+        // ->select('soal_sub_cpmk.*', 'sub_cpmk.kode_subcpmk', 'soal.bentuk_soal', 'cpmk.kode_cpmk', 'cpl.kode_cpl')
+        // ->orderBy('soal_sub_cpmk.waktu_pelaksanaan', 'asc')
+        // ->get();
+
+        // $totalBobotKeseluruhan = 0; // Initialize a variable to store the overall total weight
+
+        // foreach ($rps as $rpsItem) {
+        //     $totalBobot = $rpsItem->bobot_soal; // Access the calculated total weight for the current RPS
+        //     $totalBobotKeseluruhan += $totalBobot; // Add the current RPS weight to the overall total
+        // }
 
 
         // Mulai membuat laporan PDF
         $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('pages-mahasiswa.mata_kuliah.rps_pdf', ['rps' => $rps, 'matkul' => $mata_kuliah, 'total_bobot'=> $totalBobotKeseluruhan]));
+        $dompdf->loadHtml(view('pages-mahasiswa.mata_kuliah.rps_pdf', [
+            'kelas' => $kelas_matkul,
+            'koordinator' => $koordinator,
+            'cpl' => $cpl,
+            'cpmk' => $cpmk,
+            'subcpmk' => $subcpmk,
+            'tugas' => $groupedTugas,
+            'total_bobot' => $totalBobotKeseluruhan,
+            'rowspan' => $rowspanData,
+        ]));
 
         // Atur opsi PDF
         $options = new Options();
@@ -218,7 +301,7 @@ class MataKuliahController extends Controller
         $dompdf->render();
 
         // Menghasilkan nama file unik untuk laporan
-        $filename = 'Portfolio_Penilaian_' . $mata_kuliah->nama_matkul . '.pdf';
+        $filename = 'Portfolio_Penilaian_' . $kelas_matkul->nama_matkul . '.pdf';
 
         // Mengirimkan laporan PDF sebagai respons
         return $dompdf->stream($filename);
