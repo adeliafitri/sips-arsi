@@ -148,29 +148,63 @@
 
         <div class="row clearfix" id="chartsContainer"></div>
         <!-- RADAR CHART -->
-        <div class="col-md-6">
-            <div class="card card-info">
-                <div class="card-header">
-                <h3 class="card-title text-capitalize">CPL Semester</h3>
-                <div class="float-right">
-                    <select class="form-control text-capitalize" id="semesterSelect">
-                        @foreach($semesters as $semester)
-                            <option value="{{ $semester->id }}">{{ $semester->tahun_ajaran }} {{ $semester->semester }}</option>
-                        @endforeach
-                    </select>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                    <h3 class="card-title text-capitalize">CPL Semester</h3>
+                    <div class="float-right">
+                        <select class="form-control text-capitalize" id="semesterSelect">
+                            @foreach($semesters as $semester)
+                                <option value="{{ $semester->id }}">{{ $semester->tahun_ajaran }} {{ $semester->semester }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    {{-- <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div> --}}
+                    </div>
+                    <div class="card-body">
+                    <canvas id="radarCPLSemesterDashboard" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                    <!-- /.card-body -->
                 </div>
-                {{-- <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                </div> --}}
-                </div>
-                <div class="card-body">
-                <canvas id="radarCPLSemesterDashboard" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-                <!-- /.card-body -->
+                <!-- /.card -->
             </div>
-            <!-- /.card -->
+
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                    <h3 class="card-title text-capitalize">CPL per Mata Kuliah</h3>
+                    <div class="float-right d-flex align-items-center">
+                        <div class="mr-2" style="min-width: 180px;">
+                            <select class="form-control text-capitalize" id="semesterMatkulSelect">
+                                @foreach($semesters as $semester)
+                                    <option value="{{ $semester->id }}">{{ $semester->tahun_ajaran }} {{ $semester->semester }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div style="min-width: 180px;">
+                            <select class="form-control text-capitalize" id="matkulSelect">
+                                <option value="">Semua Mata Kuliah</option>
+                            </select>
+                        </div>
+                    </div>
+                    {{-- <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div> --}}
+                    </div>
+                    <div class="card-body">
+                    <canvas id="radarCPLMataKuliahDashboard" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
         </div>
         {{-- <div style="clear: both"></div> --}}
       <!-- Main row -->
@@ -235,44 +269,62 @@
 <script>
     $(document).ready(function() {
 
-    // Fetch data from the controller
-    function chartSmtData(semesterId) {
-        $.ajax({
-            url: "{{ url('/admin/dashboard/chart-cpl-smt') }}",
-            type: 'GET',
-            data: {
-                semester_id: semesterId
-            },
-            success: function(response) {
-                var ctx = document.getElementById('radarCPLSemesterDashboard').getContext('2d');
-                var myRadarChart = new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: response.labels,
-                        datasets: [{
-                            label: 'Capaian Pembelajaran Lulusan',
-                            data: response.values,
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scale: {
-                            ticks: {
-                                beginAtZero: true,
-                                min: 0,
-                                max: 100
+        let radarSemesterChart = null;
+
+        function chartSmtData(semesterId) {
+            $.ajax({
+                url: "{{ url('/admin/dashboard/chart-cpl-smt') }}",
+                type: 'GET',
+                data: {
+                    semester_id: semesterId
+                },
+                success: function(response) {
+
+                    const ctx = document
+                        .getElementById('radarCPLSemesterDashboard')
+                        .getContext('2d');
+
+                    // 🔥 destroy chart lama
+                    if (radarSemesterChart) {
+                        radarSemesterChart.destroy();
+                    }
+
+                    radarSemesterChart = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                                label: 'CPL Semester',
+                                data: response.values,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 0
+                            },
+                            hover: {
+                                animationDuration: 0
+                            },
+                            scale: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100
+                                }
                             }
                         }
-                    }
-                });
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-    }
+                    });
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
 
     // Trigger saat semester diubah
     $('#semesterSelect').on('change', function() {
@@ -283,6 +335,103 @@
     // Fetch data saat halaman pertama kali dimuat, menggunakan semester pertama dalam daftar
     var initialSemesterId = $('#semesterSelect').val();
     chartSmtData(initialSemesterId);
+
+    function loadMatkulBySemester(semesterId) {
+        $.ajax({
+            url: "{{ url('/admin/dashboard/matkul-by-semester') }}",
+            data: { semester_id: semesterId },
+            success: function(data) {
+
+                let select = $('#matkulSelect');
+                select.empty();
+                select.append('<option value="">Semua Mata Kuliah</option>');
+
+                data.forEach(function(item) {
+                    select.append(
+                        `<option value="${item.id}">${item.nama_matkul}</option>`
+                    );
+                });
+            }
+        });
+    }
+
+    let radarMkChart = null;
+
+function chartSmtMkData(semesterId, matkulId = null) {
+    $.ajax({
+        url: "{{ url('/admin/dashboard/chart-cpl-smt-mk') }}",
+        type: 'GET',
+        data: {
+            semester_id: semesterId,
+            matkul_id: matkulId
+        },
+        success: function(response) {
+
+            const ctx = document
+                .getElementById('radarCPLMataKuliahDashboard')
+                .getContext('2d');
+
+            // 🔥 destroy chart lama
+            if (radarMkChart) {
+                radarMkChart.destroy();
+            }
+
+            radarMkChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: response.labels,
+                    datasets: [{
+                        label: matkulId ? 'CPL Mata Kuliah' : 'CPL Semester',
+                        data: response.values,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 0
+                    },
+                    hover: {
+                        animationDuration: 0
+                    },
+                    scale: {
+                        ticks: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+    // Trigger saat semester diubah
+    $('#semesterMatkulSelect').on('change', function() {
+        console.log("semester:", $(this).val());
+        var semesterId = $(this).val();
+
+        loadMatkulBySemester(semesterId);
+        chartSmtMkData(semesterId, $('#matkulSelect').val());
+    });
+
+    // Fetch data saat halaman pertama kali dimuat, menggunakan semester pertama dalam daftar
+    var initialMKSemesterId = $('#semesterMatkulSelect').val();
+    chartSmtMkData(initialMKSemesterId);
+
+    $('#matkulSelect').on('change', function() {
+        chartSmtMkData(
+            $('#semesterMatkulSelect').val(),
+            $(this).val()
+        );
+    });
 
     // Function to fetch chart data
     function fetchChartData(startYear, endYear) {
