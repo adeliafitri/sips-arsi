@@ -436,7 +436,7 @@
     </tr>
 </table>
 
-@php
+{{-- @php
     $rubrik = [
         [
             'no' => 1,
@@ -607,10 +607,10 @@
             ]
         ],
     ];
-@endphp
+@endphp --}}
 
 <p>Lampiran 1. Rubrik Deskripsi Penilaian Mahasiswa</p>
-<table class="bordered" style="font-size: 8pt; font-family: 'DejaVu Serif', serif;">
+{{-- <table class="bordered" style="font-size: 8pt; font-family: 'DejaVu Serif', serif;">
     <tr>
         <th rowspan="3" style="width: 5%;">No</th>
         <th rowspan="3">Jenis Tugas</th>
@@ -641,9 +641,9 @@
         @endforeach
     </tr>
     @endforeach
-</table>
+</table> --}}
 
-<p>Lampiran 2: Mingguan perkuliahan</p>
+{{-- <p>Lampiran 2: Mingguan perkuliahan</p> --}}
 <p></p>
 
 {{-- <p>Lampiran 3: Nilai mahasiswa</p> --}}

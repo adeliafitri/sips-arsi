@@ -1001,6 +1001,21 @@ class PerkuliahanController extends Controller
 
         $lampiran3Path = $this->renderPdfToTemp($htmlLampiran3, 'lampiran3_' . $kelas_matkul->nama_matkul . '_Kelas ' . $kelas_matkul->nama_kelas);
 
+        $rubrikPath = resource_path('pdf/lampiran1_rubrik_penilaian.pdf');
+
+        if (!File::exists($rubrikPath)) {
+            return back()->with('error', 'Template rubrik tidak ditemukan.');
+        }
+
+        $htmlCoverLampiran2 = view(
+            'pages-dosen.generate.pdf.cover_lampiran2'
+        )->render();
+
+        $coverLampiran2Path = $this->renderPdfToTemp(
+            $htmlCoverLampiran2,
+            'cover_lampiran2'
+        );
+
         $lampiran2Path = storage_path('app/' . $kelas_matkul->lampiran2_path);
         $lampiran4Path = storage_path('app/' . $kelas_matkul->lampiran4_path);
         // define("DOMPDF_ENABLE_REMOTE", false);
@@ -1015,8 +1030,8 @@ class PerkuliahanController extends Controller
         }
 
         $pdf = new Fpdi();
-        $files = [$mainPdfPath, $lampiran2Path, $lampiran3Path, $lampiran4Path];
-
+        $files = [$mainPdfPath, $rubrikPath, $coverLampiran2Path, $lampiran2Path, $lampiran3Path, $lampiran4Path];
+        // dd($files);
         foreach ($files as $file) {
             // if (!file_exists($file)) continue;
             if (!file_exists($file)) {
@@ -1037,6 +1052,7 @@ class PerkuliahanController extends Controller
 
         unlink($mainPdfPath);
         unlink($lampiran3Path);
+        unlink($coverLampiran2Path);
         // $dompdf->setPaper('A4', 'potrait');
 
         // Render PDF
