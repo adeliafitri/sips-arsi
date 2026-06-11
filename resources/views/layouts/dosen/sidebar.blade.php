@@ -35,6 +35,12 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
+                <a href="" class="nav-link">
+                <i class="fas fa-compass nav-icon"></i>
+                <p>Visi Keilmuan-CPL-Mata Kuliah</p>
+                </a>
+            </li>
+            <li class="nav-item">
                 @if (session()->has('dosen'))
                 <a href="{{ route('dosen.dashboard') }}" class="nav-link {{ request()->routeIs('dosen.dashboard') ? 'active' : '' }}">
                 @endif
@@ -58,6 +64,18 @@
                 <p>
                     Data Kelas Perkuliahan
                 </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="" class="nav-link">
+                <i class="fas fa-clipboard-check nav-icon"></i>
+                <p>Monev Pembelajaran</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="" class="nav-link">
+                <i class="fas fa-handshake nav-icon"></i>
+                <p>Integrasi Riset dan PKM</p>
                 </a>
             </li>
             @endif
