@@ -133,7 +133,7 @@
     }
 
     .signature-space {
-        height: 75px;
+        height: 100px;
     }
   </style>
 </head>
@@ -464,7 +464,7 @@
             Malang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
         </p>
 
-        <p style="margin-top: 10px;">
+        <p>
             Disetujui,<br>
             Ketua Program Studi Teknik Arsitektur
         </p>
@@ -472,12 +472,12 @@
         <div class="signature-space"></div>
 
         <p>
-            <strong>Dr. Agus Subaqin, M.T.</strong><br>
+            Dr. Agus Subaqin, M.T.<br>
             NIP.197408252009011006
         </p>
     </div>
 </div>
-
+<br
 {{-- @php
     $rubrik = [
         [
