@@ -115,6 +115,26 @@
         border-bottom: none !important;
         background: transparent !important;
     }
+    .signature {
+        page-break-inside: avoid;
+        width: 100%;
+        margin-top: 35px;
+    }
+
+    .signature-content {
+        width: 40%;
+        margin-left: 60%;
+        text-align: right;
+    }
+
+    .signature-content p {
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .signature-space {
+        height: 75px;
+    }
   </style>
 </head>
 <body>
@@ -435,6 +455,28 @@
         </td>
     </tr>
 </table>
+
+</table>
+
+<div class="signature">
+    <div class="signature-content">
+        <p>
+            Malang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+        </p>
+
+        <p style="margin-top: 10px;">
+            Disetujui,<br>
+            Ketua Program Studi Teknik Arsitektur
+        </p>
+
+        <div class="signature-space"></div>
+
+        <p>
+            <strong>Dr. Agus Subaqin, M.T.</strong><br>
+            NIP.197408252009011006
+        </p>
+    </div>
+</div>
 
 {{-- @php
     $rubrik = [
