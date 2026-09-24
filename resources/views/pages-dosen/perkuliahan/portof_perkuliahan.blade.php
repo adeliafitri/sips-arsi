@@ -116,24 +116,34 @@
         background: transparent !important;
     }
     .signature {
-        page-break-inside: avoid;
         width: 100%;
+        page-break-inside: avoid;
         margin-top: 35px;
     }
 
     .signature-content {
         width: 40%;
         margin-left: 60%;
-        text-align: right;
+        text-align: right !important;
     }
 
     .signature-content p {
+        text-align: right !important;
         margin: 0;
         line-height: 1.4;
     }
 
     .signature-space {
         height: 100px;
+        text-align: right;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    .signature-image {
+        width: 200px;
+        height: auto;
+        display: inline-block;
     }
   </style>
 </head>
@@ -460,6 +470,7 @@
 
 <div class="signature">
     <div class="signature-content">
+
         <p>
             Malang, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
         </p>
@@ -469,12 +480,17 @@
             Ketua Program Studi Teknik Arsitektur
         </p>
 
-        <div class="signature-space"></div>
+        <div class="signature-space">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(storage_path('app/public/image/TTD_PakAgus_Kaprodi.png'))) }}"
+                 class="signature-image"
+                 alt="">
+        </div>
 
         <p>
             Dr. Agus Subaqin, M.T.<br>
             NIP.197408252009011006
         </p>
+
     </div>
 </div>
 <br
