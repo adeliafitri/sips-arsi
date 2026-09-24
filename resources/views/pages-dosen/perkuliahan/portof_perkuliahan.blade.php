@@ -481,7 +481,7 @@
         </p>
 
         <div class="signature-space">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(storage_path('app/public/image/TTD_PakAgus_Kaprodi.png'))) }}"
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('dist/img/TTD_PakAgus_Kaprodi.png'))) }}"
                  class="signature-image"
                  alt="">
         </div>
